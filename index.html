@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>保活アプリ（指数シミュレーター・園ごと比較、見学メモ）</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* Layout: 1カラム。やわらかい丸みと大きめの文字で、片手・子連れでも読みやすく。色は空色の地に、ミントの主色とコーラルのさし色。 */
+:root{
+  --bg:#eef7fb; --surface:#ffffff; --fg:#1f3340; --muted:#5a7080; --line:#d6e6ee;
+  --accent:#0f8a7a; --accent-fg:#ffffff; --accent-soft:#dff4ee;
+  --pop:#ff7b6b; --pop-soft:#ffe6e1;
+  --plus:#0f8a7a; --minus:#d4493a; --note:#fff1c9; --note-fg:#6a4a00;
+  --field:#f5fafc; --shadow:0 2px 0 rgba(31,51,64,.05), 0 8px 20px rgba(60,120,150,.10);
+  --font-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  --font-body:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10202a; --surface:#18303d; --fg:#e9f3f7; --muted:#a2bac6; --line:#2b4756;
+    --accent:#5fd3bf; --accent-fg:#06231d; --accent-soft:#17403b;
+    --pop:#ff9a8c; --pop-soft:#4a2a28;
+    --plus:#5fd3bf; --minus:#ff9a8c; --note:#3d3213; --note-fg:#ffdf94;
+    --field:#12252f; --shadow:0 8px 20px rgba(0,0,0,.25); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10202a; --surface:#18303d; --fg:#e9f3f7; --muted:#a2bac6; --line:#2b4756;
+  --accent:#5fd3bf; --accent-fg:#06231d; --accent-soft:#17403b;
+  --pop:#ff9a8c; --pop-soft:#4a2a28;
+  --plus:#5fd3bf; --minus:#ff9a8c; --note:#3d3213; --note-fg:#ffdf94;
+  --field:#12252f; --shadow:0 8px 20px rgba(0,0,0,.25); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:17px; font-weight:500; line-height:1.75;
+  padding-block:16px 130px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap{max-width:640px; margin:0 auto; min-width:0}
+header{background:var(--surface); border-radius:24px; padding:12px 12px 16px; margin-bottom:14px; box-shadow:var(--shadow)}
+header .hero{display:block; width:100%; height:auto; margin-bottom:12px}
+header .tag, header h1, header .lead{margin-left:6px; margin-right:6px}
+header .tag{display:inline-block; font-size:12px; line-height:1.5; font-weight:700; color:var(--accent); background:var(--accent-soft); border-radius:12px; padding:2px 10px; margin:0}
+h1{font-family:var(--font-display); font-size:22px; line-height:1.4; margin-top:8px; margin-bottom:4px; text-wrap:balance}
+header p.lead{margin-top:0; margin-bottom:0; color:var(--muted); font-size:12px; line-height:1.6}
+.steps{display:flex; gap:8px; margin:0 0 14px; padding:0; list-style:none; counter-reset:s}
+.steps li{flex:1; font-size:13px; text-align:center; padding:6px 4px; border-radius:999px; background:var(--surface); color:var(--muted); border:2px solid transparent; white-space:nowrap}
+.steps li[aria-current="step"]{border-color:var(--accent); color:var(--fg); font-weight:700; background:var(--accent-soft)}
+.steps li.done{background:var(--accent); color:var(--accent-fg)}
+.panel{background:var(--surface); border-radius:24px; padding:20px 18px; margin-bottom:14px; box-shadow:var(--shadow)}
+h2{font-family:var(--font-display); font-size:20px; margin:0 0 12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+h2::before{content:""; width:10px; height:22px; border-radius:6px; background:var(--pop); flex:none}
+h3{font-size:15px; margin:0 0 6px; color:var(--muted); font-weight:700}
+h3.grp{margin-top:20px; padding:4px 12px; background:var(--accent-soft); color:var(--accent); border-radius:999px; display:inline-block}
+h3.grp:first-of-type{margin-top:0}
+label.field{display:block; font-size:15px; font-weight:700; margin:14px 0 6px}
+select{
+  width:100%; min-height:52px; font:inherit; color:var(--fg); background:var(--field);
+  border:2px solid var(--line); border-radius:16px; padding:8px 12px;
+}
+select:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible, a:focus-visible, textarea:focus-visible{outline:3px solid var(--pop); outline-offset:2px}
+.parent + .parent{margin-top:20px; padding-top:20px; border-top:3px dotted var(--line)}
+.hint{font-size:12px; color:var(--muted); line-height:1.65; margin:6px 0 0}
+.check{display:flex; gap:12px; align-items:flex-start; padding:14px 0; border-top:2px dotted var(--line); min-width:0}
+h3.grp + .check{border-top:0}
+.check input[type="checkbox"]{width:26px; height:26px; margin-top:2px; accent-color:var(--accent); flex:none}
+.check .txt{flex:1; min-width:0}
+.check .txt select{margin-top:8px}
+.check .pt{font-variant-numeric:tabular-nums; font-weight:700; flex:none; min-width:2.6em; text-align:right; font-size:18px}
+.check .pt.p{color:var(--plus)} .check .pt.m{color:var(--minus)}
+.check small{display:block; color:var(--muted); font-size:12px; line-height:1.6}
+.check.off{opacity:.5}
+.no{display:inline-block; font-size:12px; color:var(--muted); background:var(--field); border-radius:999px; padding:0 8px; margin-right:6px; vertical-align:1px}
+.nav{display:flex; gap:10px; margin-top:8px}
+button{font:inherit; font-weight:700; min-height:52px; border-radius:999px; padding:0 22px; cursor:pointer; border:2px solid var(--line); background:var(--surface); color:var(--fg); transition:transform .12s}
+button:active{transform:scale(.97)}
+button.primary{background:var(--accent); color:var(--accent-fg); border-color:var(--accent); flex:1; box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.score{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; background:var(--accent-soft); border-radius:20px; padding:12px 18px}
+.score .num{font-family:var(--font-display); font-size:72px; line-height:1.1; font-weight:700; font-variant-numeric:tabular-nums; color:var(--accent)}
+.score .unit{color:var(--muted); font-size:20px; font-weight:700}
+.rows{margin:14px 0 0; padding:0; list-style:none}
+.rows li{display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-top:2px dotted var(--line); font-size:15px}
+.rows li span:first-child{min-width:0}
+.rows .v{font-variant-numeric:tabular-nums; font-weight:700; flex:none; font-size:17px}
+.rows li.dropped span:first-child{text-decoration:line-through; color:var(--muted)}
+.rows li.dropped .v{color:var(--muted)}
+.rows li small{display:block; color:var(--muted); font-size:11px}
+.notice{background:var(--note); color:var(--note-fg); border-radius:18px; padding:12px 14px; font-size:13px; line-height:1.7}
+.notice ul{margin:0; padding-left:1.2em}
+.locked{border:3px dashed var(--accent); background:var(--accent-soft); border-radius:24px; padding:18px}
+.locked b{font-family:var(--font-display)}
+.locked ul{margin:8px 0 0; padding-left:1.2em; font-size:13px}
+.badge{display:inline-block; font-size:12px; font-weight:700; background:var(--pop); color:#fff; border-radius:999px; padding:1px 10px; margin-right:6px; vertical-align:2px}
+details{margin-top:12px; font-size:13px}
+summary{cursor:pointer; min-height:40px; display:flex; align-items:center; color:var(--accent); font-weight:700}
+details ol, details ul{margin:6px 0 0; padding-left:1.4em}
+details li{margin-bottom:4px}
+.src{font-size:11px; color:var(--muted); line-height:1.7; margin:14px 0 0}
+.src a{color:var(--accent)}
+.bar{
+  position:fixed; left:0; right:0; bottom:0; z-index:5; background:var(--surface); border-radius:24px 24px 0 0; box-shadow:0 -6px 20px rgba(60,120,150,.15);
+  padding-top:10px; padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-left:max(20px, env(safe-area-inset-left, 0px)); padding-right:max(20px, env(safe-area-inset-right, 0px));
+}
+.bar .in{max-width:640px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px}
+.bar .t{font-size:14px; color:var(--muted); font-weight:700}
+.bar .n{font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums}
+.tabs{display:flex; gap:6px; margin:0 0 14px; background:var(--surface); border-radius:999px; padding:5px; box-shadow:var(--shadow)}
+.tabs button{flex:1; min-height:48px; border:0; background:transparent; color:var(--muted); padding:0 4px; font-size:14px; white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--accent); color:var(--accent-fg); box-shadow:none}
+.chip{display:inline-block; font-size:13px; background:var(--field); border-radius:999px; padding:0 10px; margin:0 6px 4px 0; color:var(--muted); white-space:nowrap}
+.chip.g{color:var(--plus); background:var(--accent-soft)}
+.chip.w{color:var(--minus); background:var(--pop-soft)}
+.ex{font-size:12px; background:var(--note); color:var(--note-fg); border-radius:999px; padding:0 8px; margin-right:6px; vertical-align:2px}
+.vcard{border-top:2px dotted var(--line); padding:16px 0; min-width:0}
+.vcard:first-child{border-top:0; padding-top:0}
+.vcard h3{color:var(--fg); font-size:18px; font-family:var(--font-display); margin:0; overflow-wrap:anywhere}
+.vcard .meta{font-size:12px; color:var(--muted); margin:2px 0 6px}
+.vcard .memo{font-size:14px; margin:6px 0 0; overflow-wrap:anywhere; background:var(--field); border-radius:14px; padding:8px 12px}
+.vact{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px}
+.vact button{min-height:44px; padding:0 16px; font-size:14px}
+.vact label{font-size:15px; display:flex; gap:8px; align-items:center; min-height:44px; margin-right:auto}
+.vact input{width:22px; height:22px; accent-color:var(--accent)}
+input[type="text"], input[type="date"], textarea{
+  width:100%; min-height:52px; font:inherit; color:var(--fg); background:var(--field);
+  border:2px solid var(--line); border-radius:16px; padding:8px 12px;
+}
+textarea{min-height:100px; resize:vertical}
+.item{padding:12px 0; border-top:2px dotted var(--line); font-size:15px}
+.seg{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
+.seg label{position:relative; flex:1; min-width:5.5em}
+.seg input{position:absolute; opacity:0; inset:0; width:100%; height:100%; margin:0; cursor:pointer}
+.seg span{display:block; text-align:center; min-height:48px; line-height:44px; border:2px solid var(--line); border-radius:999px; font-size:15px; color:var(--muted); background:var(--field)}
+.seg input:checked + span.g{background:var(--accent-soft); color:var(--plus); border-color:var(--plus); font-weight:700}
+.seg input:checked + span.w{background:var(--pop-soft); color:var(--minus); border-color:var(--minus); font-weight:700}
+.seg input:checked + span.q{background:var(--note); color:var(--note-fg); border-color:var(--note-fg); font-weight:700}
+.seg input:focus-visible + span{outline:3px solid var(--pop); outline-offset:2px}
+.tblwrap{overflow-x:auto; margin-top:8px; border-radius:16px}
+table.cmp{border-collapse:collapse; width:100%; min-width:340px; font-size:14px}
+.cmp th, .cmp td{border-top:2px dotted var(--line); padding:10px 8px; text-align:center; vertical-align:top; font-weight:500}
+.cmp thead th{font-weight:700; border-top:0}
+.cmp th:first-child, .cmp td:first-child{text-align:left; min-width:9em}
+.cmp .s{font-size:18px; font-weight:700}
+.cmp .s.g{color:var(--plus)} .cmp .s.w{color:var(--minus)} .cmp .s.q{color:var(--muted)}
+.err{color:var(--minus); font-size:14px; margin:6px 0 0; font-weight:700}
+.frow{display:flex; gap:10px; align-items:center; justify-content:space-between; padding:14px 0; border-top:2px dotted var(--line); min-width:0}
+.frow:first-child{border-top:0}
+.frow .ftxt{flex:1; min-width:0; overflow-wrap:anywhere; font-size:15px}
+.frow .ftxt b{font-family:var(--font-display); font-size:17px}
+.frow button{min-height:44px; padding:0 14px; font-size:14px; flex:none}
+.ctl{display:flex; gap:10px; flex-wrap:wrap}
+.ctl > div{flex:1; min-width:9em}
+.dist{list-style:none; margin:10px 0 0; padding:0}
+.dist li{display:grid; grid-template-columns:6.8em 1fr 7.4em; gap:8px; align-items:center; padding:6px 0; font-size:14px}
+.dist .track{height:18px; background:var(--field); border-radius:999px; overflow:hidden; min-width:0}
+.dist .track i{display:block; height:100%; background:var(--muted); opacity:.45; border-radius:999px}
+.dist li.me{font-weight:700}
+.dist li.me .track i{background:var(--pop); opacity:1}
+.dist .n{text-align:right; font-variant-numeric:tabular-nums}
+@media (max-width:420px){ .dist li{grid-template-columns:5.6em 1fr 6.2em; font-size:13px} }
+@media (prefers-reduced-motion: reduce){ button{transition:none} }
+
+h1 .sub{display:block; font-size:14px; font-weight:700; color:var(--muted)}
+.about{list-style:none; margin:10px 0 0; padding:0; display:grid; gap:10px}
+.about li{background:var(--field); border-radius:16px; padding:12px 14px; display:grid; gap:2px}
+.about li b{font-family:var(--font-display); font-size:16px}
+.about li span{font-size:13px; color:var(--muted); line-height:1.65}
+.about.plain{gap:6px}
+h3.grp{margin-top:18px}
+h3.grp:first-child{margin-top:0}
+.about.plain li{background:transparent; padding:0 0 0 1.1em; position:relative; font-size:14px}
+.about.plain li::before{content:""; position:absolute; left:0; top:.8em; width:6px; height:6px; border-radius:50%; background:var(--pop)}
+.htbl{width:auto; min-width:100%}
+.htbl th, .htbl td{min-width:5.2em}
+.htbl thead th{white-space:normal; vertical-align:bottom; min-width:6.4em}
+.htbl thead th .area{display:block; width:max-content; margin:3px auto 0}
+.htbl tbody th, .htbl thead th:first-child{position:sticky; left:0; background:var(--surface); z-index:1; min-width:4.6em; width:auto; text-align:left; font-size:12px; color:var(--muted)}
+.fcards{display:grid; gap:10px; margin-top:8px}
+.fcard{background:var(--field); border-radius:18px; padding:10px 12px 12px; min-width:0}
+.fh{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.fh .fn{font-size:16px; overflow-wrap:anywhere; min-width:0}
+.fh .mini{margin-left:auto; background:var(--accent-soft); border-color:transparent; color:var(--accent); min-height:36px}
+.fs{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:8px}
+.fs .st{background:var(--surface); border-radius:12px; padding:6px 4px; text-align:center; display:flex; flex-direction:column; line-height:1.35; min-width:0}
+.fs .lb{font-size:11px; font-weight:700; color:var(--muted)}
+.fs b{font-size:16px}
+.fs small{font-size:11px; color:var(--muted); font-weight:500}
+.item{display:flex; align-items:center; gap:8px; padding:6px 0; font-size:14px}
+.item .il{flex:1; min-width:0; line-height:1.4}
+.item .seg{margin:0; flex:none; gap:4px; flex-wrap:nowrap}
+.seg label{min-width:0}
+.item .seg label{flex:none; width:42px}
+.item .seg span{min-height:34px; line-height:30px; font-size:16px; border-width:2px}
+.ages{margin-top:8px; font-size:13px}
+.ages summary{min-height:34px; font-size:13px}
+.agetbl{width:100%; border-collapse:collapse; font-size:12px}
+.agetbl th, .agetbl td{padding:4px 3px; text-align:center; border-top:1px dotted var(--line); font-weight:500; white-space:nowrap}
+.agetbl thead th{border-top:0; color:var(--muted); font-size:11px}
+.agetbl tbody th{text-align:left}
+.agetbl small{color:var(--muted); font-size:10px}
+.agetbl tr.cur{background:var(--accent-soft)}
+.now{margin-top:8px; background:var(--accent-soft); border-radius:14px; padding:8px 10px}
+.nowh{display:flex; flex-wrap:wrap; gap:2px 8px; align-items:baseline; font-size:12px}
+.nowh b{font-size:13px; font-family:var(--font-display)}
+.nowh span{color:var(--muted)}
+.nowh em{font-style:normal; color:var(--minus); font-weight:700}
+.nowg{display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-top:6px}
+.nc{background:var(--surface); border-radius:10px; text-align:center; padding:3px 0; display:flex; flex-direction:column; line-height:1.3; border:2px solid transparent}
+.nc i{font-style:normal; font-size:10px; color:var(--muted); font-weight:700}
+.nc b{font-size:15px}
+.nc.ok{border-color:var(--plus)} .nc.ok b{color:var(--plus)}
+.nc.zero b{color:var(--muted)} .nc.na{opacity:.55}
+.nonow{font-size:11px; color:var(--muted); margin:8px 0 0}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+table.ftbl, table.vtbl{border-collapse:collapse; width:100%; font-size:13px}
+.ftbl th, .ftbl td, .vtbl th, .vtbl td{border-top:2px dotted var(--line); padding:7px 3px; text-align:center; vertical-align:middle; font-weight:500; line-height:1.4}
+.ftbl thead th, .vtbl thead th{border-top:0; font-size:12px; color:var(--muted); font-weight:700; padding-bottom:4px}
+.ftbl tbody th, .vtbl tbody th{text-align:left; overflow-wrap:anywhere; min-width:0; width:38%}
+.ftbl small, .vtbl small{display:block; font-size:11px; color:var(--muted); font-weight:500}
+.ftbl b, .vtbl b{font-size:14px}
+.area{display:inline-block; font-size:11px; font-weight:700; color:var(--accent); background:var(--accent-soft); border-radius:999px; padding:0 7px; white-space:nowrap; vertical-align:1px}
+.ftbl tbody th{width:44%}
+.ftbl thead th, .vtbl thead th{white-space:nowrap}
+.fn{font-family:var(--font-display); font-size:14px; font-weight:700}
+.vtbl .memo1{overflow:hidden; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical}
+.vtbl .cnt{white-space:nowrap; font-size:13px; font-weight:700}
+.vtbl .cnt .g{color:var(--plus)} .vtbl .cnt .w{color:var(--minus)} .vtbl .cnt .q{color:var(--muted)}
+.vtbl .vb{display:flex; gap:6px; margin-top:6px}
+.ftbl td, .vtbl td{white-space:nowrap}
+.ftbl small, .vtbl td small{white-space:nowrap}
+.vtbl input.big{width:24px; height:24px; accent-color:var(--accent)}
+button.mini{min-height:36px; min-width:36px; padding:0 8px; font-size:13px; border-width:2px}
+.ftbl button.mini{background:var(--accent-soft); border-color:transparent; color:var(--accent); font-size:16px}
+.cmp th, .cmp td{padding:6px 6px}
+.cmp .s{font-size:15px}
+[hidden]{display:none!important}
+body{margin:0}
+img{max-width:100%}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <svg class="hero" viewBox="0 0 360 120" role="img" aria-label="保育園と2人の子どものイラスト">
+<rect width="360" height="120" rx="18" fill="#dff4ee"/>
+<circle cx="316" cy="28" r="15" fill="#ffd36b"/>
+<ellipse cx="60" cy="30" rx="26" ry="9" fill="#fff"/><ellipse cx="78" cy="24" rx="16" ry="9" fill="#fff"/>
+<ellipse cx="250" cy="22" rx="22" ry="7" fill="#fff"/><ellipse cx="264" cy="17" rx="13" ry="7" fill="#fff"/>
+<rect x="0" y="96" width="360" height="24" fill="#bfe6d9"/>
+<rect x="118" y="46" width="124" height="52" rx="6" fill="#ff7b6b"/>
+<path d="M108 50 L180 18 L252 50 Z" fill="#0f8a7a"/>
+<rect x="168" y="68" width="24" height="30" rx="12" fill="#fff"/>
+<rect x="130" y="58" width="22" height="18" rx="5" fill="#fff"/><rect x="208" y="58" width="22" height="18" rx="5" fill="#fff"/>
+<rect x="178" y="6" width="3" height="14" fill="#0f8a7a"/><path d="M181 6 L197 11 L181 16 Z" fill="#ffd36b"/>
+<g><circle cx="82" cy="78" r="11" fill="#ffd9b8"/><rect x="72" y="88" width="20" height="22" rx="9" fill="#0f8a7a"/><circle cx="78" cy="77" r="1.6" fill="#1f3340"/><circle cx="86" cy="77" r="1.6" fill="#1f3340"/></g>
+<g><circle cx="282" cy="86" r="8.5" fill="#ffd9b8"/><rect x="274" y="94" width="16" height="16" rx="7" fill="#ffd36b"/><circle cx="279" cy="85" r="1.4" fill="#1f3340"/><circle cx="285" cy="85" r="1.4" fill="#1f3340"/></g>
+</svg>
+    <p class="tag" id="tag">世田谷区・認可保育園</p>
+    <h1>保活アプリ<span class="sub">（指数シミュレーター・園ごと比較、見学メモ）</span></h1>
+    <p class="lead">入力は2〜3分です。表示は目安で、実際の指数は区の「保育のごあんない」と提出書類で決まります。</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="機能">
+    <button type="button" role="tab" id="tabIndex" aria-selected="true">指数</button>
+    <button type="button" role="tab" id="tabVisit" aria-selected="false">園・見学メモ</button>
+    <button type="button" role="tab" id="tabAbout" aria-selected="false">できること</button>
+  </nav>
+
+  <div id="viewIndex">
+  <ol class="steps" id="steps" aria-label="入力の進み具合">
+    <li>1 就労状況</li>
+    <li>2 世帯の状況</li>
+    <li>3 結果</li>
+  </ol>
+
+  <section class="panel" id="s1" aria-labelledby="h-s1">
+    <h2 id="h-s1">保護者の状況</h2>
+    <p class="notice" style="margin:0 0 6px">最初は入力例が入っています。ご自身の状況に変えてください。</p>
+
+    <div id="yearBox" hidden>
+      <label class="field" for="year">入園年度</label>
+      <select id="year"></select>
+    </div>
+    <label class="field" for="round">申込の選考</label>
+    <select id="round">
+      <option value="first">一次選考</option>
+      <option value="second">二次選考</option>
+    </select>
+
+    <div class="parent" id="parentA"></div>
+    <div class="parent" id="parentB"></div>
+    <div class="nav" style="margin-top:16px"><button class="primary" id="to2" type="button">次へ 世帯の状況</button></div>
+  </section>
+
+  <section class="panel" id="s2" aria-labelledby="h-s2" hidden>
+    <h2 id="h-s2">世帯の状況</h2>
+    <p class="hint" style="margin:0 0 8px">当てはまるものだけ選びます。同時に使えない項目は、指数が高い方だけが数えられます。</p>
+    <div id="adj"></div>
+    <div class="nav" style="margin-top:16px">
+      <button id="back1" type="button">戻る</button>
+      <button class="primary" id="to3" type="button">結果を見る</button>
+    </div>
+  </section>
+
+  <section id="s3" hidden>
+    <div class="panel" aria-live="polite">
+      <h2>予想指数</h2>
+      <div class="score"><span class="num" id="total">0</span><span class="unit">点</span></div>
+      <ul class="rows" id="rows"></ul>
+      <details>
+        <summary>同じ指数のときの優先順位</summary>
+        <ol id="tiebreak"></ol>
+      </details>
+    </div>
+
+    <div class="panel" id="distPanel" aria-labelledby="h-dist">
+      <h2 id="h-dist">昨年入園した子の指数</h2>
+      <p class="hint" style="margin:0 0 6px">令和8年4月に入園した子が、どの指数の区分だったかの分布です(区の公表資料)。</p>
+      <div class="ctl">
+        <div><label class="field" for="dReg">地域</label><select id="dReg"></select></div>
+        <div><label class="field" for="dCls">クラス</label><select id="dCls"></select></div>
+      </div>
+      <p id="dSummary" style="margin:12px 0 0; font-size:14px" aria-live="polite"></p>
+      <ul class="dist" id="dBars"></ul>
+      <details>
+        <summary>この数字の読み方</summary>
+        <ul>
+          <li>入園できた子だけの分布で、申し込んだ人全体ではありません。この区分の人が全員入れる、という意味ではありません。</li>
+          <li>園ごとの分布ではありません。人気の園では、上の区分に偏ります。</li>
+          <li>資料に「選考指数」の算出方法の記載はありません。このシミュレーターの合計と同じ考え方と思われますが、区に確認してください。</li>
+          <li>105点が多いのは、両親ともフルタイム(50点+50点)に、育休明けの加点(+5)がつく世帯が多いためと考えられます(推測)。</li>
+          <li>一次と二次のどちらで入園した子かは、資料に記載がありません。</li>
+          <li>令和9年は、申込者数や指数表が変わる可能性があります。</li>
+        </ul>
+      </details>
+      <p class="src" id="dSrc"></p>
+    </div>
+
+    <div class="notice" style="margin-bottom:14px">
+      <ul id="notices"></ul>
+    </div>
+
+    <div class="locked">
+      <p style="margin:0"><span class="badge">準備中</span><b>この点数で、どの園を狙えるか</b></p>
+      <ul>
+        <li>過去の申込状況をもとに、園ごとの入りやすさを並べて見る</li>
+        <li>希望園を枠いっぱいに並べる順番の提案</li>
+        <li>申込書類の下書きと、誰が何を出すかの管理</li>
+      </ul>
+    </div>
+    <button class="primary" id="toVisit" type="button" style="width:100%; margin-top:14px">見学した園を記録して比べる</button>
+    <p class="src" id="src"></p>
+    <div class="nav" style="margin-top:14px"><button id="back2" type="button">入力に戻る</button></div>
+  </section>
+  </div>
+
+  <div id="viewAbout" hidden>
+    <section class="panel">
+      <h2>このアプリでできること</h2>
+      <p class="hint" style="margin:0 0 4px">世田谷区の認可保育園に申し込む家庭向けの、試作版です。区の公表資料をもとに作っています。</p>
+      <ul class="about">
+        <li><b>予想指数を出す</b><span>保護者の就労状況と世帯の状況を選ぶと、区の指数表で予想指数を計算します。同時に使えない項目の整理も自動です。</span></li>
+        <li><b>昨年入園した子の指数を見る</b><span>地域とクラスごとに、昨年入園した子の指数の分布を表示します。自分の指数がどこに当たるかが分かります。</span></li>
+        <li><b>いまの空きを見る</b><span>区が毎月更新している、各園の空き数(予定)を、0〜5歳のクラスごとに見られます。空きがある園だけに絞ることもできます。</span></li>
+        <li><b>園ごとに倍率を比べる</b><span>令和9年4月の入園可能数と、昨年の申込数から、園ごとの倍率を並べます。縦の表と横の表を切り替えられます。</span></li>
+        <li><b>見学メモをつける</b><span>見学した園の確認項目(○△？)、保護者2人の評価、メモを記録し、最大3園を表で比べられます。</span></li>
+      </ul>
+      <h3 class="grp">使う前に知っておくこと</h3>
+      <ul class="about plain">
+        <li>表示は目安です。実際の指数と結果は、区の「保育のごあんない」と提出書類で決まります。</li>
+        <li>今の倍率は、昨年の申込数を今年の入園可能数で割ったものです。今年の申込者数は区が公表したら差し替えます。</li>
+        <li>見学メモは、このブラウザにだけ保存されます。他の端末や他の人には見えません。</li>
+        <li>今は世田谷区だけに対応しています。</li>
+      </ul>
+      <h3 class="grp">準備中</h3>
+      <ul class="about plain">
+        <li>4園以上の比較</li>
+        <li>予想指数と過去の倍率を重ねた、希望園の並べ方の提案</li>
+        <li>申込書類の下書きと、家族での分担管理</li>
+      </ul>
+      <button class="primary" id="aboutGo" type="button" style="width:100%; margin-top:16px">指数を計算する</button>
+    </section>
+  </div>
+
+  <div id="viewVisit" hidden>
+    <section class="panel">
+      <h2>見学メモ</h2>
+      <p class="hint" style="margin:0 0 10px">見学した園の記録をためて、昨年の倍率と並べて園を比べます。記録はこのブラウザにだけ保存され、他の人には見えません(試作版)。</p>
+      <p class="notice" style="margin:0 0 4px">予想指数 <b id="vScore">0</b> 点(「指数」タブの入力が反映されます)</p>
+      <label class="field" for="vCls">申込むクラス(令和9年4月時点)</label>
+      <select id="vCls"></select>
+      <p class="hint">クラスは生年月日で決まります。区の令和9年度クラス編成表で確認してください。倍率はこのクラスの数字で出ます。</p>
+      <button class="primary" id="vAdd" type="button" style="width:100%; margin-top:12px">見学を追加する</button>
+    </section>
+
+    <section class="panel" id="vForm" hidden aria-labelledby="h-vf">
+      <h2 id="h-vf">見学の記録</h2>
+      <label class="field" for="v-area">地域</label>
+      <select id="v-area"></select>
+      <label class="field" for="v-name">園の名前</label>
+      <input type="text" id="v-name" list="v-names" autocomplete="off">
+      <datalist id="v-names"></datalist>
+      <p class="hint" id="vLink"></p>
+      <label class="field" for="v-date">見学日</label>
+      <input type="date" id="v-date">
+      <h3 class="grp" style="margin-top:18px">確認した項目</h3>
+      <p class="hint" style="margin:0 0 6px"><b>○</b> 良い　<b>△</b> 気になる　<b>？</b> 聞き忘れ。聞けなかった項目は「？」のままにすると、次の見学や問い合わせで確認できます。</p>
+      <div id="vItems"></div>
+      <label class="field" for="v-ra">保護者Aの評価</label>
+      <select id="v-ra"></select>
+      <label class="field" for="v-rb">保護者Bの評価</label>
+      <select id="v-rb"></select>
+      <label class="field" for="v-memo">メモ</label>
+      <textarea id="v-memo"></textarea>
+      <p class="err" id="vErr" hidden></p>
+      <div class="nav" style="margin-top:16px">
+        <button id="vCancel" type="button">やめる</button>
+        <button class="primary" id="vSave" type="button">保存する</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>見学した園 <span id="vCount" style="font-size:14px; color:var(--muted)"></span></h2>
+      <label class="field" for="vSort" style="margin-top:0">並び順</label>
+      <select id="vSort">
+        <option value="added">登録した順</option>
+        <option value="date">見学日が新しい順</option>
+        <option value="rate">昨年の全希望の倍率が低い順</option>
+        <option value="score">評価が高い順</option>
+      </select>
+      <div id="vList" style="margin-top:12px"></div>
+    </section>
+
+    <section class="panel">
+      <h2>園を比べる</h2>
+      <p class="hint" id="vCmpHint" style="margin:0"></p>
+      <div class="tblwrap" id="vCmp"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-find">
+      <h2 id="h-find">園を探す(昨年の倍率)</h2>
+      <p class="hint" id="fIntro" style="margin:0 0 6px">昨年の4月入園(一次選考)で、申込数が入園可能数の何倍だったかを並べています。「第1希望」はその園を第一に希望した人、「全希望」は希望順位に関係なく書いた人の数です。第1希望が少なくても全希望が多い園は、他の園に入れなかった人が集まるため、高い指数が必要になることがあります。指数(点数)による有利・不利は反映していません。昨年の実績で、今年の結果を保証するものではありません。</p>
+      <div class="ctl">
+        <div><label class="field" for="fRegion">地域</label><select id="fRegion"></select></div>
+        <div><label class="field" for="fSort">並び順</label>
+          <select id="fSort">
+            <option value="r2asc">全希望の倍率が低い順</option>
+            <option value="r2desc">全希望の倍率が高い順</option>
+            <option value="r1asc">第1希望の倍率が低い順</option>
+            <option value="r1desc">第1希望の倍率が高い順</option>
+            <option value="nowdesc">いまの空きが多い順</option>
+            <option value="vacdesc">入園可能数が多い順</option>
+            <option value="name">園名順</option>
+          </select></div>
+      </div>
+      <div class="ctl"><div><label class="field" for="fMode">表の向き</label><select id="fMode"><option value="card">カード(園ごとに枠)</option><option value="col">一覧(1園1行)</option><option value="row">横(園を左右に並べる)</option></select></div></div>
+      <label class="check" style="border-top:0"><input type="checkbox" id="fNow"><span class="txt">いま空きがある園だけ(今月・来月入園の空き)</span></label>
+      <label class="check" style="border-top:0"><input type="checkbox" id="fHide" checked><span class="txt">入園可能数が0人・記載のない園を除く</span></label>
+      <p class="hint" id="fCount" style="margin:0"></p>
+      <div id="fList"></div>
+      <button type="button" id="fMore" style="width:100%; margin-top:10px">さらに表示する</button>
+      <p class="src" id="fSrc"></p>
+    </section>
+
+    <div class="locked">
+      <p style="margin:0"><span class="badge">準備中</span><b>希望園の並べ方の提案</b></p>
+      <ul>
+        <li>予想指数と、昨年の倍率や選考結果を重ねて、希望園を枠いっぱいに並べる順番を提案</li>
+        <li>令和9年4月分の入園可能数が公表されたら、倍率を差し替え</li>
+        <li>4園以上の比較</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="bar" aria-live="polite">
+  <div class="in"><span class="t">予想指数(目安)</span><span class="n"><span id="barTotal">0</span> 点</span></div>
+</div>
+
+<!-- 年度別の点数表。次の年度は data/ にファイルを足して、ここに1行足す。 -->
+<script src="r9.js"></script>
+<script src="facilities-r8.js"></script>
+<script src="vacancy-r9.js"></script>
+<script src="now.js"></script>
+<script src="distribution-r8.js"></script>
+
+<script>
+(function(){
+  var $ = function(id){return document.getElementById(id)};
+  var DATA = window.SHISUU_DATA || {};
+  var keys = Object.keys(DATA).sort(function(a,b){return DATA[b].order - DATA[a].order});
+  if(!keys.length){
+    document.querySelector('.wrap').innerHTML = '<p class="notice">点数表を読み込めませんでした。ページを開き直してください。</p>';
+    return;
+  }
+  var Y, state;
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function sign(v){ return v > 0 ? '+'+v : '−'+Math.abs(v); }
+
+  function setYear(key){
+    Y = DATA[key];
+    state = {
+      year:key, round:'first',
+      p:[{cat:'work', idx:0}, {cat:'work', idx:1}],
+      adj:{}
+    };
+    $('tag').textContent = '世田谷区・認可保育園・' + Y.label;
+    buildParent('parentA', 0, '保護者A');
+    buildParent('parentB', 1, '保護者B');
+    buildAdj();
+    $('round').value = 'first';
+    $('src').innerHTML = '点数表の出典: <a href="'+Y.source.url+'" target="_blank" rel="noopener">'+esc(Y.source.name)+'</a>(確認日 '+Y.checkedOn+')<br>申込期限: '+Y.deadlines.map(esc).join(' / ');
+    $('tiebreak').innerHTML = Y.tiebreak.map(function(t){return '<li>'+esc(t)+'</li>'}).join('');
+    $('notices').innerHTML = Y.notices.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')
+      + '<li>この点数は目安です。園ごとの倍率は反映していません。申込前に、保育認定・調整課(03-5432-1200)か、お住まいの地域の総合支所子ども家庭支援課で確認してください。</li>';
+    render();
+  }
+
+  function cat(id){ return Y.categories.filter(function(c){return c.id===id})[0]; }
+
+  function buildParent(boxId, i, title){
+    var box = $(boxId);
+    var cid = boxId + '-cat', did = boxId + '-det';
+    box.innerHTML = '<h3>'+title+'</h3>'
+      + '<label class="field" for="'+cid+'">区分</label><select id="'+cid+'"></select>'
+      + '<label class="field" for="'+did+'">内容</label><select id="'+did+'"></select>'
+      + '<p class="hint" id="'+boxId+'-note"></p>';
+    var cs = $(cid), ds = $(did);
+    cs.innerHTML = Y.categories.map(function(c){return '<option value="'+c.id+'">'+esc(c.label)+'</option>'}).join('');
+    cs.value = state.p[i].cat;
+    function fillDetail(){
+      var c = cat(state.p[i].cat);
+      ds.innerHTML = c.items.map(function(it, k){return '<option value="'+k+'">'+esc(it.l)+'('+it.p+'点)</option>'}).join('');
+      if(state.p[i].idx >= c.items.length) state.p[i].idx = 0;
+      ds.value = state.p[i].idx;
+      $(boxId+'-note').textContent = c.note || '';
+    }
+    fillDetail();
+    cs.addEventListener('change', function(){
+      state.p[i].cat = cs.value; state.p[i].idx = 0; fillDetail();
+      if(cs.value === 'absent') setSingle(true);
+      render();
+    });
+    ds.addEventListener('change', function(){ state.p[i].idx = +ds.value; render(); });
+  }
+
+  function setSingle(on){
+    var cb = $('adj-single');
+    if(cb){ cb.checked = on; state.adj.single = on; }
+  }
+
+  function buildAdj(){
+    var box = $('adj'), html = '', lastG = null;
+    Y.adjustments.forEach(function(a){
+      if(a.g !== lastG){ html += '<h3 class="grp">'+esc(a.g)+'</h3>'; lastG = a.g; }
+      var note = a.n ? '<small>'+esc(a.n)+'</small>' : '';
+      var head = '<span class="no">調整基準'+a.no+'</span>'+esc(a.l);
+      if(a.choices){
+        var opts = '<option value="-1">該当しない</option>' + a.choices.map(function(c,k){return '<option value="'+k+'">'+esc(c.l)+'('+sign(c.p)+')</option>'}).join('');
+        html += '<div class="check" id="row-'+a.id+'"><span class="txt">'+head+note+'<select id="adj-'+a.id+'" aria-label="'+esc(a.l)+'">'+opts+'</select></span></div>';
+      } else {
+        html += '<label class="check" id="row-'+a.id+'"><input type="checkbox" id="adj-'+a.id+'"><span class="txt">'+head+note+'</span><span class="pt '+(a.p>0?'p':'m')+'">'+sign(a.p)+'</span></label>';
+      }
+    });
+    box.innerHTML = html;
+    Y.adjustments.forEach(function(a){
+      var el = $('adj-'+a.id);
+      el.addEventListener('change', function(){
+        state.adj[a.id] = a.choices ? (+el.value) : el.checked;
+        render();
+      });
+    });
+  }
+
+  function syncSecondOnly(){
+    Y.adjustments.forEach(function(a){
+      if(!a.secondOnly) return;
+      var ok = state.round === 'second';
+      var el = $('adj-'+a.id), row = $('row-'+a.id);
+      el.disabled = !ok; row.classList.toggle('off', !ok);
+      if(!ok){ el.checked = false; state.adj[a.id] = false; }
+    });
+  }
+
+  /* 計算: 保護者ごとの指数(各50まで)+調整基準。同時に使えない項目は高い方だけ数える。 */
+  function calc(){
+    var rows = [], total = 0;
+    state.p.forEach(function(p, i){
+      var c = cat(p.cat), it = c.items[p.idx], v = Math.min(it.p, 50);
+      rows.push({t:'保護者'+(i?'B':'A')+' '+c.label.replace(/\(.*?\)/,''), s:it.l, v:v});
+      total += v;
+    });
+    var sel = {};
+    Y.adjustments.forEach(function(a){
+      var s = state.adj[a.id];
+      if(a.secondOnly && state.round !== 'second') return;
+      if(a.choices){ if(s >= 0 && s !== undefined && a.choices[s]) sel[a.id] = {a:a, v:a.choices[s].p, s:a.choices[s].l}; }
+      else if(s){ sel[a.id] = {a:a, v:a.p}; }
+    });
+    var dropped = {};
+    Y.exclusive.forEach(function(g){
+      var hit = g.ids.filter(function(id){return sel[id] && !dropped[id]});
+      if(hit.length < 2) return;
+      hit.sort(function(x,y){return sel[y].v - sel[x].v});
+      for(var k=1;k<hit.length;k++) dropped[hit[k]] = g.why;
+    });
+    Y.adjustments.forEach(function(a){
+      var x = sel[a.id]; if(!x) return;
+      var row = {t:'調整基準'+a.no+' '+a.l, s:x.s, v:x.v};
+      if(dropped[a.id]){ row.dropped = dropped[a.id]; }
+      else total += x.v;
+      rows.push(row);
+    });
+    return {rows:rows, total:total};
+  }
+
+  function render(){
+    syncSecondOnly();
+    var r = calc();
+    renderDist(r.total);
+    $('total').textContent = r.total;
+    $('barTotal').textContent = r.total;
+    $('rows').innerHTML = r.rows.map(function(x){
+      var v = x.dropped ? '0' : (x.v < 0 ? sign(x.v) : (x.t.indexOf('調整基準')===0 ? sign(x.v) : String(x.v)));
+      var sub = x.dropped ? '<small>'+esc(x.dropped)+'</small>' : (x.s ? '<small>'+esc(x.s)+'</small>' : '');
+      return '<li'+(x.dropped?' class="dropped"':'')+'><span>'+esc(x.t)+sub+'</span><span class="v" style="color:var('+(x.v<0&&!x.dropped?'--minus':'--fg')+')">'+v+'</span></li>';
+    }).join('');
+  }
+
+  var step = 1;
+  function show(n){
+    step = n;
+    ['s1','s2','s3'].forEach(function(id, i){ $(id).hidden = (i+1) !== n; });
+    var lis = $('steps').children;
+    for(var i=0;i<lis.length;i++){
+      lis[i].removeAttribute('aria-current');
+      lis[i].classList.toggle('done', i < n-1);
+      if(i === n-1) lis[i].setAttribute('aria-current','step');
+    }
+    window.scrollTo(0, 0);
+  }
+
+  $('round').addEventListener('change', function(e){ state.round = e.target.value; render(); });
+  if(keys.length > 1){
+    $('yearBox').hidden = false;
+    $('year').innerHTML = keys.map(function(k){return '<option value="'+k+'">'+esc(DATA[k].label)+'</option>'}).join('');
+    $('year').addEventListener('change', function(e){ setYear(e.target.value); });
+  }
+  $('to2').addEventListener('click', function(){ show(2); });
+  $('back1').addEventListener('click', function(){ show(1); });
+  $('to3').addEventListener('click', function(){ show(3); });
+  $('back2').addEventListener('click', function(){ show(1); });
+
+  /* ---- 見学メモ(記録はこのブラウザのlocalStorageに保存。使えない環境では画面を閉じるまでだけ保持) ---- */
+  var V_ITEMS = [
+    {id:'policy',  l:'保育方針・1日の流れ'},
+    {id:'teacher', l:'先生の雰囲気・子どもへの声かけ'},
+    {id:'yard',    l:'園庭・室内の広さと清潔さ'},
+    {id:'lunch',   l:'給食(自園調理・アレルギー対応)'},
+    {id:'hours',   l:'開所時間・延長保育'},
+    {id:'route',   l:'送迎の動線・駐輪場'},
+    {id:'goods',   l:'おむつ・布団など持ち物の負担'},
+    {id:'nareshi', l:'慣らし保育の期間と進め方'},
+    {id:'sick',    l:'発熱時の対応・病児保育'}
+  ];
+  var V_AREAS = ['世田谷','北沢','玉川','砧','烏山'];
+  var V_STATUS = {g:{t:'良い', s:'○'}, w:{t:'気になる', s:'△'}, q:{t:'聞き忘れ', s:'？'}};
+  var CLASSES = [
+    '0歳児クラス(令和8年4月2日以降生まれ)',
+    '1歳児クラス(令和7年4月2日〜令和8年4月1日生まれ)',
+    '2歳児クラス(令和6年4月2日〜令和7年4月1日生まれ)',
+    '3歳児クラス(令和5年4月2日〜令和6年4月1日生まれ)',
+    '4歳児クラス(令和4年4月2日〜令和5年4月1日生まれ)',
+    '5歳児クラス(令和3年4月2日〜令和4年4月1日生まれ)'
+  ];
+  var V_KEY = 'hoikatsu-visits-v1', C_KEY = 'hoikatsu-class-v1';
+  var editing = null, askDel = null, vSort = 'added';
+  var fRegion = '', fMode = 'card', fSort = 'r2asc', fHide = true, fNow = false, fShown = 15, fRows = [];
+
+  /* 園ごとの昨年の実績(data/facilities-*.js の新しい年度を使う) */
+  var FACS = window.SHISUU_FAC || {};
+  var facKeys = Object.keys(FACS).sort(function(a,b){return FACS[b].order - FACS[a].order});
+  var FAC = facKeys.length ? FACS[facKeys[0]] : null;
+  /* 今年の入園可能数だけが先に公表されたとき(data/vacancy-*.js)は、昨年の申込数に重ねて倍率を出す。
+     行の形: [地域, 園名, 入園可能数(倍率の分母), 全希望の申込数, 第1希望の申込数, 昨年の入園可能数] */
+  var VACS = window.SHISUU_VAC || {};
+  var vacKeys = Object.keys(VACS).sort(function(a,b){return VACS[b].order - VACS[a].order});
+  var VAC = vacKeys.length ? VACS[vacKeys[0]] : null;
+  var overlay = !!(FAC && VAC && VAC.order > FAC.order);
+  var NULL6 = [null, null, null, null, null, null];
+  var facRows = [];
+  if(FAC){
+    if(overlay){
+      var oldRows = {};
+      FAC.rows.forEach(function(r){ oldRows[r[0] + '|' + r[1]] = r; });
+      facRows = VAC.rows.map(function(v){
+        var o = oldRows[v[0] + '|' + v[1]];
+        return [v[0], v[1], v[2], o ? o[3] : NULL6, o ? o[4] : NULL6, o ? o[2] : NULL6];
+      });
+    } else {
+      facRows = FAC.rows.map(function(r){ return [r[0], r[1], r[2], r[3], r[4], r[2]]; });
+    }
+  }
+  var facMap = {};
+  facRows.forEach(function(r){ facMap[r[0] + '|' + r[1]] = r; });
+  var BASIS = !FAC ? '' : (overlay ? VAC.short + 'の入園可能数と、' + FAC.short + 'の申込数' : FAC.short + '(一次)');
+
+  var cls = 1;
+  try{ var cs0 = localStorage.getItem(C_KEY); if(cs0 !== null && +cs0 >= 0 && +cs0 <= 5) cls = +cs0; }catch(e){}
+
+  function pack(str){ var o = {}; V_ITEMS.forEach(function(it, i){ o[it.id] = str.charAt(i) || 'q'; }); return o; }
+  function vLoad(){
+    try{ var s = localStorage.getItem(V_KEY); if(s !== null) return JSON.parse(s); }catch(e){}
+    return null;
+  }
+  function vSave(){ try{ localStorage.setItem(V_KEY, JSON.stringify(visits)); }catch(e){} }
+  function today(){
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
+  }
+  function rate(n){ return n ? n + ' / 5' : '未評価'; }
+  function vFind(id){ return visits.filter(function(v){return v.id === id})[0]; }
+
+  /* 倍率: 第1希望の申込数 ÷ 入園可能数、全希望順位の申込数 ÷ 入園可能数 */
+  function stat(f, c){
+    var vac = f[2][c], all = f[3][c], fi = f[4][c];
+    return { vac:vac, all:all, fi:fi, vacLast:f[5][c],
+      r1: (vac > 0 && fi !== null) ? fi / vac : null,
+      r2: (vac > 0 && all !== null) ? all / vac : null };
+  }
+  function times(x){ return x === null ? '―' : (x < 10 ? x.toFixed(1) : String(Math.round(x))) + '倍'; }
+  /* 現在の空き(区が毎月更新) */
+  var NOW = window.SHISUU_NOW || null, nowMap = {};
+  if(NOW) NOW.rows.forEach(function(r){ nowMap[r[0] + '|' + r[1]] = r[2]; });
+  function nowOf(f){ return NOW ? (nowMap[f[0] + '|' + f[1]] || null) : null; }
+  function nowTotal(f){ var n = nowOf(f); return n ? n.reduce(function(a, b){ return a + (b || 0); }, 0) : 0; }
+  function nowStrip(f){
+    var n = nowOf(f); if(!n) return '<p class="nonow">今の空き: 新しい園などで、区の空き表にはまだ載っていません。</p>';
+    var m = NOW.regions[f[0]], old = m.asOf.indexOf('11月') < 0;
+    var cells = n.map(function(v, c){
+      return '<span class="nc ' + (v === null ? 'na' : (v > 0 ? 'ok' : 'zero')) + '"><i>' + c + '歳</i><b>' + (v === null ? '―' : v) + '</b></span>';
+    }).join('');
+    return '<div class="now"><div class="nowh"><b>いま入れる空き</b><span>' + esc(m.asOf) + '入園の予定数</span>' + (old ? '<em>区の更新が古い(' + esc(m.updated) + ')</em>' : '') + '</div><div class="nowg">' + cells + '</div></div>';
+  }
+  function facLine(f){
+    var s = stat(f, cls), yr = overlay ? '昨年の' : '';
+    var last = (overlay && s.vacLast !== null && s.vacLast !== s.vac) ? '(昨年 ' + s.vacLast + '人)' : '';
+    if(s.vac === null) return '資料に記載がありません(このクラスがない園など)';
+    if(s.vac === 0) return '入園可能数は0人' + (overlay ? '' : 'でした') + last + (s.fi !== null ? '(' + yr + '第1希望 ' + s.fi + '人 / ' + yr + '全希望 ' + s.all + '人)' : '');
+    if(s.fi === null) return '入園可能 ' + s.vac + '人' + last + '(' + yr + '申込数の記載なし)';
+    return '入園可能 ' + s.vac + '人' + last + ' / ' + yr + '第1希望 ' + s.fi + '人(' + times(s.r1) + ') / ' + yr + '全希望 ' + s.all + '人(' + times(s.r2) + ')';
+  }
+  function sv(v){ var f = v.fac && facMap[v.fac]; return f ? stat(f, cls) : null; }
+
+  var visits = vLoad();
+  if(!visits){
+    visits = [
+      {id:'ex1', ex:true, name:'(例)サンプル第一保育園', area:'世田谷', date:'2026-10-12', st:pack('ggwggqqgq'), ra:4, rb:3, memo:'園庭が広い。延長保育の対象時間は要確認。', cmp:true},
+      {id:'ex2', ex:true, name:'(例)サンプル第二保育園', area:'北沢', date:'2026-10-19', st:pack('gqggwgqqq'), ra:3, rb:4, memo:'駐輪場が狭い。給食は自園調理。', cmp:true}
+    ];
+    vSave();
+  }
+
+  function counts(v){ var c = {g:0, w:0, q:0}; V_ITEMS.forEach(function(it){ c[v.st[it.id] || 'q']++; }); return c; }
+  function rk(v){ var s = sv(v); return (s && s.r2 !== null) ? s.r2 : 1e9; }
+  function avg(v){ var n = (v.ra ? 1 : 0) + (v.rb ? 1 : 0); return n ? ((v.ra || 0) + (v.rb || 0)) / n : 0; }
+  function sortedVisits(){
+    var a = visits.slice();
+    if(vSort === 'date') a.sort(function(x, y){ return (y.date || '').localeCompare(x.date || ''); });
+    else if(vSort === 'rate') a.sort(function(x, y){ return rk(x) - rk(y); });
+    else if(vSort === 'score') a.sort(function(x, y){ return avg(y) - avg(x); });
+    return a;
+  }
+
+  function renderVisit(){
+    $('vScore').textContent = calc().total;
+    var nSel = visits.filter(function(v){return v.cmp}).length;
+    $('vCount').textContent = '(' + visits.length + '園)';
+    if(!visits.length){
+      $('vList').innerHTML = '<p class="hint" style="margin:0">まだ記録がありません。「見学を追加する」か、下の「園を探す」から、最初の1園を入力してください。</p>';
+    } else {
+      var h = '<div class="tblwrap"><table class="vtbl"><thead><tr><th scope="col">園</th><th scope="col">○△？</th><th scope="col">全希望</th><th scope="col">比べる</th></tr></thead><tbody>';
+      h += sortedVisits().map(function(v){
+        var c = counts(v), f = v.fac && facMap[v.fac], st = f ? stat(f, cls) : null;
+        var dis = (!v.cmp && nSel >= 3) ? ' disabled' : '';
+        var btns = askDel === v.id
+          ? '<button type="button" class="mini" data-act="delok" data-id="'+v.id+'" style="color:var(--minus)">削除する</button><button type="button" class="mini" data-act="delno" data-id="'+v.id+'">やめる</button>'
+          : '<button type="button" class="mini" data-act="edit" data-id="'+v.id+'">編集</button><button type="button" class="mini" data-act="del" data-id="'+v.id+'">削除</button>';
+        var meta = esc(v.area) + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + ' ・ A' + (v.ra || '―') + ' B' + (v.rb || '―');
+        return '<tr><th scope="row"><span class="fn">' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</span><small>' + meta + '</small>'
+          + (v.memo ? '<small class="memo1">' + esc(v.memo) + '</small>' : '') + '<span class="vb">' + btns + '</span></th>'
+          + '<td class="cnt"><span class="g">○' + c.g + '</span> <span class="w">△' + c.w + '</span> <span class="q">？' + c.q + '</span></td>'
+          + '<td>' + (st && st.r2 !== null ? '<b>' + times(st.r2) + '</b>' : '―') + '</td>'
+          + '<td><input type="checkbox" class="big" data-act="cmp" data-id="'+v.id+'"'+(v.cmp?' checked':'')+dis+' aria-label="' + esc(v.name) + 'を比べる"></td>'
+          + '</tr>';
+      }).join('');
+      $('vList').innerHTML = h + '</tbody></table></div><p class="hint">全希望の倍率は、' + cls + '歳児クラスの数字です。区の一覧にある園名を選ぶと出ます。</p>';
+    }
+    renderCmp();
+  }
+
+  function renderCmp(){
+    var all = visits.filter(function(v){return v.cmp});
+    $('vCmpHint').textContent = all.length >= 3
+      ? '無料では3園まで比べられます。4園以上を並べる機能は有料版で用意する予定です(準備中)。'
+      : '「比べる」にチェックを入れた園が並びます(最大3園)。';
+    var sel = all.slice(0, 3);
+    if(sel.length < 2){ $('vCmp').innerHTML = '<p class="hint">2園以上にチェックを入れると、比較表が出ます。</p>'; return; }
+    function row(label, fn){ return '<tr><th scope="row">' + esc(label) + '</th>' + sel.map(function(v){ return '<td>' + fn(v) + '</td>'; }).join('') + '</tr>'; }
+    function num(fn){ return function(v){ var s = sv(v); var x = s ? fn(s) : null; return x === null || x === undefined ? '―' : x; }; }
+    var h = '<table class="cmp"><thead><tr><th scope="col">項目</th>'
+      + sel.map(function(v){ return '<th scope="col">' + esc(v.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    h += row('評価 A / B', function(v){ return (v.ra || '―') + ' / ' + (v.rb || '―'); });
+    h += row((overlay ? VAC.short + 'の' : '昨年の') + '入園可能数(' + cls + '歳児)', num(function(s){ return s.vac === null ? null : s.vac + '人'; }));
+    h += row('第1希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r1 === null ? null : times(s.r1)); }));
+    h += row('全希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r2 === null ? null : times(s.r2)); }));
+    V_ITEMS.forEach(function(it){
+      h += row(it.l, function(v){
+        var s = v.st[it.id] || 'q';
+        return '<span class="s ' + s + '" role="img" aria-label="' + V_STATUS[s].t + '">' + V_STATUS[s].s + '</span>';
+      });
+    });
+    h += row('聞き忘れの数', function(v){ return counts(v).q + ' 項目'; });
+    $('vCmp').innerHTML = h + '</tbody></table><p class="hint">○ 良い / △ 気になる / ？ 聞き忘れ / ― 数字なし' + (overlay ? '。倍率は、昨年の申込数を今年の入園可能数で割った数字です。' : '') + '</p>';
+  }
+
+  /* 園を探す(昨年の倍率の一覧) */
+  function renderFind(){
+    if(!FAC){ $('fList').innerHTML = '<p class="hint">園ごとのデータを読み込めませんでした。</p>'; $('fMore').hidden = true; return; }
+    var a = facRows.filter(function(f){ return !fRegion || f[0] === fRegion; })
+      .map(function(f){ return {f:f, s:stat(f, cls)}; });
+    if(fHide) a = a.filter(function(x){ return x.s.vac > 0 && x.s.fi !== null; });
+    if(fNow) a = a.filter(function(x){ return nowTotal(x.f) > 0; });
+    function rv(x){ return fSort.indexOf('r2') === 0 ? x.s.r2 : x.s.r1; }
+    if(fSort === 'r1asc' || fSort === 'r2asc') a.sort(function(x, y){ return (rv(x) === null ? 1e9 : rv(x)) - (rv(y) === null ? 1e9 : rv(y)); });
+    else if(fSort === 'r1desc' || fSort === 'r2desc') a.sort(function(x, y){ return (rv(y) === null ? -1 : rv(y)) - (rv(x) === null ? -1 : rv(x)); });
+    else if(fSort === 'nowdesc') a.sort(function(x, y){ return nowTotal(y.f) - nowTotal(x.f); });
+    else if(fSort === 'vacdesc') a.sort(function(x, y){ return (y.s.vac === null ? -1 : y.s.vac) - (x.s.vac === null ? -1 : x.s.vac); });
+    else a.sort(function(x, y){ return x.f[1].localeCompare(y.f[1], 'ja'); });
+    fRows = a;
+    var shown = a.slice(0, fShown);
+    $('fCount').textContent = cls + '歳児クラス ' + a.length + '園中 ' + shown.length + '園を表示';
+    function cell(n, r){ return n === null ? '―' : '<b>' + times(r) + '</b><small>' + n + '人</small>'; }
+    function ageTable(f){
+      var t = '<details class="ages"><summary>0〜5歳児ごとの倍率</summary><table class="agetbl"><thead><tr><th scope="col">クラス</th><th scope="col">入園可能</th><th scope="col">第1希望</th><th scope="col">全希望</th></tr></thead><tbody>';
+      for(var c = 0; c < 6; c++){
+        var q = stat(f, c);
+        function m(n, r){ return (q.vac === 0 || n === null) ? '―' : '<b>' + times(r) + '</b> <small>' + n + '人</small>'; }
+        t += '<tr' + (c === cls ? ' class="cur"' : '') + '><th scope="row">' + c + '歳児</th><td>' + (q.vac === null ? '―' : q.vac + '人') + '</td><td>' + m(q.fi, q.r1) + '</td><td>' + m(q.all, q.r2) + '</td></tr>';
+      }
+      return t + '</tbody></table></details>';
+    }
+    if(fMode === 'card'){
+      var ch = shown.map(function(x, i){
+        var s = x.s, z = (s.vac === 0);
+        function st(label, v, sub){ return '<div class="st"><span class="lb">' + label + '</span>' + v + (sub ? '<small>' + sub + '</small>' : '') + '</div>'; }
+        var last = (overlay && s.vacLast !== null && s.vacLast !== s.vac && s.vac !== null) ? '昨年 ' + s.vacLast + '人' : '';
+        return '<article class="fcard"><div class="fh"><span class="fn">' + esc(x.f[1]) + '</span><span class="area">' + esc(x.f[0]) + '</span>'
+          + '<button type="button" class="mini" data-fadd="' + i + '" aria-label="' + esc(x.f[1]) + 'の見学を記録">＋ 記録</button></div>'
+          + '<div class="fs">'
+          + st('入園可能', s.vac === null ? '―' : '<b>' + s.vac + '人</b>', last)
+          + st('第1希望', (z || s.fi === null) ? '―' : '<b>' + times(s.r1) + '</b>', (z || s.fi === null) ? '' : s.fi + '人')
+          + st('全希望', (z || s.all === null) ? '―' : '<b>' + times(s.r2) + '</b>', (z || s.all === null) ? '' : s.all + '人')
+          + '</div>' + nowStrip(x.f) + ageTable(x.f) + '</article>';
+      }).join('');
+      $('fList').innerHTML = '<div class="fcards">' + ch + '</div>';
+      $('fMore').hidden = shown.length >= a.length;
+      return;
+    }
+    if(fMode === 'row'){
+      var hh = '<div class="tblwrap hwrap"><table class="ftbl htbl"><thead><tr><th scope="col">園</th>'
+        + shown.map(function(x){ return '<th scope="col"><span class="fn">' + esc(x.f[1]) + '</span><span class="area">' + esc(x.f[0]) + '</span></th>'; }).join('') + '</tr></thead><tbody>';
+      function hr(label, fn){ return '<tr><th scope="row">' + label + '</th>' + shown.map(function(x){ return '<td>' + fn(x.s) + '</td>'; }).join('') + '</tr>'; }
+      hh += hr('入園可能', function(s){ return s.vac === null ? '―' : '<b>' + s.vac + '人</b>' + ((overlay && s.vacLast !== null && s.vacLast !== s.vac) ? '<small>昨年 ' + s.vacLast + '人</small>' : ''); });
+      hh += hr('第1希望', function(s){ return s.vac === 0 ? '―' : cell(s.fi, s.r1); });
+      hh += hr('全希望', function(s){ return s.vac === 0 ? '―' : cell(s.all, s.r2); });
+      hh += '<tr><th scope="row">記録</th>' + shown.map(function(x, i){ return '<td><button type="button" class="mini" data-fadd="' + i + '" aria-label="' + esc(x.f[1]) + 'の見学を記録">＋</button></td>'; }).join('') + '</tr>';
+      $('fList').innerHTML = hh + '</tbody></table></div><p class="hint">左右にスクロールすると、ほかの園が見られます。</p>';
+      $('fMore').hidden = shown.length >= a.length;
+      return;
+    }
+    var h = '<div class="tblwrap"><table class="ftbl"><thead><tr><th scope="col">園</th><th scope="col">入園可能</th><th scope="col">第1希望</th><th scope="col">全希望</th><th scope="col"><span class="sr">記録</span></th></tr></thead><tbody>';
+    h += shown.map(function(x, i){
+      var s = x.s, last = (overlay && s.vacLast !== null && s.vacLast !== s.vac && s.vac !== null) ? '<small>昨年 ' + s.vacLast + '人</small>' : '';
+      return '<tr><th scope="row"><span class="fn">' + esc(x.f[1]) + '</span> <span class="area">' + esc(x.f[0]) + '</span></th>'
+        + '<td>' + (s.vac === null ? '―' : '<b>' + s.vac + '人</b>' + last) + '</td>'
+        + '<td>' + (s.vac === 0 ? '―' : cell(s.fi, s.r1)) + '</td>'
+        + '<td>' + (s.vac === 0 ? '―' : cell(s.all, s.r2)) + '</td>'
+        + '<td><button type="button" class="mini" data-fadd="' + i + '" aria-label="' + esc(x.f[1]) + 'の見学を記録">＋</button></td></tr>';
+    }).join('');
+    $('fList').innerHTML = h + '</tbody></table></div>';
+    $('fMore').hidden = shown.length >= a.length;
+  }
+
+  function buildItems(){
+    $('vItems').innerHTML = V_ITEMS.map(function(it){
+      var seg = ['g','w','q'].map(function(k){
+        return '<label><input type="radio" name="st-'+it.id+'" value="'+k+'"><span class="'+k+'" title="'+V_STATUS[k].t+'">'+V_STATUS[k].s+'<i class="sr">'+V_STATUS[k].t+'</i></span></label>';
+      }).join('');
+      return '<div class="item" role="group" aria-label="'+esc(it.l)+'"><span class="il">'+esc(it.l)+'</span><div class="seg">'+seg+'</div></div>';
+    }).join('');
+    var rs = '<option value="0">未評価</option>' + [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+' / 5</option>'; }).join('');
+    $('v-ra').innerHTML = rs; $('v-rb').innerHTML = rs;
+    $('v-area').innerHTML = V_AREAS.map(function(a){ return '<option value="'+a+'">'+a+'</option>'; }).join('');
+    $('fRegion').innerHTML = '<option value="">すべて</option>' + V_AREAS.map(function(a){ return '<option value="'+a+'">'+a+'</option>'; }).join('');
+    $('vCls').innerHTML = CLASSES.map(function(c, i){ return '<option value="'+i+'">'+esc(c)+'</option>'; }).join('');
+    $('vCls').value = cls;
+    if(FAC){
+      var srcs = FAC.sources.concat(overlay ? [VAC.source] : []);
+      $('fSrc').innerHTML = '出典: ' + srcs.map(function(s){ return '<a href="'+s.url+'" target="_blank" rel="noopener">'+esc(s.name)+'</a>'; }).join(' / ')
+        + (overlay ? '(申込数は' + esc(FAC.label) + '、入園可能数は' + esc(VAC.label) + '。確認日 ' + VAC.checkedOn + ')。倍率は、昨年の申込数を今年の入園可能数で割った数字です。今年の申込数は、区が最終集計を公表したら差し替えます。'
+                     : '(' + esc(FAC.label) + '、確認日 ' + FAC.checkedOn + ')。倍率は、申込数を入園可能数で割った数字です。');
+      if(overlay) $('fIntro').textContent = $('fIntro').textContent.replace('昨年の4月入園(一次選考)で、申込数が入園可能数の何倍だったかを並べています。', '今年(' + VAC.short + ')の入園可能数に対して、昨年(' + FAC.short + '・一次)の申込数が何倍だったかを並べています。');
+    }
+  }
+
+  function fillNames(){
+    var area = $('v-area').value;
+    $('v-names').innerHTML = FAC ? facRows.filter(function(r){ return r[0] === area; })
+      .map(function(r){ return '<option value="' + esc(r[1]) + '"></option>'; }).join('') : '';
+  }
+  function matchFac(name){
+    var area = $('v-area').value;
+    if(facMap[area + '|' + name]) return facMap[area + '|' + name];
+    var hit = null, n = 0;
+    facRows.forEach(function(r){ if(r[1] === name){ hit = r; n++; } });
+    return n === 1 ? hit : null;
+  }
+  function linkHint(){
+    var n = $('v-name').value.trim(), el = $('vLink');
+    if(!n || !FAC){ el.textContent = FAC ? '園の名前を入力すると、区の一覧から候補が出ます。' : ''; return; }
+    var f = matchFac(n);
+    el.textContent = f ? '区の一覧にある園です。昨年の倍率が表示されます。' : '区の一覧に同じ名前の園がありません。倍率は表示されません(候補から選ぶと表示されます)。';
+  }
+
+  function openForm(id, pre){
+    editing = id || null;
+    var v = id ? vFind(id) : {name:(pre && pre.name) || '', area:(pre && pre.area) || V_AREAS[0], date:today(), st:pack(''), ra:0, rb:0, memo:''};
+    $('v-area').value = v.area; fillNames();
+    $('v-name').value = v.name; $('v-date').value = v.date || '';
+    $('v-ra').value = v.ra || 0; $('v-rb').value = v.rb || 0; $('v-memo').value = v.memo || '';
+    V_ITEMS.forEach(function(it){
+      document.querySelector('input[name="st-'+it.id+'"][value="'+(v.st[it.id] || 'q')+'"]').checked = true;
+    });
+    $('vErr').hidden = true; linkHint();
+    $('vForm').hidden = false;
+    $('v-name').focus();
+    $('vForm').scrollIntoView({block:'start'});
+  }
+
+  $('vAdd').addEventListener('click', function(){ openForm(null); });
+  $('vCancel').addEventListener('click', function(){ $('vForm').hidden = true; });
+  $('v-area').addEventListener('change', function(){ fillNames(); linkHint(); });
+  $('v-name').addEventListener('input', function(){
+    var f = matchFac($('v-name').value.trim());
+    if(f && f[0] !== $('v-area').value){ $('v-area').value = f[0]; fillNames(); }
+    linkHint();
+  });
+  $('vSave').addEventListener('click', function(){
+    var name = $('v-name').value.trim();
+    if(!name){
+      $('vErr').textContent = '園の名前を入力してください。'; $('vErr').hidden = false; $('v-name').focus(); return;
+    }
+    var rec = editing ? vFind(editing) : {id:'v' + Date.now(), cmp: visits.filter(function(v){return v.cmp}).length < 3};
+    var f = matchFac(name);
+    rec.name = name; rec.area = f ? f[0] : $('v-area').value; rec.fac = f ? f[0] + '|' + f[1] : null;
+    rec.date = $('v-date').value;
+    rec.ra = +$('v-ra').value; rec.rb = +$('v-rb').value; rec.memo = $('v-memo').value.trim(); rec.ex = false;
+    rec.st = {};
+    V_ITEMS.forEach(function(it){ rec.st[it.id] = document.querySelector('input[name="st-'+it.id+'"]:checked').value; });
+    if(!editing) visits.push(rec);
+    vSave(); $('vForm').hidden = true; renderVisit();
+    $('vList').scrollIntoView({block:'start'});
+  });
+
+  $('vList').addEventListener('click', function(e){
+    var b = e.target.closest('[data-act]'); if(!b) return;
+    var act = b.getAttribute('data-act'), id = b.getAttribute('data-id');
+    if(act === 'edit') openForm(id);
+    else if(act === 'del'){ askDel = id; renderVisit(); }
+    else if(act === 'delno'){ askDel = null; renderVisit(); }
+    else if(act === 'delok'){ visits = visits.filter(function(v){return v.id !== id}); askDel = null; vSave(); renderVisit(); }
+  });
+  $('vList').addEventListener('change', function(e){
+    var t = e.target; if(t.getAttribute('data-act') !== 'cmp') return;
+    vFind(t.getAttribute('data-id')).cmp = t.checked; vSave(); renderVisit();
+  });
+  $('vSort').addEventListener('change', function(e){ vSort = e.target.value; renderVisit(); });
+  function setCls(c){
+    cls = c;
+    try{ localStorage.setItem(C_KEY, String(cls)); }catch(err){}
+    $('vCls').value = c; $('dCls').value = c;
+    fShown = 15; renderVisit(); renderFind(); renderDist();
+  }
+  $('vCls').addEventListener('change', function(e){ setCls(+e.target.value); });
+  $('dCls').addEventListener('change', function(e){ setCls(+e.target.value); });
+  $('dReg').addEventListener('change', function(e){ dReg = e.target.value; renderDist(); });
+  $('fRegion').addEventListener('change', function(e){ fRegion = e.target.value; fShown = 15; renderFind(); });
+  $('fSort').addEventListener('change', function(e){ fSort = e.target.value; fShown = 15; renderFind(); });
+  $('fMode').addEventListener('change', function(e){ fMode = e.target.value; renderFind(); });
+  $('fNow').addEventListener('change', function(e){ fNow = e.target.checked; fShown = 15; renderFind(); });
+  $('fHide').addEventListener('change', function(e){ fHide = e.target.checked; fShown = 15; renderFind(); });
+  $('fMore').addEventListener('click', function(){ fShown += 15; renderFind(); });
+  $('fList').addEventListener('click', function(e){
+    var b = e.target.closest('[data-fadd]'); if(!b) return;
+    var x = fRows[+b.getAttribute('data-fadd')];
+    openForm(null, {name:x.f[1], area:x.f[0]});
+  });
+
+  /* ---- 昨年入園した子の指数分布 ---- */
+  var DISTS = window.SHISUU_DIST || {};
+  var dKeys = Object.keys(DISTS).sort(function(a,b){return DISTS[b].order - DISTS[a].order});
+  var DIST = dKeys.length ? DISTS[dKeys[0]] : null;
+  var dReg = '全体';
+  var CLS_SHORT = ['0歳児','1歳児','2歳児','3歳児','4歳児','5歳児'];
+  function bandOf(total){ for(var i = 0; i < DIST.bands.length; i++){ var b = DIST.bands[i]; if(total >= b.lo && total <= b.hi) return i; } return 0; }
+  function pct(x){ return (Math.round(x * 10) / 10).toFixed(1) + '%'; }
+  function renderDist(total){
+    if(!DIST){ $('distPanel').hidden = true; return; }
+    if(total === undefined) total = calc().total;
+    var cell = DIST.data[dReg][cls], me = bandOf(total), sum = '', bars = '';
+    if(!cell.c){
+      sum = dReg + 'の' + CLS_SHORT[cls] + 'は、入園した子が10人未満のため、区は人数を公表していません。';
+    } else {
+      var n = cell.n, c = cell.c, lower = 0, mx = Math.max.apply(null, c);
+      for(var i = 0; i < me; i++) lower += c[i];
+      sum = '予想指数 ' + total + '点は「' + DIST.bands[me].l + '」の区分です。昨年、' + dReg + 'で' + CLS_SHORT[cls] + 'クラスに入園した' + n + '人のうち、この区分は' + c[me] + '人(' + pct(c[me] / n * 100) + ')、これより低い区分は' + lower + '人(' + pct(lower / n * 100) + ')でした。';
+      bars = c.map(function(v, i){
+        return '<li' + (i === me ? ' class="me"' : '') + '><span>' + DIST.bands[i].l + (i === me ? '(あなた)' : '') + '</span>'
+          + '<span class="track"><i style="width:' + (mx ? Math.max(v / mx * 100, 1) : 1) + '%"></i></span>'
+          + '<span class="n">' + v + '人 ' + pct(v / n * 100) + '</span></li>';
+      }).join('');
+    }
+    $('dSummary').textContent = sum; $('dBars').innerHTML = bars;
+  }
+  function buildDist(){
+    if(!DIST) return;
+    $('dReg').innerHTML = DIST.regions.map(function(r){ return '<option value="'+r+'">'+r+(r === '全体' ? '(5地域の合計)' : '')+'</option>'; }).join('');
+    $('dCls').innerHTML = CLS_SHORT.map(function(c, i){ return '<option value="'+i+'">'+c+'</option>'; }).join('');
+    $('dCls').value = cls;
+    $('dSrc').innerHTML = '出典: <a href="'+DIST.source.url+'" target="_blank" rel="noopener">'+esc(DIST.source.name)+'</a>(' + esc(DIST.label) + '、確認日 ' + DIST.checkedOn + ')。10人未満の区分は区が人数を伏せています。';
+  }
+
+  function tab(which){
+    var v = which === 'visit';
+    var ab = which === 'about';
+    $('viewIndex').hidden = v || ab; $('viewVisit').hidden = !v; $('viewAbout').hidden = !ab;
+    $('tabIndex').setAttribute('aria-selected', (!v && !ab) ? 'true' : 'false');
+    $('tabVisit').setAttribute('aria-selected', v ? 'true' : 'false');
+    $('tabAbout').setAttribute('aria-selected', ab ? 'true' : 'false');
+    document.querySelector('.bar').hidden = ab;
+    if(v){ renderVisit(); renderFind(); }
+    window.scrollTo(0, 0);
+  }
+  $('tabIndex').addEventListener('click', function(){ tab('index'); });
+  $('tabVisit').addEventListener('click', function(){ tab('visit'); });
+  $('tabAbout').addEventListener('click', function(){ tab('about'); });
+  $('aboutGo').addEventListener('click', function(){ tab('index'); });
+  $('toVisit').addEventListener('click', function(){ tab('visit'); });
+  buildItems();
+  buildDist();
+
+  setYear(keys[0]); show(1);
+})();
+</script>
+
+</body>
+</html>
