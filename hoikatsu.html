@@ -1,0 +1,2177 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>保活アプリ（指数シミュレーター・園ごと比較、見学メモ）</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* Layout: 1カラム。やわらかい丸みと大きめの文字で、片手・子連れでも読みやすく。色は空色の地に、ミントの主色とコーラルのさし色。 */
+:root{
+  --bg:#eef7fb; --surface:#ffffff; --fg:#1f3340; --muted:#5a7080; --line:#d6e6ee;
+  --accent:#0f8a7a; --accent-fg:#ffffff; --accent-soft:#dff4ee;
+  --pop:#ff7b6b; --pop-soft:#ffe6e1;
+  --plus:#0f8a7a; --minus:#d4493a; --note:#fff1c9; --note-fg:#6a4a00;
+  --field:#f5fafc; --shadow:0 2px 0 rgba(31,51,64,.05), 0 8px 20px rgba(60,120,150,.10);
+  --font-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  --font-body:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10202a; --surface:#18303d; --fg:#e9f3f7; --muted:#a2bac6; --line:#2b4756;
+    --accent:#5fd3bf; --accent-fg:#06231d; --accent-soft:#17403b;
+    --pop:#ff9a8c; --pop-soft:#4a2a28;
+    --plus:#5fd3bf; --minus:#ff9a8c; --note:#3d3213; --note-fg:#ffdf94;
+    --field:#12252f; --shadow:0 8px 20px rgba(0,0,0,.25); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10202a; --surface:#18303d; --fg:#e9f3f7; --muted:#a2bac6; --line:#2b4756;
+  --accent:#5fd3bf; --accent-fg:#06231d; --accent-soft:#17403b;
+  --pop:#ff9a8c; --pop-soft:#4a2a28;
+  --plus:#5fd3bf; --minus:#ff9a8c; --note:#3d3213; --note-fg:#ffdf94;
+  --field:#12252f; --shadow:0 8px 20px rgba(0,0,0,.25); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:17px; font-weight:500; line-height:1.75;
+  padding-block:16px 130px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap{max-width:640px; margin:0 auto; min-width:0}
+header{background:var(--surface); border-radius:24px; padding:12px 12px 16px; margin-bottom:14px; box-shadow:var(--shadow)}
+header .hero{display:block; width:100%; height:auto; margin-bottom:12px}
+header .tag, header h1, header .lead{margin-left:6px; margin-right:6px}
+header .tag{display:inline-block; font-size:12px; line-height:1.5; font-weight:700; color:var(--accent); background:var(--accent-soft); border-radius:12px; padding:2px 10px; margin:0}
+h1{font-family:var(--font-display); font-size:22px; line-height:1.4; margin-top:8px; margin-bottom:4px; text-wrap:balance}
+header p.lead{margin-top:0; margin-bottom:0; color:var(--muted); font-size:12px; line-height:1.6}
+.steps{display:flex; gap:8px; margin:0 0 14px; padding:0; list-style:none; counter-reset:s}
+.steps li{flex:1; font-size:13px; text-align:center; padding:6px 4px; border-radius:999px; background:var(--surface); color:var(--muted); border:2px solid transparent; white-space:nowrap}
+.steps li[aria-current="step"]{border-color:var(--accent); color:var(--fg); font-weight:700; background:var(--accent-soft)}
+.steps li.done{background:var(--accent); color:var(--accent-fg)}
+.panel{background:var(--surface); border-radius:24px; padding:20px 18px; margin-bottom:14px; box-shadow:var(--shadow)}
+h2{font-family:var(--font-display); font-size:20px; margin:0 0 12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+h2::before{content:""; width:10px; height:22px; border-radius:6px; background:var(--pop); flex:none}
+h3{font-size:15px; margin:0 0 6px; color:var(--muted); font-weight:700}
+h3.grp{margin-top:20px; padding:4px 12px; background:var(--accent-soft); color:var(--accent); border-radius:999px; display:inline-block}
+h3.grp:first-of-type{margin-top:0}
+label.field{display:block; font-size:15px; font-weight:700; margin:14px 0 6px}
+select{
+  width:100%; min-height:52px; font:inherit; color:var(--fg); background:var(--field);
+  border:2px solid var(--line); border-radius:16px; padding:8px 12px;
+}
+select:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible, a:focus-visible, textarea:focus-visible{outline:3px solid var(--pop); outline-offset:2px}
+.parent + .parent{margin-top:20px; padding-top:20px; border-top:3px dotted var(--line)}
+.hint{font-size:12px; color:var(--muted); line-height:1.65; margin:6px 0 0}
+.check{display:flex; gap:12px; align-items:flex-start; padding:14px 0; border-top:2px dotted var(--line); min-width:0}
+h3.grp + .check{border-top:0}
+.check input[type="checkbox"]{width:26px; height:26px; margin-top:2px; accent-color:var(--accent); flex:none}
+.check .txt{flex:1; min-width:0}
+.check .txt select{margin-top:8px}
+.check .pt{font-variant-numeric:tabular-nums; font-weight:700; flex:none; min-width:2.6em; text-align:right; font-size:18px}
+.check .pt.p{color:var(--plus)} .check .pt.m{color:var(--minus)}
+.check small{display:block; color:var(--muted); font-size:12px; line-height:1.6}
+.check.off{opacity:.5}
+.no{display:inline-block; font-size:12px; color:var(--muted); background:var(--field); border-radius:999px; padding:0 8px; margin-right:6px; vertical-align:1px}
+.nav{display:flex; gap:10px; margin-top:8px}
+button{font:inherit; font-weight:700; min-height:52px; border-radius:999px; padding:0 22px; cursor:pointer; border:2px solid var(--line); background:var(--surface); color:var(--fg); transition:transform .12s}
+button:active{transform:scale(.97)}
+button.primary{background:var(--accent); color:var(--accent-fg); border-color:var(--accent); flex:1; box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.score{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; background:var(--accent-soft); border-radius:20px; padding:12px 18px}
+.score .num{font-family:var(--font-display); font-size:72px; line-height:1.1; font-weight:700; font-variant-numeric:tabular-nums; color:var(--accent)}
+.score .unit{color:var(--muted); font-size:20px; font-weight:700}
+.rows{margin:14px 0 0; padding:0; list-style:none}
+.rows li{display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-top:2px dotted var(--line); font-size:15px}
+.rows li span:first-child{min-width:0}
+.rows .v{font-variant-numeric:tabular-nums; font-weight:700; flex:none; font-size:17px}
+.rows li.dropped span:first-child{text-decoration:line-through; color:var(--muted)}
+.rows li.dropped .v{color:var(--muted)}
+.rows li small{display:block; color:var(--muted); font-size:11px}
+.notice{background:var(--note); color:var(--note-fg); border-radius:18px; padding:12px 14px; font-size:13px; line-height:1.7}
+.notice ul{margin:0; padding-left:1.2em}
+.locked{border:3px dashed var(--accent); background:var(--accent-soft); border-radius:24px; padding:18px}
+.locked b{font-family:var(--font-display)}
+.locked ul{margin:8px 0 0; padding-left:1.2em; font-size:13px}
+.badge{display:inline-block; font-size:12px; font-weight:700; background:var(--pop); color:#fff; border-radius:999px; padding:1px 10px; margin-right:6px; vertical-align:2px}
+details{margin-top:12px; font-size:13px}
+summary{cursor:pointer; min-height:40px; display:flex; align-items:center; color:var(--accent); font-weight:700}
+details ol, details ul{margin:6px 0 0; padding-left:1.4em}
+details li{margin-bottom:4px}
+.src{font-size:11px; color:var(--muted); line-height:1.7; margin:14px 0 0}
+.src a{color:var(--accent)}
+.bar{
+  position:fixed; left:0; right:0; bottom:0; z-index:5; background:var(--surface); border-radius:24px 24px 0 0; box-shadow:0 -6px 20px rgba(60,120,150,.15);
+  padding-top:10px; padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-left:max(20px, env(safe-area-inset-left, 0px)); padding-right:max(20px, env(safe-area-inset-right, 0px));
+}
+.bar .in{max-width:640px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px}
+.bar .t{font-size:14px; color:var(--muted); font-weight:700}
+.bar .n{font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums}
+.tabs{display:flex; gap:6px; margin:0 0 14px; background:var(--surface); border-radius:999px; padding:5px; box-shadow:var(--shadow)}
+.tabs button{flex:1; min-height:48px; border:0; background:transparent; color:var(--muted); padding:0 4px; font-size:14px; white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--accent); color:var(--accent-fg); box-shadow:none}
+.chip{display:inline-block; font-size:13px; background:var(--field); border-radius:999px; padding:0 10px; margin:0 6px 4px 0; color:var(--muted); white-space:nowrap}
+.chip.g{color:var(--plus); background:var(--accent-soft)}
+.chip.w{color:var(--minus); background:var(--pop-soft)}
+.ex{font-size:12px; background:var(--note); color:var(--note-fg); border-radius:999px; padding:0 8px; margin-right:6px; vertical-align:2px}
+.vcard{border-top:2px dotted var(--line); padding:16px 0; min-width:0}
+.vcard:first-child{border-top:0; padding-top:0}
+.vcard h3{color:var(--fg); font-size:18px; font-family:var(--font-display); margin:0; overflow-wrap:anywhere}
+.vcard .meta{font-size:12px; color:var(--muted); margin:2px 0 6px}
+.vcard .memo{font-size:14px; margin:6px 0 0; overflow-wrap:anywhere; background:var(--field); border-radius:14px; padding:8px 12px}
+.vact{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px}
+.vact button{min-height:44px; padding:0 16px; font-size:14px}
+.vact label{font-size:15px; display:flex; gap:8px; align-items:center; min-height:44px; margin-right:auto}
+.vact input{width:22px; height:22px; accent-color:var(--accent)}
+input[type="text"], input[type="date"], textarea{
+  width:100%; min-height:52px; font:inherit; color:var(--fg); background:var(--field);
+  border:2px solid var(--line); border-radius:16px; padding:8px 12px;
+}
+textarea{min-height:100px; resize:vertical}
+.item{padding:12px 0; border-top:2px dotted var(--line); font-size:15px}
+.seg{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
+.seg label{position:relative; flex:1; min-width:5.5em}
+.seg input{position:absolute; opacity:0; inset:0; width:100%; height:100%; margin:0; cursor:pointer}
+.seg span{display:block; text-align:center; min-height:48px; line-height:44px; border:2px solid var(--line); border-radius:999px; font-size:15px; color:var(--muted); background:var(--field)}
+.seg input:checked + span.g{background:var(--accent-soft); color:var(--plus); border-color:var(--plus); font-weight:700}
+.seg input:checked + span.w{background:var(--pop-soft); color:var(--minus); border-color:var(--minus); font-weight:700}
+.seg input:checked + span.q{background:var(--note); color:var(--note-fg); border-color:var(--note-fg); font-weight:700}
+.seg input:focus-visible + span{outline:3px solid var(--pop); outline-offset:2px}
+.tblwrap{overflow-x:auto; margin-top:8px; border-radius:16px}
+table.cmp{border-collapse:collapse; width:100%; min-width:340px; font-size:14px}
+.cmp th, .cmp td{border-top:2px dotted var(--line); padding:10px 8px; text-align:center; vertical-align:top; font-weight:500}
+.cmp thead th{font-weight:700; border-top:0}
+.cmp th:first-child, .cmp td:first-child{text-align:left; min-width:9em}
+.cmp .s{font-size:18px; font-weight:700}
+.cmp .s.g{color:var(--plus)} .cmp .s.w{color:var(--minus)} .cmp .s.q{color:var(--muted)}
+.err{color:var(--minus); font-size:14px; margin:6px 0 0; font-weight:700}
+.frow{display:flex; gap:10px; align-items:center; justify-content:space-between; padding:14px 0; border-top:2px dotted var(--line); min-width:0}
+.frow:first-child{border-top:0}
+.frow .ftxt{flex:1; min-width:0; overflow-wrap:anywhere; font-size:15px}
+.frow .ftxt b{font-family:var(--font-display); font-size:17px}
+.frow button{min-height:44px; padding:0 14px; font-size:14px; flex:none}
+.ctl{display:flex; gap:10px; flex-wrap:wrap}
+.ctl > div{flex:1; min-width:9em}
+.dist{list-style:none; margin:10px 0 0; padding:0}
+.dist li{display:grid; grid-template-columns:6.8em 1fr 7.4em; gap:8px; align-items:center; padding:6px 0; font-size:14px}
+.dist .track{height:18px; background:var(--field); border-radius:999px; overflow:hidden; min-width:0}
+.dist .track i{display:block; height:100%; background:var(--muted); opacity:.45; border-radius:999px}
+.dist li.me{font-weight:700}
+.dist li.me .track i{background:var(--pop); opacity:1}
+.dist .n{text-align:right; font-variant-numeric:tabular-nums}
+@media (max-width:420px){ .dist li{grid-template-columns:5.6em 1fr 6.2em; font-size:13px} }
+@media (prefers-reduced-motion: reduce){ button{transition:none} }
+
+h1 .sub{display:block; font-size:14px; font-weight:700; color:var(--muted)}
+.about{list-style:none; margin:10px 0 0; padding:0; display:grid; gap:10px}
+.about li{background:var(--field); border-radius:16px; padding:12px 14px; display:grid; gap:2px}
+.about li b{font-family:var(--font-display); font-size:16px}
+.about li span{font-size:13px; color:var(--muted); line-height:1.65}
+.about.plain{gap:6px}
+h3.grp{margin-top:18px}
+h3.grp:first-child{margin-top:0}
+.about.plain li{background:transparent; padding:0 0 0 1.1em; position:relative; font-size:14px}
+.about.plain li::before{content:""; position:absolute; left:0; top:.8em; width:6px; height:6px; border-radius:50%; background:var(--pop)}
+.htbl{width:auto; min-width:100%}
+.htbl th, .htbl td{min-width:5.2em}
+.htbl thead th{white-space:normal; vertical-align:bottom; min-width:6.4em}
+.htbl thead th .area{display:block; width:max-content; margin:3px auto 0}
+.htbl tbody th, .htbl thead th:first-child{position:sticky; left:0; background:var(--surface); z-index:1; min-width:4.6em; width:auto; text-align:left; font-size:12px; color:var(--muted)}
+.fcards{display:grid; gap:10px; margin-top:8px}
+.fcard{background:var(--field); border-radius:18px; padding:10px 12px 12px; min-width:0}
+.fh{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.fh .fn{font-size:16px; overflow-wrap:anywhere; min-width:0}
+.fh .mini{margin-left:auto; background:var(--accent-soft); border-color:transparent; color:var(--accent); min-height:36px}
+.fs{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:8px}
+.fs .st{background:var(--surface); border-radius:12px; padding:6px 4px; text-align:center; display:flex; flex-direction:column; line-height:1.35; min-width:0}
+.fs .lb{font-size:11px; font-weight:700; color:var(--muted)}
+.fs b{font-size:16px}
+.fs small{font-size:11px; color:var(--muted); font-weight:500}
+.item{display:flex; align-items:center; gap:8px; padding:6px 0; font-size:14px}
+.item .il{flex:1; min-width:0; line-height:1.4}
+.item .seg{margin:0; flex:none; gap:4px; flex-wrap:nowrap}
+.seg label{min-width:0}
+.item .seg label{flex:none; width:42px}
+.item .seg span{min-height:34px; line-height:30px; font-size:16px; border-width:2px}
+.ages{margin-top:8px; font-size:13px}
+.ages summary{min-height:34px; font-size:13px}
+.agetbl{width:100%; border-collapse:collapse; font-size:12px}
+.agetbl th, .agetbl td{padding:4px 3px; text-align:center; border-top:1px dotted var(--line); font-weight:500; white-space:nowrap}
+.agetbl thead th{border-top:0; color:var(--muted); font-size:11px}
+.agetbl tbody th{text-align:left}
+.agetbl small{color:var(--muted); font-size:10px}
+.agetbl tr.cur{background:var(--accent-soft)}
+.now{margin-top:8px; background:var(--accent-soft); border-radius:14px; padding:8px 10px}
+.nowh{display:flex; flex-wrap:wrap; gap:2px 8px; align-items:baseline; font-size:12px}
+.nowh b{font-size:13px; font-family:var(--font-display)}
+.nowh span{color:var(--muted)}
+.nowh em{font-style:normal; color:var(--minus); font-weight:700}
+.nowg{display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-top:6px}
+.nc{background:var(--surface); border-radius:10px; text-align:center; padding:3px 0; display:flex; flex-direction:column; line-height:1.3; border:2px solid transparent}
+.nc i{font-style:normal; font-size:10px; color:var(--muted); font-weight:700}
+.nc b{font-size:15px}
+.nc.ok{border-color:var(--plus)} .nc.ok b{color:var(--plus)}
+.nc.zero b{color:var(--muted)} .nc.na{opacity:.55}
+.nonow{font-size:11px; color:var(--muted); margin:8px 0 0}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+table.ftbl, table.vtbl{border-collapse:collapse; width:100%; font-size:13px}
+.ftbl th, .ftbl td, .vtbl th, .vtbl td{border-top:2px dotted var(--line); padding:7px 3px; text-align:center; vertical-align:middle; font-weight:500; line-height:1.4}
+.ftbl thead th, .vtbl thead th{border-top:0; font-size:12px; color:var(--muted); font-weight:700; padding-bottom:4px}
+.ftbl tbody th, .vtbl tbody th{text-align:left; overflow-wrap:anywhere; min-width:0; width:38%}
+.ftbl small, .vtbl small{display:block; font-size:11px; color:var(--muted); font-weight:500}
+.ftbl b, .vtbl b{font-size:14px}
+.area{display:inline-block; font-size:11px; font-weight:700; color:var(--accent); background:var(--accent-soft); border-radius:999px; padding:0 7px; white-space:nowrap; vertical-align:1px}
+.ftbl tbody th{width:44%}
+.ftbl thead th, .vtbl thead th{white-space:nowrap}
+.fn{font-family:var(--font-display); font-size:14px; font-weight:700}
+.vtbl .memo1{overflow:hidden; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical}
+.vtbl .cnt{white-space:nowrap; font-size:13px; font-weight:700}
+.vtbl .cnt .g{color:var(--plus)} .vtbl .cnt .w{color:var(--minus)} .vtbl .cnt .q{color:var(--muted)}
+.vtbl .vb{display:flex; gap:6px; margin-top:6px}
+.ftbl td, .vtbl td{white-space:nowrap}
+.ftbl small, .vtbl td small{white-space:nowrap}
+.vtbl input.big{width:24px; height:24px; accent-color:var(--accent)}
+button.mini{min-height:36px; min-width:36px; padding:0 8px; font-size:13px; border-width:2px}
+.ftbl button.mini{background:var(--accent-soft); border-color:transparent; color:var(--accent); font-size:16px}
+.cmp th, .cmp td{padding:6px 6px}
+.cmp .s{font-size:15px}
+[hidden]{display:none!important}
+body{margin:0}
+img{max-width:100%}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <svg class="hero" viewBox="0 0 360 120" role="img" aria-label="保育園と2人の子どものイラスト">
+<rect width="360" height="120" rx="18" fill="#dff4ee"/>
+<circle cx="316" cy="28" r="15" fill="#ffd36b"/>
+<ellipse cx="60" cy="30" rx="26" ry="9" fill="#fff"/><ellipse cx="78" cy="24" rx="16" ry="9" fill="#fff"/>
+<ellipse cx="250" cy="22" rx="22" ry="7" fill="#fff"/><ellipse cx="264" cy="17" rx="13" ry="7" fill="#fff"/>
+<rect x="0" y="96" width="360" height="24" fill="#bfe6d9"/>
+<rect x="118" y="46" width="124" height="52" rx="6" fill="#ff7b6b"/>
+<path d="M108 50 L180 18 L252 50 Z" fill="#0f8a7a"/>
+<rect x="168" y="68" width="24" height="30" rx="12" fill="#fff"/>
+<rect x="130" y="58" width="22" height="18" rx="5" fill="#fff"/><rect x="208" y="58" width="22" height="18" rx="5" fill="#fff"/>
+<rect x="178" y="6" width="3" height="14" fill="#0f8a7a"/><path d="M181 6 L197 11 L181 16 Z" fill="#ffd36b"/>
+<g><circle cx="82" cy="78" r="11" fill="#ffd9b8"/><rect x="72" y="88" width="20" height="22" rx="9" fill="#0f8a7a"/><circle cx="78" cy="77" r="1.6" fill="#1f3340"/><circle cx="86" cy="77" r="1.6" fill="#1f3340"/></g>
+<g><circle cx="282" cy="86" r="8.5" fill="#ffd9b8"/><rect x="274" y="94" width="16" height="16" rx="7" fill="#ffd36b"/><circle cx="279" cy="85" r="1.4" fill="#1f3340"/><circle cx="285" cy="85" r="1.4" fill="#1f3340"/></g>
+</svg>
+    <p class="tag" id="tag">世田谷区・認可保育園</p>
+    <h1>保活アプリ<span class="sub">（指数シミュレーター・園ごと比較、見学メモ）</span></h1>
+    <p class="lead">入力は2〜3分です。表示は目安で、実際の指数は区の「保育のごあんない」と提出書類で決まります。</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="機能">
+    <button type="button" role="tab" id="tabIndex" aria-selected="true">指数</button>
+    <button type="button" role="tab" id="tabVisit" aria-selected="false">園・見学メモ</button>
+    <button type="button" role="tab" id="tabAbout" aria-selected="false">できること</button>
+  </nav>
+
+  <div id="viewIndex">
+  <ol class="steps" id="steps" aria-label="入力の進み具合">
+    <li>1 就労状況</li>
+    <li>2 世帯の状況</li>
+    <li>3 結果</li>
+  </ol>
+
+  <section class="panel" id="s1" aria-labelledby="h-s1">
+    <h2 id="h-s1">保護者の状況</h2>
+    <p class="notice" style="margin:0 0 6px">最初は入力例が入っています。ご自身の状況に変えてください。</p>
+
+    <div id="yearBox" hidden>
+      <label class="field" for="year">入園年度</label>
+      <select id="year"></select>
+    </div>
+    <label class="field" for="round">申込の選考</label>
+    <select id="round">
+      <option value="first">一次選考</option>
+      <option value="second">二次選考</option>
+    </select>
+
+    <div class="parent" id="parentA"></div>
+    <div class="parent" id="parentB"></div>
+    <div class="nav" style="margin-top:16px"><button class="primary" id="to2" type="button">次へ 世帯の状況</button></div>
+  </section>
+
+  <section class="panel" id="s2" aria-labelledby="h-s2" hidden>
+    <h2 id="h-s2">世帯の状況</h2>
+    <p class="hint" style="margin:0 0 8px">当てはまるものだけ選びます。同時に使えない項目は、指数が高い方だけが数えられます。</p>
+    <div id="adj"></div>
+    <div class="nav" style="margin-top:16px">
+      <button id="back1" type="button">戻る</button>
+      <button class="primary" id="to3" type="button">結果を見る</button>
+    </div>
+  </section>
+
+  <section id="s3" hidden>
+    <div class="panel" aria-live="polite">
+      <h2>予想指数</h2>
+      <div class="score"><span class="num" id="total">0</span><span class="unit">点</span></div>
+      <ul class="rows" id="rows"></ul>
+      <details>
+        <summary>同じ指数のときの優先順位</summary>
+        <ol id="tiebreak"></ol>
+      </details>
+    </div>
+
+    <div class="panel" id="distPanel" aria-labelledby="h-dist">
+      <h2 id="h-dist">昨年入園した子の指数</h2>
+      <p class="hint" style="margin:0 0 6px">令和8年4月に入園した子が、どの指数の区分だったかの分布です(区の公表資料)。</p>
+      <div class="ctl">
+        <div><label class="field" for="dReg">地域</label><select id="dReg"></select></div>
+        <div><label class="field" for="dCls">クラス</label><select id="dCls"></select></div>
+      </div>
+      <p id="dSummary" style="margin:12px 0 0; font-size:14px" aria-live="polite"></p>
+      <ul class="dist" id="dBars"></ul>
+      <details>
+        <summary>この数字の読み方</summary>
+        <ul>
+          <li>入園できた子だけの分布で、申し込んだ人全体ではありません。この区分の人が全員入れる、という意味ではありません。</li>
+          <li>園ごとの分布ではありません。人気の園では、上の区分に偏ります。</li>
+          <li>資料に「選考指数」の算出方法の記載はありません。このシミュレーターの合計と同じ考え方と思われますが、区に確認してください。</li>
+          <li>105点が多いのは、両親ともフルタイム(50点+50点)に、育休明けの加点(+5)がつく世帯が多いためと考えられます(推測)。</li>
+          <li>一次と二次のどちらで入園した子かは、資料に記載がありません。</li>
+          <li>令和9年は、申込者数や指数表が変わる可能性があります。</li>
+        </ul>
+      </details>
+      <p class="src" id="dSrc"></p>
+    </div>
+
+    <div class="notice" style="margin-bottom:14px">
+      <ul id="notices"></ul>
+    </div>
+
+    <div class="locked">
+      <p style="margin:0"><span class="badge">準備中</span><b>この点数で、どの園を狙えるか</b></p>
+      <ul>
+        <li>過去の申込状況をもとに、園ごとの入りやすさを並べて見る</li>
+        <li>希望園を枠いっぱいに並べる順番の提案</li>
+        <li>申込書類の下書きと、誰が何を出すかの管理</li>
+      </ul>
+    </div>
+    <button class="primary" id="toVisit" type="button" style="width:100%; margin-top:14px">見学した園を記録して比べる</button>
+    <p class="src" id="src"></p>
+    <div class="nav" style="margin-top:14px"><button id="back2" type="button">入力に戻る</button></div>
+  </section>
+  </div>
+
+  <div id="viewAbout" hidden>
+    <section class="panel">
+      <h2>このアプリでできること</h2>
+      <p class="hint" style="margin:0 0 4px">世田谷区の認可保育園に申し込む家庭向けの、試作版です。区の公表資料をもとに作っています。</p>
+      <ul class="about">
+        <li><b>予想指数を出す</b><span>保護者の就労状況と世帯の状況を選ぶと、区の指数表で予想指数を計算します。同時に使えない項目の整理も自動です。</span></li>
+        <li><b>昨年入園した子の指数を見る</b><span>地域とクラスごとに、昨年入園した子の指数の分布を表示します。自分の指数がどこに当たるかが分かります。</span></li>
+        <li><b>いまの空きを見る</b><span>区が毎月更新している、各園の空き数(予定)を、0〜5歳のクラスごとに見られます。空きがある園だけに絞ることもできます。</span></li>
+        <li><b>園ごとに倍率を比べる</b><span>令和9年4月の入園可能数と、昨年の申込数から、園ごとの倍率を並べます。縦の表と横の表を切り替えられます。</span></li>
+        <li><b>見学メモをつける</b><span>見学した園の確認項目(○△？)、保護者2人の評価、メモを記録し、最大3園を表で比べられます。</span></li>
+      </ul>
+      <h3 class="grp">使う前に知っておくこと</h3>
+      <ul class="about plain">
+        <li>表示は目安です。実際の指数と結果は、区の「保育のごあんない」と提出書類で決まります。</li>
+        <li>今の倍率は、昨年の申込数を今年の入園可能数で割ったものです。今年の申込者数は区が公表したら差し替えます。</li>
+        <li>見学メモは、このブラウザにだけ保存されます。他の端末や他の人には見えません。</li>
+        <li>今は世田谷区だけに対応しています。</li>
+      </ul>
+      <h3 class="grp">準備中</h3>
+      <ul class="about plain">
+        <li>4園以上の比較</li>
+        <li>予想指数と過去の倍率を重ねた、希望園の並べ方の提案</li>
+        <li>申込書類の下書きと、家族での分担管理</li>
+      </ul>
+      <button class="primary" id="aboutGo" type="button" style="width:100%; margin-top:16px">指数を計算する</button>
+    </section>
+  </div>
+
+  <div id="viewVisit" hidden>
+    <section class="panel">
+      <h2>見学メモ</h2>
+      <p class="hint" style="margin:0 0 10px">見学した園の記録をためて、昨年の倍率と並べて園を比べます。記録はこのブラウザにだけ保存され、他の人には見えません(試作版)。</p>
+      <p class="notice" style="margin:0 0 4px">予想指数 <b id="vScore">0</b> 点(「指数」タブの入力が反映されます)</p>
+      <label class="field" for="vCls">申込むクラス(令和9年4月時点)</label>
+      <select id="vCls"></select>
+      <p class="hint">クラスは生年月日で決まります。区の令和9年度クラス編成表で確認してください。倍率はこのクラスの数字で出ます。</p>
+      <button class="primary" id="vAdd" type="button" style="width:100%; margin-top:12px">見学を追加する</button>
+    </section>
+
+    <section class="panel" id="vForm" hidden aria-labelledby="h-vf">
+      <h2 id="h-vf">見学の記録</h2>
+      <label class="field" for="v-area">地域</label>
+      <select id="v-area"></select>
+      <label class="field" for="v-name">園の名前</label>
+      <input type="text" id="v-name" list="v-names" autocomplete="off">
+      <datalist id="v-names"></datalist>
+      <p class="hint" id="vLink"></p>
+      <label class="field" for="v-date">見学日</label>
+      <input type="date" id="v-date">
+      <h3 class="grp" style="margin-top:18px">確認した項目</h3>
+      <p class="hint" style="margin:0 0 6px"><b>○</b> 良い　<b>△</b> 気になる　<b>？</b> 聞き忘れ。聞けなかった項目は「？」のままにすると、次の見学や問い合わせで確認できます。</p>
+      <div id="vItems"></div>
+      <label class="field" for="v-ra">保護者Aの評価</label>
+      <select id="v-ra"></select>
+      <label class="field" for="v-rb">保護者Bの評価</label>
+      <select id="v-rb"></select>
+      <label class="field" for="v-memo">メモ</label>
+      <textarea id="v-memo"></textarea>
+      <p class="err" id="vErr" hidden></p>
+      <div class="nav" style="margin-top:16px">
+        <button id="vCancel" type="button">やめる</button>
+        <button class="primary" id="vSave" type="button">保存する</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>見学した園 <span id="vCount" style="font-size:14px; color:var(--muted)"></span></h2>
+      <label class="field" for="vSort" style="margin-top:0">並び順</label>
+      <select id="vSort">
+        <option value="added">登録した順</option>
+        <option value="date">見学日が新しい順</option>
+        <option value="rate">昨年の全希望の倍率が低い順</option>
+        <option value="score">評価が高い順</option>
+      </select>
+      <div id="vList" style="margin-top:12px"></div>
+    </section>
+
+    <section class="panel">
+      <h2>園を比べる</h2>
+      <p class="hint" id="vCmpHint" style="margin:0"></p>
+      <div class="tblwrap" id="vCmp"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-find">
+      <h2 id="h-find">園を探す(昨年の倍率)</h2>
+      <p class="hint" id="fIntro" style="margin:0 0 6px">昨年の4月入園(一次選考)で、申込数が入園可能数の何倍だったかを並べています。「第1希望」はその園を第一に希望した人、「全希望」は希望順位に関係なく書いた人の数です。第1希望が少なくても全希望が多い園は、他の園に入れなかった人が集まるため、高い指数が必要になることがあります。指数(点数)による有利・不利は反映していません。昨年の実績で、今年の結果を保証するものではありません。</p>
+      <div class="ctl">
+        <div><label class="field" for="fRegion">地域</label><select id="fRegion"></select></div>
+        <div><label class="field" for="fSort">並び順</label>
+          <select id="fSort">
+            <option value="r2asc">全希望の倍率が低い順</option>
+            <option value="r2desc">全希望の倍率が高い順</option>
+            <option value="r1asc">第1希望の倍率が低い順</option>
+            <option value="r1desc">第1希望の倍率が高い順</option>
+            <option value="nowdesc">いまの空きが多い順</option>
+            <option value="vacdesc">入園可能数が多い順</option>
+            <option value="name">園名順</option>
+          </select></div>
+      </div>
+      <div class="ctl"><div><label class="field" for="fMode">表の向き</label><select id="fMode"><option value="card">カード(園ごとに枠)</option><option value="col">一覧(1園1行)</option><option value="row">横(園を左右に並べる)</option></select></div></div>
+      <label class="check" style="border-top:0"><input type="checkbox" id="fNow"><span class="txt">いま空きがある園だけ(今月・来月入園の空き)</span></label>
+      <label class="check" style="border-top:0"><input type="checkbox" id="fHide" checked><span class="txt">入園可能数が0人・記載のない園を除く</span></label>
+      <p class="hint" id="fCount" style="margin:0"></p>
+      <div id="fList"></div>
+      <button type="button" id="fMore" style="width:100%; margin-top:10px">さらに表示する</button>
+      <p class="src" id="fSrc"></p>
+    </section>
+
+    <div class="locked">
+      <p style="margin:0"><span class="badge">準備中</span><b>希望園の並べ方の提案</b></p>
+      <ul>
+        <li>予想指数と、昨年の倍率や選考結果を重ねて、希望園を枠いっぱいに並べる順番を提案</li>
+        <li>令和9年4月分の入園可能数が公表されたら、倍率を差し替え</li>
+        <li>4園以上の比較</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="bar" aria-live="polite">
+  <div class="in"><span class="t">予想指数(目安)</span><span class="n"><span id="barTotal">0</span> 点</span></div>
+</div>
+
+<!-- 年度別の点数表。次の年度は data/ にファイルを足して、ここに1行足す。 -->
+<script>
+/* r9.js */
+/* 世田谷区 認可保育園 指数表 令和9年(2027年)4月入園分
+   出典: 保育のごあんない(令和8年9月発行)「9.指数」
+   https://www.city.setagaya.lg.jp/documents/34825/09.pdf
+   次の年度を足すときは、このファイルを data/r10.js などの名前でコピーして中身を差し替え、
+   index.html の script タグを1行足す。 */
+(function () {
+  var WORK = [
+    { l: '週5日以上かつ週40時間以上', p: 50 },
+    { l: '週5日以上かつ週37時間以上', p: 45 },
+    { l: '週4日以上かつ週35時間以上', p: 40 },
+    { l: '週4日以上かつ週30時間以上', p: 35 },
+    { l: '週3日以上かつ週25時間以上', p: 30 },
+    { l: '週3日以上かつ週20時間以上', p: 25 },
+    { l: '週3日以上かつ週16時間以上', p: 20 },
+    { l: '月48時間以上', p: 15 }
+  ];
+
+  window.SHISUU_DATA = window.SHISUU_DATA || {};
+  window.SHISUU_DATA.r9 = {
+    id: 'r9',
+    order: 2027,
+    label: '令和9年(2027年)4月入園',
+    source: {
+      name: '保育のごあんない(令和8年9月発行)「9.指数」',
+      url: 'https://www.city.setagaya.lg.jp/documents/34825/09.pdf'
+    },
+    checkedOn: '2026年10月27日',
+    deadlines: [
+      '一次選考 オンライン・郵送 令和8年11月5日(木)消印有効 / 持参 11月10日(火)',
+      '二次選考 オンライン・郵送 令和9年1月27日(水)消印有効 / 持参 2月1日(月)'
+    ],
+
+    /* 保護者ごとの利用基準指数。c = 区分、items = 細目(l: 表示、p: 指数) */
+    categories: [
+      { id: 'work', label: '就労(勤務・在宅・自営・業務委託)', items: WORK,
+        note: '就労時間は入園月の1日時点で数えます。通勤時間は含めず、休憩時間は含めます。就労開始が入園月の2日以降の場合は「就労内定」の指数になります(育休からの復職予定を除く)。' },
+      { id: 'naitei', label: '就労内定・開業予定', items: [
+        { l: '週5日以上かつ週37時間以上', p: 30 },
+        { l: '週4日以上かつ週35時間以上', p: 25 },
+        { l: '週4日以上かつ週30時間以上', p: 20 },
+        { l: '週3日以上かつ週25時間以上', p: 15 },
+        { l: '月48時間以上', p: 10 }
+      ], note: '利用できる期間は1か月以内です。' },
+      { id: 'job', label: '求職中', items: [
+        { l: '求職のため外出を常態としている', p: 10 }
+      ], note: '利用できる期間は3か月以内です。' },
+      { id: 'study', label: '就学・技能習得など', items: WORK,
+        note: '就労と同じ時間の区分で数えます。就学の予定は「就労内定」と同じ区分です。' },
+      { id: 'birth', label: '出産前後の休養', items: [
+        { l: '出産予定月をはさんで前後各2か月以内(5か月以内)', p: 15 }
+      ] },
+      { id: 'illness', label: '疾病・入院・療養', items: [
+        { l: '入院(1か月以上)', p: 50 },
+        { l: '居宅内療養 常時病臥', p: 50 },
+        { l: '精神性 精神障害者保健福祉手帳を持つ程度', p: 50 },
+        { l: '精神性 上記以外の程度', p: 30 },
+        { l: '一般療養 安静を要する状態(常時病臥に至らない程度)', p: 30 },
+        { l: '一般療養 通院加療を要する状態', p: 20 }
+      ] },
+      { id: 'disability', label: '保護者の障害', items: [
+        { l: '身体障害1・2級、聴覚2・3級以上、精神障害者保健福祉手帳、愛の手帳', p: 50 },
+        { l: '身体障害3級、聴覚4・6級', p: 30 },
+        { l: '身体障害4級以下(聴覚障害を除く)', p: 20 }
+      ] },
+      { id: 'carevisit', label: '介護・施設等への付添(週の日数と時間)', items: [
+        { l: '週5日以上かつ週30時間以上', p: 50 },
+        { l: '週5日以上かつ週20時間以上', p: 45 },
+        { l: '週4日以上かつ週24時間以上', p: 40 },
+        { l: '週4日以上かつ週16時間以上', p: 35 },
+        { l: '週3日以上かつ週18時間以上', p: 30 },
+        { l: '週3日以上かつ週12時間以上', p: 25 }
+      ], note: '介護の対象は三親等内の親族です。' },
+      { id: 'care', label: '介護(要介護者の状態)', items: [
+        { l: '重度障害者などの全介護', p: 50 },
+        { l: '常時観察と、食事・排泄・入浴の介護が必要(全介護を除く)', p: 40 },
+        { l: '上記以外', p: 20 }
+      ], note: '介護の対象は三親等内の親族です。' },
+      { id: 'disaster', label: '災害の復旧', items: [
+        { l: '災害復旧のため保育できない', p: 50 }
+      ] },
+      { id: 'absent', label: '保護者不存在など', items: [
+        { l: '死亡、離婚、行方不明、拘禁、離婚を前提とした別居など', p: 50 }
+      ], note: 'ひとり親世帯の調整(+20)は、次の画面で自動的にチェックされます。' }
+    ],
+
+    /* 世帯の調整基準。no = 冊子の調整基準番号。pt の代わりに choices を持つ項目は選択式。 */
+    adjustments: [
+      { id: 'welfare', no: 1, g: '家庭の状況', l: '生活保護世帯', p: 10 },
+      { id: 'single', no: 2, g: '家庭の状況', l: 'ひとり親世帯、または保護者不存在', p: 20, n: '客観的に確認できる場合に適用' },
+      { id: 'tanshin', no: 3, g: '家庭の状況', l: '入園希望月に、保護者のどちらかが単身赴任', p: 3, n: '会社命令で、希望月の1日から続く3か月以上。自営業・出張・自己都合は対象外' },
+      { id: 'sanqkyu', no: 10, g: '家庭の状況', l: '申込児以外の子が産休中で、産休明けに続けて育休を取る', p: -5 },
+      { id: 'sibling', no: 11, g: '家庭の状況', l: '申込児以外の兄弟姉妹が在園中、または同時に申込中', n: '利用調整の対象施設に限る',
+        choices: [{ l: '多胎児の場合', p: 6 }, { l: 'それ以外', p: 5 }] },
+      { id: 'grand', no: 16, g: '家庭の状況', l: '同一世帯の祖父母も看護等が必要になり、緊急保育を2か月を超えて利用', p: 2 },
+      { id: 'arrears', no: 19, g: '家庭の状況', l: '兄弟姉妹の保育料等を、正当な理由なく3か月以上滞納', p: -20, n: '申込締切日の時点' },
+      { id: 'outside', no: 20, g: '家庭の状況', l: '区外在住で、勤務地が区内', p: -10, n: '転入予定の場合は対象外' },
+
+      { id: 'kyuumei', no: 4, g: '育休・復職・転園', l: '申込児の産休明け、または育休明けの予定', p: 5 },
+      { id: 'taien', no: 5, g: '育休・復職・転園', l: '育休のため区の対象施設を一時退園し、育休明けに再入園', p: 20, n: '令和6年(2024年)8月末以前に退園した場合に限る' },
+      { id: 'tenen', no: 15, g: '育休・復職・転園', l: '特別な事情による転園(兄妹別園・遠距離・転勤・転職・転居・転入・延長申込など)', p: 3, n: '利用調整の対象施設に限る' },
+      { id: 'kodomoen', no: 17, g: '育休・復職・転園', l: '認定こども園で1号から2号に切り替わり、同じ園のみを希望', p: 20 },
+      { id: 'sotsu', no: 18, g: '育休・復職・転園', l: '区内の年齢上限がある保育所等を最終年齢クラスで卒園し、区内の保育所等へ申込', p: 20, n: '卒園後の受け入れ先が決まっている場合は対象外。利用調整の対象施設に限る' },
+      { id: 'staff', no: 21, g: '育休・復職・転園', l: '区内の保育従事者等で、申込児が入園できないと産休・育休から復帰できず施設運営に深刻な影響がある', p: 2, secondOnly: true, n: '4月入園の二次選考のみ' },
+
+      { id: 'mushou', no: 12, g: '預け先', l: '認可外保育施設などに有償で預けている', n: '月ごとの預け時間',
+        choices: [{ l: '月96時間以上', p: 6 }, { l: '月48時間以上96時間未満', p: 5 }] },
+      { id: 'betsukyo', no: 13, g: '預け先', l: '別居の親族(就労先を除く)に有償で月48時間以上預けている', p: 1 },
+      { id: 'youchien', no: 14, g: '預け先', l: '申込児が幼稚園に在園している', p: 1 },
+
+      { id: 'shougai3', no: 6, g: '障害・手帳', l: '保護者が身体障害者手帳3級(聴覚4・6級)で、保育に著しい負担がかかる', p: 5 },
+      { id: 'techo', no: 7, g: '障害・手帳', l: '保護者が身体障害者手帳1〜4級、精神障害者保健福祉手帳、または愛の手帳を持つ', p: 1 },
+      { id: 'zenkaigo', no: 8, g: '障害・手帳', l: '同一世帯に全介護が必要な重度障害者がいる(申込児を除く)', p: 2 },
+      { id: 'jishou', no: 9, g: '障害・手帳', l: '申込児の障害で通所・通院があり、保護者の就労が制限されている', p: 15 }
+    ],
+
+    /* 同時には使えない項目。どれか複数に当てはまるときは、指数が高いものだけ適用する。 */
+    exclusive: [
+      { ids: ['kyuumei', 'taien'], why: '調整基準4と5は重複しません' },
+      { ids: ['shougai3', 'techo'], why: '調整基準6と7は重複しません' },
+      { ids: ['mushou', 'betsukyo', 'youchien', 'kodomoen'], why: '調整基準12〜14と17は重複しません' },
+      { ids: ['tenen', 'sotsu'], why: '調整基準15と18は重複しません' },
+      { ids: ['kyuumei', 'mushou', 'betsukyo', 'youchien'], why: '調整基準4と12〜14は、指数が高い方を適用します(育休対象児以外の申込児)' }
+    ],
+
+    /* 同じ指数のときの優先順位 */
+    tiebreak: [
+      '調整基準18(卒園後の継続申込)に当てはまる世帯',
+      '利用基準指数が高い世帯',
+      '階層が低い世帯(同じ階層では所得割課税額が低い順。税の資料がない場合は最高階層)',
+      '申込児を認可外保育施設に有償で預けている期間が長い人',
+      '区に住民登録をして、引き続き住んでいる期間が長い世帯',
+      '類型の順位: 不存在等、疾病・障害、就労、介護、出産、就労内定・開業予定、求職、就学等'
+    ],
+
+    notices: [
+      '区内に住んでいても勤めてもいない方(転入予定を除く)や、入園できない場合に育休の延長ができる方には、この指数表は適用されません。',
+      '調整基準5・11・15・18は、利用調整の対象施設への申込に限ります。',
+      '申込後に状況が変わったときは、指数が上がる変更は申込締切日までに、下がる変更は締切日後でもすぐに「申込内容変更・取下届」を出します。'
+    ]
+  };
+})();
+
+</script>
+<script>
+/* facilities-r8.js */
+/* 世田谷区 認可保育園 園ごとの入園可能数と申込者数
+   令和8年(2026年)4月入園・一次選考の実績。令和9年4月分が公表されたら data/facilities-r9.js として追加する。
+   rows の各行: [地域, 園名, 入園可能数[0〜5歳], 全希望順位の申込数[0〜5歳], 第1希望の申込数[0〜5歳]]  null は資料に「***」と記載。
+   出典: 世田谷区「入園申込者数(最終集計)」「入園可能数」(令和8年4月一次)。地域別の小計と全列一致を確認済み。 */
+window.SHISUU_FAC = window.SHISUU_FAC || {};
+window.SHISUU_FAC.r8 = {
+  id: 'r8', order: 2026, short: '令和8年4月',
+  label: '令和8年(2026年)4月入園・一次選考',
+  checkedOn: '2026年10月27日',
+  sources: [
+    { name: '令和8年4月(一次)入園申込者数(最終集計)', url: 'https://www.city.setagaya.lg.jp/documents/1587/saisyusyukei_202604_1.pdf' },
+    { name: '令和8年4月(一次)入園可能数', url: 'https://www.city.setagaya.lg.jp/documents/1587/nyuuenkanousuu_202604_1.pdf' }
+  ],
+  rows: [
+    ["世田谷","池尻",[null,22,0,1,1,0],[null,52,5,12,2,0],[null,15,1,0,0,0]],
+    ["世田谷","三宿",[10,6,1,0,2,0],[44,55,6,13,3,0],[6,15,1,2,3,0]],
+    ["世田谷","太子堂",[6,7,3,2,0,0],[31,42,6,10,0,0],[4,6,0,4,0,0]],
+    ["世田谷","三軒茶屋",[null,17,0,0,0,0],[null,59,6,8,0,0],[null,13,3,1,0,0]],
+    ["世田谷","世田谷",[8,12,4,4,0,3],[55,90,26,27,1,0],[18,24,5,8,1,0]],
+    ["世田谷","桜",[null,18,3,1,1,0],[null,100,20,16,4,0],[null,20,5,1,3,0]],
+    ["世田谷","東弦巻",[8,10,0,0,0,0],[46,79,11,5,3,1],[11,17,0,0,1,1]],
+    ["世田谷","弦巻",[null,16,1,1,1,1],[null,84,11,7,1,0],[null,5,3,2,0,0]],
+    ["世田谷","西弦巻",[8,6,3,1,1,0],[41,75,15,5,1,0],[7,6,1,1,0,0]],
+    ["世田谷","南桜丘",[7,10,0,3,1,0],[36,86,19,19,4,1],[6,8,3,4,0,0]],
+    ["世田谷","わかくさ",[10,6,1,1,0,0],[72,142,34,24,7,0],[12,29,7,8,2,0]],
+    ["世田谷","下馬",[4,14,0,0,0,0],[22,30,4,0,1,0],[6,6,0,0,0,0]],
+    ["世田谷","駒沢",[null,17,1,1,0,1],[null,65,12,11,0,0],[null,11,3,3,0,0]],
+    ["世田谷","上馬",[4,7,4,3,1,0],[25,61,8,12,2,0],[6,7,2,1,2,0]],
+    ["世田谷","鳩ぽっぽ",[10,2,2,0,1,0],[90,61,17,10,0,2],[15,0,5,2,0,0]],
+    ["世田谷","さくらのその",[null,null,null,3,0,0],[null,null,null,20,5,1],[null,null,null,1,0,0]],
+    ["世田谷","さくらのその分園つぼみ",[10,8,0,null,null,null],[76,108,26,null,null,null],[14,19,5,null,null,null]],
+    ["世田谷","池尻かもめ",[10,3,2,0,0,0],[49,48,13,10,2,1],[9,7,4,2,0,0]],
+    ["世田谷","下馬鳩ぽっぽ",[9,3,1,2,0,0],[54,53,15,6,0,1],[5,5,2,1,0,0]],
+    ["世田谷","下馬鳩ぽっぽ分園野の花園",[6,2,1,0,0,0],[44,46,7,7,1,0],[1,1,1,0,0,0]],
+    ["世田谷","おともだち",[6,6,2,2,1,0],[34,41,8,6,0,1],[1,4,0,0,0,0]],
+    ["世田谷","おともだち分園こまどめ",[null,null,0,2,0,0],[null,null,3,1,0,0],[null,null,0,0,0,0]],
+    ["世田谷","おともだち分園こまつなぎ",[6,11,null,null,null,null],[14,30,null,null,null,null],[2,1,null,null,null,null]],
+    ["世田谷","桜ヶ丘",[6,6,2,0,1,0],[45,56,27,13,6,1],[4,8,7,1,0,1]],
+    ["世田谷","経堂",[10,6,0,1,0,0],[108,187,45,46,10,4],[45,48,17,9,2,1]],
+    ["世田谷","オリービア",[null,12,0,0,0,0],[null,82,7,14,3,0],[null,31,1,3,2,0]],
+    ["世田谷","太子堂なごみ",[9,10,2,0,0,0],[63,69,15,14,1,1],[7,11,4,2,0,0]],
+    ["世田谷","烏山杉の子分園みなみ風",[null,10,0,0,0,0],[null,113,24,23,4,0],[null,21,1,2,0,0]],
+    ["世田谷","すこやか園分園キリン",[6,0,0,0,0,0],[43,30,9,10,1,0],[1,2,0,0,0,0]],
+    ["世田谷","もみの木保育園太子堂",[12,8,2,0,0,0],[122,118,35,20,2,2],[26,23,6,2,0,2]],
+    ["世田谷","世田谷はっと",[9,16,5,0,0,0],[51,56,18,7,2,3],[15,19,6,2,2,2]],
+    ["世田谷","遊愛",[9,3,3,7,0,0],[54,54,14,21,1,0],[16,14,4,5,0,0]],
+    ["世田谷","桜すくすく",[6,6,0,3,0,0],[43,77,14,18,5,0],[9,10,3,6,0,0]],
+    ["世田谷","駒沢こだま",[5,2,0,0,0,0],[41,35,7,15,2,0],[8,3,2,4,1,0]],
+    ["世田谷","世田谷いちい北ウイング",[9,15,0,0,0,0],[68,114,22,5,4,0],[11,20,2,1,2,0]],
+    ["世田谷","世田谷いちい南ウイング",[9,15,0,0,0,0],[69,116,23,6,4,0],[10,11,2,0,0,0]],
+    ["世田谷","ポピンズナーサリースクール経堂南",[6,1,1,0,0,0],[63,75,27,16,6,1],[9,9,4,1,1,1]],
+    ["世田谷","キッズスマイル世田谷上馬",[6,4,1,0,0,0],[11,16,3,2,0,0],[0,5,0,0,0,0]],
+    ["世田谷","クラルテ",[6,2,0,0,0,0],[44,48,5,8,0,0],[10,11,1,1,0,0]],
+    ["世田谷","ミアヘルサ保育園ひびき上馬",[6,7,2,null,null,null],[12,26,3,null,null,null],[2,3,0,null,null,null]],
+    ["世田谷","ラフ・クルー経堂",[6,5,0,null,null,null],[45,60,5,null,null,null],[4,2,0,null,null,null]],
+    ["世田谷","昭和ナースリー",[9,3,0,null,null,null],[85,92,18,null,null,null],[8,11,0,null,null,null]],
+    ["世田谷","グローバルキッズ世田谷四丁目園",[6,4,1,0,0,0],[31,40,9,10,1,0],[1,5,0,1,0,0]],
+    ["世田谷","グローバルキッズ若林園",[6,4,0,1,0,1],[31,23,5,12,0,0],[6,3,0,0,0,0]],
+    ["世田谷","桜の詩",[12,3,0,0,0,0],[45,59,27,12,7,1],[12,13,5,1,5,0]],
+    ["世田谷","おともだち・ララ",[6,6,3,4,0,0],[34,42,9,9,0,1],[7,9,0,1,0,0]],
+    ["世田谷","わらべうた三宿",[6,7,0,null,null,null],[18,28,1,null,null,null],[5,1,0,null,null,null]],
+    ["世田谷","祖師谷わかば千歳船橋分園あおばＡ",[4,1,0,null,null,null],[43,26,10,null,null,null],[0,0,0,null,null,null]],
+    ["世田谷","祖師谷わかば千歳船橋分園あおばＢ",[2,2,0,null,null,null],[17,17,3,null,null,null],[0,1,0,null,null,null]],
+    ["世田谷","三宿の杜なごみ",[8,0,0,0,null,null],[29,28,5,5,null,null],[4,5,1,0,null,null]],
+    ["世田谷","三軒茶屋えほん",[5,6,1,1,0,0],[44,42,11,13,0,1],[8,4,2,2,0,0]],
+    ["世田谷","よつば",[6,2,0,0,0,0],[25,30,11,13,0,0],[4,4,2,1,0,0]],
+    ["世田谷","三茶こだま",[9,0,0,0,0,0],[39,29,4,10,0,0],[8,4,0,0,0,0]],
+    ["世田谷","上町しぜんの国",[12,3,3,2,0,0],[52,81,30,18,8,0],[13,25,8,3,3,0]],
+    ["世田谷","天使の詩",[9,3,0,0,0,1],[34,37,7,1,0,1],[7,12,2,0,0,0]],
+    ["世田谷","三軒茶屋わこう",[6,1,0,null,null,null],[18,15,5,null,null,null],[3,6,1,null,null,null]],
+    ["世田谷","世田谷1丁目ゆたか園",[9,3,2,1,0,0],[32,60,14,11,4,0],[8,12,3,2,1,0]],
+    ["世田谷","スマイルキッズ駒繋",[9,1,0,2,0,0],[25,22,3,2,1,0],[5,4,1,0,1,0]],
+    ["世田谷","モニカ三軒茶屋園",[6,1,0,null,null,null],[21,22,4,null,null,null],[2,1,0,null,null,null]],
+    ["世田谷","つくし",[6,3,0,null,null,null],[25,20,1,null,null,null],[1,0,0,null,null,null]],
+    ["世田谷","フロンティアキッズ上町",[4,1,1,0,1,0],[20,22,6,3,1,0],[1,1,1,0,0,0]],
+    ["世田谷","いいほいくえん用賀",[null,3,0,0,0,0],[null,91,16,9,3,0],[null,9,3,2,0,0]],
+    ["世田谷","フロンティアキッズ上馬",[6,0,0,1,0,1],[34,17,7,11,0,1],[4,0,2,2,0,0]],
+    ["世田谷","野沢そらの木",[7,0,0,0,0,0],[37,34,6,7,0,0],[4,4,0,0,0,0]],
+    ["世田谷","若葉の詩",[12,3,0,0,0,0],[39,48,11,2,0,1],[11,15,2,0,0,0]],
+    ["世田谷","つむぎ",[9,6,1,0,0,0],[57,84,23,24,1,0],[10,17,9,8,0,0]],
+    ["世田谷","サン・ベビールーム",[5,4,0,null,null,null],[14,12,4,null,null,null],[0,1,0,null,null,null]],
+    ["世田谷","グローバルキッズ松陰神社駅前保育園",[6,4,1,0,0,0],[36,44,14,10,2,0],[4,6,1,0,0,0]],
+    ["世田谷","多聞幼稚園",[null,null,null,null,0,0],[null,null,null,null,0,0],[null,null,null,null,0,0]],
+    ["世田谷","青葉学園野沢こども園",[null,8,4,8,0,0],[null,75,21,30,7,5],[null,24,6,14,6,4]],
+    ["世田谷","昭和女子大学附属昭和こども園",[9,3,0,0,0,0],[115,166,54,45,14,9],[63,93,42,28,14,8]],
+    ["世田谷","日本大学認定こども園",[8,7,1,14,0,0],[53,105,29,51,7,5],[17,29,9,23,6,4]],
+    ["世田谷","もみの木Mom太子堂Ａ",[2,0,0,null,null,null],[32,25,5,null,null,null],[0,0,0,null,null,null]],
+    ["世田谷","もみの木Mom太子堂Ｂ",[1,0,0,null,null,null],[11,4,3,null,null,null],[0,0,1,null,null,null]],
+    ["世田谷","ふたばクラブ三軒茶屋",[6,0,1,null,null,null],[15,11,1,null,null,null],[1,0,0,null,null,null]],
+    ["世田谷","なかよしほいくえん",[4,0,0,null,null,null],[14,14,5,null,null,null],[3,1,1,null,null,null]],
+    ["世田谷","ベベ・ア・パリ経堂",[3,5,0,null,null,null],[24,39,3,null,null,null],[0,0,0,null,null,null]],
+    ["世田谷","上馬つきの木",[3,3,0,null,null,null],[20,33,5,null,null,null],[6,3,0,null,null,null]],
+    ["世田谷","マリアの家",[6,0,1,null,null,null],[4,5,4,null,null,null],[0,0,0,null,null,null]],
+    ["世田谷","世田谷ほしにねがいをＡ",[4,0,0,null,null,null],[23,25,5,null,null,null],[4,3,0,null,null,null]],
+    ["世田谷","世田谷ほしにねがいをＢ",[1,0,0,null,null,null],[4,2,1,null,null,null],[0,0,0,null,null,null]],
+    ["世田谷","ヤクルト経堂",[null,7,0,null,null,null],[null,26,1,null,null,null],[null,2,0,null,null,null]],
+    ["北沢","豪徳寺",[null,18,1,11,0,0],[null,127,38,39,3,0],[null,34,7,7,2,0]],
+    ["北沢","守山",[null,18,4,7,1,0],[null,67,16,36,5,2],[null,23,7,13,2,2]],
+    ["北沢","若竹",[null,16,0,0,0,0],[null,32,6,14,0,1],[null,8,3,3,0,0]],
+    ["北沢","松原北",[8,8,1,1,0,0],[49,47,10,12,0,0],[13,11,1,0,0,0]],
+    ["北沢","赤堤",[null,19,0,2,1,0],[null,64,18,20,0,0],[null,8,4,2,0,0]],
+    ["北沢","春明",[9,4,1,1,1,1],[45,86,34,20,7,0],[15,15,4,2,2,0]],
+    ["北沢","松原",[10,6,0,0,0,0],[73,60,15,21,2,0],[15,16,3,8,0,0]],
+    ["北沢","早苗",[6,3,3,0,0,0],[24,52,21,21,7,2],[7,13,6,1,3,1]],
+    ["北沢","早苗分園ほなみ",[3,7,2,null,null,null],[10,32,14,null,null,null],[1,3,4,null,null,null]],
+    ["北沢","河田",[null,8,6,1,0,0],[null,49,28,10,3,1],[null,1,1,0,0,0]],
+    ["北沢","梅丘至誠",[6,2,1,0,0,0],[93,76,32,23,6,0],[30,16,8,4,0,0]],
+    ["北沢","梅丘至誠パーチェ",[9,0,0,null,null,null],[72,56,14,null,null,null],[5,2,2,null,null,null]],
+    ["北沢","東北沢ききょう",[15,3,4,0,0,0],[44,60,16,27,5,1],[16,16,2,5,2,1]],
+    ["北沢","梅丘なごみ",[null,12,0,0,0,0],[null,57,13,16,2,0],[null,10,1,1,1,0]],
+    ["北沢","代沢みこころ",[null,10,1,0,0,0],[null,28,3,6,2,0],[null,1,0,1,0,0]],
+    ["北沢","みんなのおうち",[9,8,1,1,0,0],[30,70,25,18,4,2],[11,18,3,3,2,0]],
+    ["北沢","ポピンズナーサリースクール羽根木",[9,6,0,2,0,0],[27,29,10,16,0,0],[5,3,0,1,0,0]],
+    ["北沢","赤堤ゆりの木",[9,1,1,0,0,0],[69,63,32,13,5,1],[6,11,9,0,0,0]],
+    ["北沢","マリア",[9,3,3,3,0,0],[43,69,36,23,4,2],[13,19,13,10,3,1]],
+    ["北沢","わらべうた経堂",[6,6,0,null,null,null],[26,37,6,null,null,null],[4,3,0,null,null,null]],
+    ["北沢","スマイルキッズ下北沢",[9,2,1,0,0,0],[34,41,7,11,2,0],[1,1,1,2,0,0]],
+    ["北沢","にじのおうち",[6,2,1,0,0,0],[42,50,21,18,2,2],[8,9,4,6,0,0]],
+    ["北沢","代沢ききょう",[10,6,0,0,0,0],[57,68,14,24,8,0],[18,18,3,5,3,0]],
+    ["北沢","RISSHO KID'S きらり代沢",[6,3,3,0,0,0],[22,44,11,15,5,0],[10,11,4,5,3,0]],
+    ["北沢","羽根木こども園",[12,8,3,2,0,0],[51,60,25,22,6,2],[6,12,7,4,1,2]],
+    ["北沢","円光院幼稚園",[null,null,null,30,0,0],[null,null,null,29,7,0],[null,null,null,17,4,0]],
+    ["北沢","世田谷代田仁慈保幼園",[12,6,3,2,0,0],[86,118,42,47,6,0],[15,29,13,11,4,0]],
+    ["北沢","北沢みこころ",[6,2,0,null,null,null],[15,17,4,null,null,null],[2,1,0,null,null,null]],
+    ["北沢","まつばらけやき保育園分園",[6,0,null,null,null,null],[43,20,null,null,null,null],[10,3,null,null,null,null]],
+    ["北沢","まつばらけやき保育園本園",[6,0,0,0,0,0],[59,41,17,16,2,0],[10,8,4,2,1,0]],
+    ["北沢","アルタベビー下北沢園",[5,2,0,null,null,null],[11,14,3,null,null,null],[1,0,0,null,null,null]],
+    ["北沢","おおわだ保育園世田谷豪徳寺",[6,4,1,0,0,0],[76,80,31,22,6,0],[22,17,2,7,0,0]],
+    ["北沢","キッズスマイル世田谷梅丘",[6,2,1,0,0,0],[42,34,16,10,4,0],[3,4,2,1,1,0]],
+    ["北沢","葵みこころ",[5,0,0,3,0,0],[29,18,1,11,2,0],[1,2,0,0,0,0]],
+    ["北沢","にじいろ保育園松原",[6,4,2,2,0,0],[55,38,12,17,4,0],[3,4,2,0,1,0]],
+    ["北沢","スマイルキッズドレミファ",[4,5,1,null,null,null],[21,24,5,null,null,null],[0,1,0,null,null,null]],
+    ["北沢","京王キッズプラッツ桜上水",[null,9,0,0,0,0],[null,40,14,7,2,1],[null,11,1,1,0,0]],
+    ["北沢","風の丘めぐみ保育園森棟",[null,null,null,3,0,0],[null,null,null,18,5,0],[null,null,null,2,0,0]],
+    ["北沢","風の丘めぐみ保育園風棟",[9,3,0,null,null,null],[69,60,19,null,null,null],[16,10,2,null,null,null]],
+    ["北沢","下北沢そらいろ",[6,4,0,1,0,1],[48,56,10,22,5,0],[3,4,2,2,1,0]],
+    ["北沢","あそびの森ゆう",[6,4,0,null,null,null],[57,58,11,null,null,null],[9,9,2,null,null,null]],
+    ["北沢","あそびの森ゆう＋",[null,null,null,0,0,0],[null,null,null,11,1,0],[null,null,null,1,0,0]],
+    ["北沢","下北沢",[7,11,3,3,0,0],[89,114,33,47,6,0],[22,28,13,8,1,0]],
+    ["北沢","学び処世田谷保育屋敷わびさびあそび",[6,6,2,1,0,0],[35,53,19,11,3,0],[6,8,5,2,0,0]],
+    ["北沢","みこと",[6,1,1,1,0,0],[32,41,9,14,3,0],[5,7,0,4,0,0]],
+    ["北沢","代沢みこころ保育園分園小さな森の保育園",[null,10,0,null,null,null],[null,10,1,null,null,null],[null,0,0,null,null,null]],
+    ["玉川","南奥沢",[null,9,0,1,0,0],[null,26,7,1,0,1],[null,11,3,0,0,0]],
+    ["玉川","奥沢",[7,2,0,3,0,1],[32,36,10,1,1,1],[11,8,4,0,0,1]],
+    ["玉川","中町",[9,8,1,0,1,0],[33,88,26,16,2,0],[7,26,8,8,2,0]],
+    ["玉川","玉川",[null,16,2,4,1,0],[null,109,18,24,3,0],[null,24,3,7,2,0]],
+    ["玉川","上用賀",[7,8,1,4,1,0],[33,69,17,11,0,1],[3,9,3,2,0,0]],
+    ["玉川","ふじみ",[null,19,0,0,1,0],[null,54,10,8,0,0],[null,8,1,0,0,0]],
+    ["玉川","用賀",[null,19,0,0,2,1],[null,127,28,24,1,1],[null,34,5,6,1,0]],
+    ["玉川","用賀分園わくわく",[null,9,0,0,0,0],[null,79,9,13,0,1],[null,3,0,3,0,0]],
+    ["玉川","等々力中央",[4,15,2,8,0,2],[61,152,40,32,1,1],[9,38,10,14,0,0]],
+    ["玉川","新町",[null,15,0,4,0,0],[null,38,8,3,0,0],[null,11,0,0,0,0]],
+    ["玉川","めぐみ",[9,2,3,0,0,1],[31,27,10,7,0,1],[4,4,1,1,0,0]],
+    ["玉川","いずみ",[6,6,1,2,0,0],[18,33,9,6,0,1],[1,6,2,1,0,0]],
+    ["玉川","わかな",[null,14,3,0,0,0],[null,61,11,10,1,0],[null,17,3,1,0,0]],
+    ["玉川","ナオミ",[15,9,0,0,0,0],[69,122,31,25,4,1],[17,26,7,2,1,0]],
+    ["玉川","ナオミ分園ぶどうの木",[9,0,0,0,0,0],[15,15,3,5,1,1],[1,2,1,0,0,0]],
+    ["玉川","ナオミ分園りんごの木",[6,3,0,0,0,0],[18,21,8,5,1,1],[2,0,0,1,0,0]],
+    ["玉川","等々力",[9,9,0,0,0,0],[56,93,19,26,3,1],[17,27,5,6,2,0]],
+    ["玉川","等々力分園このは",[6,4,0,2,0,0],[28,44,10,12,2,0],[2,3,1,1,0,0]],
+    ["玉川","尾山台",[9,3,4,0,0,0],[25,23,15,4,0,2],[6,9,4,1,0,1]],
+    ["玉川","用賀なのはな",[10,3,2,0,0,0],[71,96,34,17,2,2],[20,27,11,4,0,2]],
+    ["玉川","用賀なのはな深沢分園",[null,12,0,null,null,null],[null,37,6,null,null,null],[null,3,1,null,null,null]],
+    ["玉川","さくらの木",[9,3,2,1,0,0],[77,110,25,25,2,1],[30,35,5,8,1,1]],
+    ["玉川","身延山",[9,4,0,0,0,0],[36,72,9,15,1,0],[3,10,1,2,0,0]],
+    ["玉川","身延山分園さくら青空",[null,12,2,null,null,null],[null,38,9,null,null,null],[null,5,1,null,null,null]],
+    ["玉川","さくらしんまち",[9,7,3,1,0,0],[132,204,58,28,12,1],[35,57,19,7,5,0]],
+    ["玉川","ぴっころ",[7,1,2,0,0,0],[90,89,35,9,5,0],[2,9,11,1,1,0]],
+    ["玉川","グリーンヒル奥沢",[6,3,3,0,0,0],[38,45,10,3,2,3],[11,12,2,2,1,1]],
+    ["玉川","グリーンヒル奥沢分園グリーンバレー等々力",[null,9,2,0,1,0],[null,80,23,16,2,2],[null,13,2,0,0,0]],
+    ["玉川","上用賀青い空分園森の家",[null,8,0,0,0,0],[null,51,19,3,1,0],[null,3,1,0,0,0]],
+    ["玉川","たまがわみんなの家",[9,8,3,0,0,0],[64,91,19,15,1,0],[22,23,7,4,1,0]],
+    ["玉川","グリーンフィールド上野毛",[5,1,1,0,0,0],[31,69,25,10,4,1],[9,18,3,2,0,0]],
+    ["玉川","駒沢どろんこ",[9,6,3,4,0,0],[34,40,9,7,2,1],[3,6,0,0,2,0]],
+    ["玉川","Gakkenほいくえん等々力",[9,3,2,1,0,0],[67,98,30,19,2,2],[6,9,1,2,0,0]],
+    ["玉川","ふかさわミル",[10,8,5,0,0,0],[24,43,13,6,1,1],[11,14,3,2,1,0]],
+    ["玉川","せたがやこころ",[6,6,0,0,0,0],[35,50,9,11,1,1],[7,9,0,5,0,1]],
+    ["玉川","ベネッセ桜新町",[6,4,1,1,0,0],[111,129,41,15,5,0],[19,20,6,0,0,0]],
+    ["玉川","わらべうた桜新町",[7,7,0,1,0,0],[58,73,12,6,2,0],[9,9,1,0,0,0]],
+    ["玉川","ポピンズナーサリースクール世田谷中町",[6,4,1,0,0,0],[59,70,22,10,2,1],[9,12,7,3,1,0]],
+    ["玉川","馬事公苑ひかり",[9,6,0,8,0,0],[60,108,40,23,1,1],[17,30,7,7,0,1]],
+    ["玉川","用賀みこころ",[6,4,1,0,0,0],[68,71,19,9,2,0],[5,4,1,1,0,0]],
+    ["玉川","ニチイキッズ深沢坂上",[6,2,2,2,0,0],[34,33,13,7,2,0],[3,7,5,1,1,0]],
+    ["玉川","ChaCha Children Todoroki",[9,8,0,0,0,0],[84,133,40,30,6,2],[18,32,9,6,1,1]],
+    ["玉川","世田谷仁慈保幼園",[12,6,3,2,0,0],[33,38,15,13,2,2],[16,14,10,8,2,1]],
+    ["玉川","キッド・ステイ世田谷南",[10,6,2,0,0,0],[36,49,13,4,2,2],[16,18,4,1,1,0]],
+    ["玉川","わらべうた等々力",[6,6,0,null,null,null],[27,62,12,null,null,null],[1,4,0,null,null,null]],
+    ["玉川","スマイルキッズ桜新町",[15,0,0,0,1,0],[114,104,30,15,6,0],[15,11,1,6,1,0]],
+    ["玉川","グリーンホーム東玉川",[10,0,0,0,0,0],[28,28,7,2,0,3],[17,11,3,2,0,1]],
+    ["玉川","尾山台みどり",[9,4,0,1,0,0],[48,70,20,15,2,1],[1,9,2,3,0,0]],
+    ["玉川","上用賀青い空",[9,3,0,0,0,0],[39,56,18,11,2,0],[7,5,6,2,0,0]],
+    ["玉川","用賀ルンビニ",[6,3,6,0,0,0],[91,110,38,22,2,1],[12,13,8,4,0,0]],
+    ["玉川","コンビプラザ等々力",[6,1,0,0,0,0],[32,42,15,9,1,0],[2,3,1,0,0,0]],
+    ["玉川","空の鳥",[9,9,0,0,0,0],[28,45,23,8,4,1],[9,12,4,2,0,1]],
+    ["玉川","RISSHO KID'S きらり玉川",[6,1,0,null,null,null],[60,93,13,null,null,null],[22,27,3,null,null,null]],
+    ["玉川","駒沢わこう",[12,5,2,0,0,0],[57,70,16,10,1,1],[23,19,2,3,0,1]],
+    ["玉川","駒沢わこう(送迎)",[null,null,null,0,0,0],[null,null,null,0,0,0],[null,null,null,0,0,0]],
+    ["玉川","にじのこ",[9,1,2,0,0,0],[53,49,26,14,3,0],[18,11,6,5,2,0]],
+    ["玉川","いいほいくえん用賀分園",[9,null,null,null,null,null],[64,null,null,null,null,null],[6,null,null,null,null,null]],
+    ["玉川","東玉川善隣",[null,10,1,0,0,0],[null,43,10,1,1,2],[null,18,3,0,0,0]],
+    ["玉川","かほる",[6,1,1,0,0,0],[46,102,38,16,5,0],[11,35,15,5,3,0]],
+    ["玉川","ラフ・クルー駒沢",[null,4,1,0,0,0],[null,41,5,3,1,0],[null,11,1,1,0,0]],
+    ["玉川","おひさま",[6,4,0,null,null,null],[23,50,7,null,null,null],[3,2,0,null,null,null]],
+    ["玉川","ホームマミーおくさわA",[2,2,0,null,null,null],[18,16,3,null,null,null],[3,0,0,null,null,null]],
+    ["玉川","ホームマミーおくさわB",[null,1,0,null,null,null],[null,7,1,null,null,null],[null,0,0,null,null,null]],
+    ["玉川","駒沢ほしにねがいをＡ",[3,0,0,null,null,null],[15,9,1,null,null,null],[2,2,1,null,null,null]],
+    ["玉川","駒沢ほしにねがいをＢ",[1,0,0,null,null,null],[30,21,6,null,null,null],[0,0,0,null,null,null]],
+    ["玉川","駒沢ほしにねがいをＣ",[2,0,1,null,null,null],[26,18,6,null,null,null],[3,1,1,null,null,null]],
+    ["玉川","ラフ・クルー駒沢公園ナーサリー",[5,2,0,null,null,null],[33,29,3,null,null,null],[10,4,1,null,null,null]],
+    ["玉川","等々力ほしにねがいを",[6,0,1,null,null,null],[46,39,18,null,null,null],[6,5,2,null,null,null]],
+    ["砧","船橋東",[null,18,1,0,0,1],[null,61,12,16,3,0],[null,10,3,2,0,0]],
+    ["砧","希望丘",[7,11,3,7,1,0],[44,104,37,31,3,3],[17,36,9,11,2,0]],
+    ["砧","小梅",[null,16,1,0,0,0],[null,35,8,8,0,0],[null,8,1,0,0,0]],
+    ["砧","喜多見",[null,18,0,1,1,0],[null,67,21,15,1,0],[null,29,9,7,0,0]],
+    ["砧","南大蔵",[6,10,1,0,0,0],[17,34,17,13,5,0],[4,7,7,3,3,0]],
+    ["砧","大蔵",[null,11,7,5,0,0],[null,97,42,27,4,2],[null,16,3,6,0,2]],
+    ["砧","祖師谷わかば",[9,11,0,0,0,0],[58,92,32,26,6,2],[17,20,6,7,1,1]],
+    ["砧","砧",[6,7,2,1,0,0],[69,103,31,27,7,4],[12,23,7,4,0,1]],
+    ["砧","世田谷つくしんぼ",[9,8,3,1,0,0],[29,62,12,12,6,2],[4,10,4,2,1,0]],
+    ["砧","千歳",[6,9,1,0,0,0],[13,37,10,9,6,1],[0,4,1,0,1,0]],
+    ["砧","千歳なないろ",[6,6,0,4,0,0],[12,32,7,5,1,1],[2,3,2,0,0,0]],
+    ["砧","すこやか園",[6,0,0,1,0,0],[64,38,18,16,4,0],[13,5,0,0,0,0]],
+    ["砧","宇奈根なごやか園",[6,6,0,0,0,0],[33,24,9,6,2,0],[10,4,2,1,0,0]],
+    ["砧","宇奈根なごやか園(送迎)",[null,null,null,0,0,0],[null,null,null,3,0,0],[null,null,null,0,0,0]],
+    ["砧","青い空",[9,2,1,0,0,0],[35,53,10,7,0,1],[6,8,2,0,0,1]],
+    ["砧","成育しせい",[9,9,2,1,0,0],[81,137,50,42,14,3],[31,54,15,15,5,1]],
+    ["砧","大蔵ふたば",[12,6,0,0,0,0],[64,77,39,33,8,3],[8,13,7,3,3,0]],
+    ["砧","ひだまり",[7,2,3,2,0,0],[44,68,30,24,3,3],[6,9,3,3,1,0]],
+    ["砧","喜多見バオバブ",[6,7,2,0,0,0],[33,36,12,11,1,0],[9,10,3,4,1,0]],
+    ["砧","成城つくしんぼ",[12,14,4,0,0,0],[27,75,19,15,3,1],[11,21,6,3,3,0]],
+    ["砧","岡本こもれび",[8,5,4,0,0,0],[24,44,18,15,2,1],[7,4,2,0,0,0]],
+    ["砧","喜多見野の花",[9,3,0,1,0,0],[41,45,11,14,1,1],[19,8,3,2,0,0]],
+    ["砧","世田谷おとぎの森",[null,12,0,0,0,0],[null,65,13,15,1,0],[null,7,2,4,1,0]],
+    ["砧","太陽の子世田谷船橋",[6,6,0,0,0,0],[48,67,24,17,3,2],[5,7,3,0,0,2]],
+    ["砧","Gakkenほいくえん砧",[9,3,2,1,0,0],[55,74,27,18,4,2],[12,11,4,4,2,0]],
+    ["砧","生活クラブ保育園ぽむ・砧",[null,2,0,0,0,0],[null,56,17,12,2,1],[null,7,4,1,0,0]],
+    ["砧","生活クラブ保育園ぽむ・砧分園",[12,null,null,null,null,null],[63,null,null,null,null,null],[4,null,null,null,null,null]],
+    ["砧","ちきゅうのこどもほいくえん成城",[9,5,0,0,0,1],[32,55,16,18,6,1],[4,4,2,5,1,0]],
+    ["砧","太陽の子世田谷きぬた",[9,1,2,3,1,0],[83,86,34,22,8,4],[10,17,3,6,1,0]],
+    ["砧","ぽこころ保育園祖師谷",[null,10,0,0,0,0],[null,74,16,15,5,4],[null,8,1,1,0,0]],
+    ["砧","チャイルドスクエアそしがや",[3,3,4,0,0,0],[49,73,26,13,5,4],[6,5,3,0,0,0]],
+    ["砧","太陽の子めぐりさわ",[6,9,0,null,null,null],[19,32,12,null,null,null],[1,4,0,null,null,null]],
+    ["砧","太陽の子めぐりさわ分園太陽の子千歳台二丁目",[3,0,0,0,0,0],[19,12,7,4,2,3],[5,1,0,2,1,1]],
+    ["砧","にじいろ保育園千歳台",[6,4,2,2,0,0],[18,37,16,9,2,2],[2,1,1,0,1,0]],
+    ["砧","鎌田のびやか園",[6,6,2,0,0,0],[38,41,13,13,1,0],[6,7,1,5,0,0]],
+    ["砧","鎌田のびやか園(送迎)",[null,null,null,0,0,0],[null,null,null,5,0,0],[null,null,null,0,0,0]],
+    ["砧","鎌田のびやか園分園A",[4,0,0,null,null,null],[27,21,6,null,null,null],[2,5,1,null,null,null]],
+    ["砧","鎌田のびやか園分園Ｃ",[2,1,0,null,null,null],[28,31,5,null,null,null],[5,1,0,null,null,null]],
+    ["砧","はあと保育園成城",[6,0,0,0,0,0],[46,74,18,19,2,2],[8,18,5,6,0,1]],
+    ["砧","はあと保育園成城喜多見分園",[6,1,1,null,null,null],[35,59,13,null,null,null],[7,5,2,null,null,null]],
+    ["砧","フラヌール",[null,null,null,0,0,0],[null,null,null,13,1,0],[null,null,null,3,0,0]],
+    ["砧","フラヌール保育園分園",[9,6,0,null,null,null],[63,85,16,null,null,null],[9,12,4,null,null,null]],
+    ["砧","キッズスマイル世田谷千歳台",[9,1,2,2,0,0],[25,22,22,11,3,2],[4,2,3,0,1,0]],
+    ["砧","もみの木保育園希望丘",[9,1,0,0,0,0],[35,31,26,9,5,2],[8,6,4,0,1,0]],
+    ["砧","YMCA保育園ねがい",[9,5,0,0,0,0],[22,33,12,11,0,0],[0,3,1,0,0,0]],
+    ["砧","RISSHO KID'S きらり岡本",[6,7,0,0,0,0],[46,68,12,18,3,1],[17,26,3,8,1,0]],
+    ["砧","RISSHO KID'S きらり岡本(送迎)",[null,null,null,0,0,0],[null,null,null,11,1,1],[null,null,null,4,0,0]],
+    ["砧","ひなたの森保育園",[null,6,0,0,0,0],[null,85,24,22,4,2],[null,13,3,2,1,0]],
+    ["砧","ひなたの森保育園分園",[6,1,0,null,null,null],[67,40,17,null,null,null],[9,2,4,null,null,null]],
+    ["砧","日本女子体育大学附属",[9,3,0,8,0,0],[26,34,14,18,3,1],[2,3,3,2,0,0]],
+    ["砧","認定こども園世田谷ベアーズ",[6,8,0,0,0,0],[23,35,15,11,11,5],[6,13,3,6,7,5]],
+    ["砧","らふ・くるー まむ",[null,5,0,null,null,null],[null,10,0,null,null,null],[null,1,0,null,null,null]],
+    ["砧","青い空の家",[3,0,0,null,null,null],[24,29,3,null,null,null],[3,1,0,null,null,null]],
+    ["砧","高木",[5,2,1,null,null,null],[38,35,11,null,null,null],[7,3,1,null,null,null]],
+    ["砧","えにっくす",[3,5,0,null,null,null],[6,10,3,null,null,null],[1,2,1,null,null,null]],
+    ["砧","えにっくす成城",[null,10,0,null,null,null],[null,31,8,null,null,null],[null,4,1,null,null,null]],
+    ["砧","もみの木保育園希望丘分園",[null,10,0,null,null,null],[null,40,7,null,null,null],[null,5,2,null,null,null]],
+    ["砧","喜多見こどもの家",[3,11,7,null,null,null],[8,16,5,null,null,null],[1,3,3,null,null,null]],
+    ["烏山","松沢",[null,16,1,4,0,0],[null,55,13,18,2,1],[null,6,3,5,0,0]],
+    ["烏山","上北沢",[12,7,0,1,0,0],[25,53,13,15,3,1],[11,18,2,2,1,0]],
+    ["烏山","上祖師谷",[null,20,0,1,0,0],[null,86,16,19,3,1],[null,12,4,1,0,0]],
+    ["烏山","上祖師谷南",[4,13,2,1,0,0],[24,36,13,6,1,1],[3,8,1,0,0,0]],
+    ["烏山","南八幡山",[null,11,5,1,0,0],[null,27,13,10,2,1],[null,5,3,1,0,1]],
+    ["烏山","八幡山",[null,17,1,3,0,0],[null,85,22,29,3,1],[null,27,4,8,3,0]],
+    ["烏山","給田",[5,13,2,1,0,0],[31,70,29,20,7,2],[9,31,15,7,2,1]],
+    ["烏山","芦花",[8,7,3,2,0,1],[52,90,33,30,1,0],[13,9,6,4,0,0]],
+    ["烏山","烏山北",[null,15,0,5,0,0],[null,42,19,24,2,0],[null,13,4,7,1,0]],
+    ["烏山","西之谷",[7,11,0,1,0,1],[37,74,32,24,4,1],[4,4,3,1,0,0]],
+    ["烏山","祖師谷",[9,7,2,4,2,0],[25,67,18,15,6,1],[3,11,5,6,1,0]],
+    ["烏山","祖師谷分園",[9,5,0,0,0,0],[16,41,10,4,4,1],[7,5,3,0,2,1]],
+    ["烏山","烏山杉の子",[7,1,3,0,0,0],[46,79,33,22,4,0],[5,17,3,2,0,0]],
+    ["烏山","烏山",[13,6,2,1,0,0],[76,159,57,41,11,2],[30,52,18,8,5,0]],
+    ["烏山","せたがや小鳥の森",[9,3,0,0,0,0],[21,47,26,19,6,0],[8,17,11,3,2,0]],
+    ["烏山","北烏山なごみ",[8,9,4,0,0,0],[45,78,31,37,3,1],[14,17,8,11,0,0]],
+    ["烏山","小さなおうち",[null,6,0,0,0,0],[null,51,8,6,1,2],[null,8,2,1,0,0]],
+    ["烏山","烏山いちご",[6,4,1,0,0,0],[20,37,24,17,5,0],[2,6,0,0,0,0]],
+    ["烏山","第二いちご",[9,7,2,0,0,0],[54,84,27,21,2,1],[24,28,7,3,0,1]],
+    ["烏山","烏山翼",[9,4,0,0,0,0],[33,40,19,24,0,1],[8,11,1,2,0,0]],
+    ["烏山","上北沢こぐま",[9,8,0,0,0,0],[30,64,16,21,1,2],[9,15,7,8,0,0]],
+    ["烏山","いずみの園",[null,10,1,0,0,0],[null,35,12,10,1,1],[null,5,2,1,1,0]],
+    ["烏山","ChaCha Children Soshigayakoen",[null,4,0,0,0,0],[null,46,10,10,4,2],[null,3,0,2,0,1]],
+    ["烏山","ChaCha Children Soshigayakoen Park Side",[12,6,2,null,null,null],[38,61,14,null,null,null],[20,17,4,null,null,null]],
+    ["烏山","芦花ゆりかご",[6,4,2,2,0,0],[11,25,7,10,3,0],[0,2,0,1,0,0]],
+    ["烏山","芦花の丘かたるぱ",[12,3,0,4,0,0],[37,70,19,35,3,0],[10,14,3,10,1,0]],
+    ["烏山","ピノキオ幼児舎芦花",[9,4,1,0,0,0],[26,55,12,19,3,1],[5,8,1,1,0,0]],
+    ["烏山","京王キッズプラッツ烏山",[9,6,1,null,null,null],[34,86,16,null,null,null],[2,2,1,null,null,null]],
+    ["烏山","にじいろ保育園給田",[3,2,1,0,0,0],[35,67,28,20,8,0],[4,6,4,7,1,0]],
+    ["烏山","にじいろ保育園給田分園",[9,3,0,null,null,null],[31,58,22,null,null,null],[5,5,0,null,null,null]],
+    ["烏山","えにっくす八幡山",[6,3,0,null,null,null],[25,26,10,null,null,null],[5,3,1,null,null,null]],
+    ["烏山","ラフ・クルー烏山",[6,3,0,0,0,0],[51,83,24,26,6,1],[3,8,2,1,0,0]],
+    ["烏山","ラフ・クルー烏山保育園分園",[4,4,0,null,null,null],[38,57,18,null,null,null],[1,1,1,null,null,null]],
+    ["烏山","メネス",[6,6,0,null,null,null],[15,43,5,null,null,null],[1,1,0,null,null,null]],
+    ["烏山","おうち①",[4,5,0,null,null,null],[2,7,4,null,null,null],[1,2,1,null,null,null]],
+    ["烏山","おうち②",[1,1,0,null,null,null],[1,6,4,null,null,null],[0,2,1,null,null,null]],
+    ["烏山","ららるー",[3,1,1,null,null,null],[3,6,2,null,null,null],[0,3,0,null,null,null]],
+    ["烏山","千歳ぴっち",[2,3,0,null,null,null],[7,26,3,null,null,null],[1,4,0,null,null,null]],
+    ["烏山","翼の鐘A",[4,0,0,null,null,null],[16,9,3,null,null,null],[2,0,0,null,null,null]],
+    ["烏山","翼の鐘B",[1,0,0,null,null,null],[16,4,3,null,null,null],[0,0,0,null,null,null]]
+  ]
+};
+
+</script>
+<script>
+/* vacancy-r9.js */
+/*VAC-START*/
+/* 世田谷区 園ごとの入園可能数(令和9年(2027年)4月入園・一次の入園可能数)。昨年の申込数に重ねて倍率を出す用。
+   出典: https://www.city.setagaya.lg.jp/documents/1561/nyuuenkanousuu_202704_3.pdf */
+window.SHISUU_VAC = window.SHISUU_VAC || {};
+window.SHISUU_VAC.r9 = {
+  id: 'r9', order: 2027, short: '令和9年4月', label: '令和9年(2027年)4月入園・一次の入園可能数',
+  checkedOn: '2026年10月27日',
+  source: { name: '令和9年4月(一次)入園可能数', url: 'https://www.city.setagaya.lg.jp/documents/1561/nyuuenkanousuu_202704_3.pdf' },
+  rows: [
+    ["世田谷","池尻",[null,22,0,1,1,0]],
+    ["世田谷","三宿",[10,6,1,0,2,0]],
+    ["世田谷","太子堂",[6,7,3,2,0,0]],
+    ["世田谷","三軒茶屋",[null,17,0,0,0,0]],
+    ["世田谷","世田谷",[8,12,4,4,0,3]],
+    ["世田谷","桜",[null,18,3,1,1,0]],
+    ["世田谷","東弦巻",[8,10,0,0,0,0]],
+    ["世田谷","弦巻",[null,16,0,1,1,1]],
+    ["世田谷","西弦巻",[8,6,0,1,1,0]],
+    ["世田谷","南桜丘",[7,10,0,3,1,0]],
+    ["世田谷","わかくさ",[10,6,1,1,0,0]],
+    ["世田谷","下馬",[4,14,0,0,0,0]],
+    ["世田谷","駒沢",[null,17,1,1,0,1]],
+    ["世田谷","上馬",[4,7,4,3,1,0]],
+    ["世田谷","鳩ぽっぽ",[10,2,2,0,1,0]],
+    ["世田谷","さくらのその",[null,null,null,3,0,0]],
+    ["世田谷","さくらのその分園つぼみ",[10,8,0,null,null,null]],
+    ["世田谷","池尻かもめ",[14,3,2,0,0,0]],
+    ["世田谷","下馬鳩ぽっぽ",[10,3,1,2,0,0]],
+    ["世田谷","下馬鳩ぽっぽ分園野の花園",[null,3,1,0,0,0]],
+    ["世田谷","おともだち",[6,6,0,2,1,0]],
+    ["世田谷","おともだち分園こまどめ",[null,null,0,2,0,0]],
+    ["世田谷","おともだち分園こまつなぎ",[6,11,null,null,null,null]],
+    ["世田谷","桜ヶ丘",[6,6,2,0,1,0]],
+    ["世田谷","経堂",[10,7,0,1,0,0]],
+    ["世田谷","オリービア",[null,12,0,0,0,0]],
+    ["世田谷","太子堂なごみ",[9,10,2,0,0,0]],
+    ["世田谷","烏山杉の子分園みなみ風",[null,10,0,0,0,0]],
+    ["世田谷","すこやか園分園キリン",[6,0,0,0,0,0]],
+    ["世田谷","もみの木保育園太子堂",[12,8,2,0,0,0]],
+    ["世田谷","世田谷はっと",[9,16,5,0,0,0]],
+    ["世田谷","遊愛",[10,3,3,7,0,0]],
+    ["世田谷","桜すくすく",[6,6,0,3,0,0]],
+    ["世田谷","駒沢こだま",[6,2,0,0,0,0]],
+    ["世田谷","世田谷いちい北ウイング",[9,15,0,0,0,0]],
+    ["世田谷","世田谷いちい南ウイング",[9,15,0,0,0,0]],
+    ["世田谷","ポピンズナーサリースクール経堂南",[6,1,1,0,0,0]],
+    ["世田谷","キッズスマイル世田谷上馬",[6,4,1,0,0,0]],
+    ["世田谷","クラルテ",[6,2,0,0,0,0]],
+    ["世田谷","ミアヘルサ保育園ひびき上馬",[6,6,0,null,null,null]],
+    ["世田谷","ラフ・クルー経堂",[6,5,0,null,null,null]],
+    ["世田谷","昭和ナースリー",[9,3,0,null,null,null]],
+    ["世田谷","グローバルキッズ世田谷四丁目園",[6,4,1,0,0,0]],
+    ["世田谷","グローバルキッズ若林園",[6,4,0,2,0,1]],
+    ["世田谷","桜の詩",[12,3,0,0,0,0]],
+    ["世田谷","おともだち・ララ",[6,6,3,4,0,0]],
+    ["世田谷","わらべうた三宿",[7,7,0,null,null,null]],
+    ["世田谷","祖師谷わかば千歳船橋分園あおばＡ",[4,1,0,null,null,null]],
+    ["世田谷","祖師谷わかば千歳船橋分園あおばＢ",[2,2,0,null,null,null]],
+    ["世田谷","三宿の杜なごみ",[8,0,0,0,null,null]],
+    ["世田谷","三軒茶屋えほん",[6,6,1,1,0,0]],
+    ["世田谷","よつば",[6,2,0,0,0,0]],
+    ["世田谷","三茶こだま",[9,0,0,0,0,0]],
+    ["世田谷","上町しぜんの国",[12,3,3,2,0,0]],
+    ["世田谷","天使の詩",[9,3,0,0,0,1]],
+    ["世田谷","三軒茶屋わこう",[6,1,0,null,null,null]],
+    ["世田谷","世田谷1丁目ゆたか園",[9,3,2,1,0,0]],
+    ["世田谷","スマイルキッズ駒繋",[8,1,0,2,0,0]],
+    ["世田谷","モニカ三軒茶屋園",[6,1,0,null,null,null]],
+    ["世田谷","つくし",[6,3,0,null,null,null]],
+    ["世田谷","フロンティアキッズ上町",[4,1,1,0,1,0]],
+    ["世田谷","いいほいくえん用賀",[6,3,0,0,0,0]],
+    ["世田谷","フロンティアキッズ上馬",[6,0,0,1,0,1]],
+    ["世田谷","野沢そらの木",[7,0,0,0,0,0]],
+    ["世田谷","若葉の詩",[12,3,0,0,0,0]],
+    ["世田谷","つむぎ",[9,6,1,0,0,0]],
+    ["世田谷","サン・ベビールーム",[6,4,0,null,null,null]],
+    ["世田谷","グローバルキッズ松陰神社駅前保育園",[6,4,1,0,0,0]],
+    ["世田谷","多聞幼稚園",[null,null,null,null,0,0]],
+    ["世田谷","青葉学園野沢こども園",[null,8,4,8,0,0]],
+    ["世田谷","昭和女子大学附属昭和こども園",[9,3,0,0,0,0]],
+    ["世田谷","日本大学認定こども園",[8,7,1,14,0,0]],
+    ["世田谷","もみの木Mom太子堂Ａ",[2,0,0,null,null,null]],
+    ["世田谷","もみの木Mom太子堂Ｂ",[2,0,0,null,null,null]],
+    ["世田谷","ふたばクラブ三軒茶屋",[5,0,1,null,null,null]],
+    ["世田谷","なかよしほいくえん",[6,0,0,null,null,null]],
+    ["世田谷","ベベ・ア・パリ経堂",[3,5,0,null,null,null]],
+    ["世田谷","上馬つきの木",[3,3,0,null,null,null]],
+    ["世田谷","マリアの家",[5,0,1,null,null,null]],
+    ["世田谷","世田谷ほしにねがいをＡ",[4,0,0,null,null,null]],
+    ["世田谷","世田谷ほしにねがいをＢ",[1,0,0,null,null,null]],
+    ["世田谷","ヤクルト経堂",[null,7,0,null,null,null]],
+    ["北沢","豪徳寺",[null,18,1,11,0,0]],
+    ["北沢","守山",[null,18,4,7,1,0]],
+    ["北沢","若竹",[null,16,0,0,0,0]],
+    ["北沢","松原北",[7,8,1,1,0,0]],
+    ["北沢","赤堤",[null,19,0,2,1,0]],
+    ["北沢","春明",[9,5,1,0,0,0]],
+    ["北沢","松原",[10,6,0,0,0,0]],
+    ["北沢","早苗",[6,3,3,0,0,0]],
+    ["北沢","早苗分園ほなみ",[3,7,2,null,null,null]],
+    ["北沢","河田",[null,8,6,1,0,0]],
+    ["北沢","梅丘至誠",[6,2,0,1,0,0]],
+    ["北沢","梅丘至誠パーチェ",[9,0,0,null,null,null]],
+    ["北沢","東北沢ききょう",[15,3,4,0,0,0]],
+    ["北沢","梅丘なごみ",[null,12,0,0,0,0]],
+    ["北沢","代沢みこころ",[null,10,1,0,0,0]],
+    ["北沢","みんなのおうち",[9,10,2,1,0,0]],
+    ["北沢","ポピンズナーサリースクール羽根木",[9,6,0,2,0,0]],
+    ["北沢","赤堤ゆりの木",[9,1,1,0,0,0]],
+    ["北沢","マリア",[9,3,3,3,0,0]],
+    ["北沢","わらべうた経堂",[6,7,0,null,null,null]],
+    ["北沢","スマイルキッズ下北沢",[9,2,1,0,0,0]],
+    ["北沢","にじのおうち",[6,2,1,0,0,0]],
+    ["北沢","代沢ききょう",[10,6,0,0,0,0]],
+    ["北沢","RISSHO KID'S きらり代沢",[6,3,3,0,0,0]],
+    ["北沢","世田谷代田仁慈保幼園",[12,3,3,2,0,0]],
+    ["北沢","北沢みこころ",[6,2,0,null,null,null]],
+    ["北沢","まつばらけやき保育園本園",[6,0,0,0,0,0]],
+    ["北沢","まつばらけやき保育園分園",[6,0,null,null,null,null]],
+    ["北沢","おおわだ保育園世田谷豪徳寺",[6,4,1,0,0,0]],
+    ["北沢","キッズスマイル世田谷梅丘",[6,2,1,0,0,0]],
+    ["北沢","葵みこころ",[6,0,0,3,0,0]],
+    ["北沢","にじいろ保育園松原",[6,4,2,2,0,0]],
+    ["北沢","スマイルキッズドレミファ",[6,5,1,null,null,null]],
+    ["北沢","京王キッズプラッツ桜上水",[null,9,0,0,0,0]],
+    ["北沢","風の丘めぐみ保育園風棟",[9,3,0,null,null,null]],
+    ["北沢","風の丘めぐみ保育園森棟",[null,null,null,3,0,0]],
+    ["北沢","下北沢そらいろ",[6,4,0,0,0,1]],
+    ["北沢","あそびの森ゆう",[6,4,0,null,null,null]],
+    ["北沢","あそびの森ゆう＋",[null,null,null,0,0,0]],
+    ["北沢","下北沢",[7,11,0,1,0,0]],
+    ["北沢","学び処世田谷保育屋敷わびさびあそび",[6,6,2,1,0,0]],
+    ["北沢","みこと",[6,1,1,1,0,0]],
+    ["北沢","代沢みこころ保育園分園小さな森の保育園",[null,10,0,null,null,null]],
+    ["北沢","★（仮称）赤堤１丁目保育施設",[null,10,10,null,null,null]],
+    ["北沢","羽根木こども園",[12,8,3,2,0,0]],
+    ["北沢","円光院幼稚園",[null,null,null,30,0,0]],
+    ["北沢","アルタベビー下北沢園",[5,2,0,null,null,null]],
+    ["玉川","南奥沢",[null,9,0,0,0,0]],
+    ["玉川","奥沢",[7,2,0,0,0,1]],
+    ["玉川","中町",[9,8,1,0,1,0]],
+    ["玉川","玉川",[null,16,2,4,1,0]],
+    ["玉川","上用賀",[7,8,1,4,1,0]],
+    ["玉川","ふじみ",[null,19,0,0,1,0]],
+    ["玉川","用賀",[null,11,0,0,0,1]],
+    ["玉川","用賀分園わくわく",[null,9,0,0,0,0]],
+    ["玉川","等々力中央",[4,15,2,8,0,0]],
+    ["玉川","新町",[null,15,0,4,0,0]],
+    ["玉川","めぐみ",[9,2,3,0,0,1]],
+    ["玉川","いずみ",[6,6,1,2,0,0]],
+    ["玉川","わかな",[null,15,3,0,0,0]],
+    ["玉川","ナオミ",[15,9,0,0,0,0]],
+    ["玉川","ナオミ分園ぶどうの木",[9,0,0,0,0,0]],
+    ["玉川","空の鳥分園りんごの木",[6,3,0,0,0,0]],
+    ["玉川","等々力",[9,9,0,0,0,0]],
+    ["玉川","等々力分園このは",[6,4,0,0,0,0]],
+    ["玉川","尾山台",[8,3,4,0,0,0]],
+    ["玉川","用賀なのはな",[10,3,2,0,0,0]],
+    ["玉川","用賀なのはな深沢分園",[null,12,0,null,null,null]],
+    ["玉川","さくらの木",[9,3,2,1,0,0]],
+    ["玉川","身延山",[9,4,0,0,0,0]],
+    ["玉川","身延山分園さくら青空",[null,13,1,null,null,null]],
+    ["玉川","さくらしんまち",[9,7,3,1,0,0]],
+    ["玉川","ぴっころ",[7,1,1,1,0,0]],
+    ["玉川","グリーンヒル奥沢",[6,3,3,0,0,0]],
+    ["玉川","グリーンヒル奥沢分園グリーンバレー等々力",[null,9,2,0,1,0]],
+    ["玉川","上用賀青い空分園森の家",[null,8,0,0,0,0]],
+    ["玉川","たまがわみんなの家",[9,9,3,0,0,0]],
+    ["玉川","グリーンフィールド上野毛",[6,1,1,0,0,0]],
+    ["玉川","駒沢どろんこ",[9,6,3,4,0,0]],
+    ["玉川","Gakkenほいくえん等々力",[9,3,2,1,0,0]],
+    ["玉川","ふかさわミル",[10,8,5,0,0,0]],
+    ["玉川","せたがやこころ",[6,6,0,0,1,2]],
+    ["玉川","ベネッセ桜新町",[6,4,1,1,0,0]],
+    ["玉川","わらべうた桜新町",[7,7,0,1,0,0]],
+    ["玉川","ポピンズナーサリースクール世田谷中町",[6,4,1,0,0,0]],
+    ["玉川","馬事公苑ひかり",[9,9,3,8,0,0]],
+    ["玉川","用賀みこころ",[6,4,1,0,0,0]],
+    ["玉川","ニチイキッズ深沢坂上",[6,2,2,2,0,0]],
+    ["玉川","ChaCha Children Todoroki",[9,11,0,0,0,0]],
+    ["玉川","世田谷仁慈保幼園",[12,3,3,2,0,0]],
+    ["玉川","キッド・ステイ世田谷南",[11,5,3,0,0,0]],
+    ["玉川","わらべうた等々力",[6,7,0,null,null,null]],
+    ["玉川","スマイルキッズ桜新町",[15,0,0,0,0,0]],
+    ["玉川","グリーンホーム東玉川",[10,0,0,0,0,0]],
+    ["玉川","尾山台みどり",[9,4,0,2,0,0]],
+    ["玉川","上用賀青い空",[9,3,0,0,0,0]],
+    ["玉川","用賀ルンビニ",[6,4,6,0,0,0]],
+    ["玉川","コンビプラザ等々力",[5,1,0,0,0,0]],
+    ["玉川","空の鳥",[9,9,0,0,0,0]],
+    ["玉川","RISSHO KID'S きらり玉川",[6,1,0,null,null,null]],
+    ["玉川","駒沢わこう",[12,5,0,0,0,0]],
+    ["玉川","駒沢わこう(送迎)",[null,null,null,0,0,0]],
+    ["玉川","にじのこ",[9,1,2,0,0,0]],
+    ["玉川","いいほいくえん用賀分園",[null,10,10,null,null,null]],
+    ["玉川","東玉川善隣",[null,10,1,0,0,0]],
+    ["玉川","かほる",[6,1,1,0,0,0]],
+    ["玉川","ラフ・クルー駒沢",[null,4,1,0,0,0]],
+    ["玉川","おひさま",[6,4,0,null,null,null]],
+    ["玉川","スマイルキッズ深沢",[null,10,2,null,null,null]],
+    ["玉川","★（仮称）深沢６丁目保育施設Ａ",[3,3,3,null,null,null]],
+    ["玉川","★（仮称）深沢６丁目保育施設Ｂ",[3,7,9,null,null,null]],
+    ["玉川","★（仮称）瀬田２丁目保育施設",[null,12,12,null,null,null]],
+    ["玉川","ホームマミーおくさわA",[2,1,0,null,null,null]],
+    ["玉川","ホームマミーおくさわB",[null,2,0,null,null,null]],
+    ["玉川","駒沢ほしにねがいをＡ",[3,0,0,null,null,null]],
+    ["玉川","駒沢ほしにねがいをＢ",[1,0,0,null,null,null]],
+    ["玉川","駒沢ほしにねがいをＣ",[2,0,1,null,null,null]],
+    ["玉川","ラフ・クルー駒沢公園ナーサリー",[5,2,0,null,null,null]],
+    ["玉川","等々力ほしにねがいを",[6,1,0,null,null,null]],
+    ["砧","船橋東",[null,18,1,0,0,1]],
+    ["砧","希望丘",[7,11,2,7,1,0]],
+    ["砧","小梅",[null,16,1,0,0,0]],
+    ["砧","喜多見",[null,18,0,1,1,0]],
+    ["砧","南大蔵",[6,4,1,0,0,0]],
+    ["砧","大蔵",[null,11,7,5,0,0]],
+    ["砧","祖師谷わかば",[9,11,0,0,0,0]],
+    ["砧","砧",[6,7,2,1,0,0]],
+    ["砧","世田谷つくしんぼ",[9,8,3,1,0,0]],
+    ["砧","千歳",[6,9,1,0,0,0]],
+    ["砧","千歳なないろ",[6,6,0,4,0,0]],
+    ["砧","すこやか園",[6,0,0,1,0,0]],
+    ["砧","宇奈根なごやか園",[6,6,0,1,0,0]],
+    ["砧","宇奈根なごやか園(送迎)",[null,null,null,0,0,0]],
+    ["砧","青い空",[9,2,1,0,0,0]],
+    ["砧","成育しせい",[9,9,2,1,0,0]],
+    ["砧","大蔵ふたば",[12,8,0,0,0,0]],
+    ["砧","ひだまり",[7,2,3,2,0,0]],
+    ["砧","喜多見バオバブ",[6,7,2,0,0,0]],
+    ["砧","成城つくしんぼ",[12,14,4,0,0,0]],
+    ["砧","岡本こもれび",[9,6,4,1,0,0]],
+    ["砧","喜多見野の花",[9,3,0,1,0,0]],
+    ["砧","世田谷おとぎの森",[null,12,0,0,0,0]],
+    ["砧","太陽の子世田谷船橋",[6,6,0,0,0,0]],
+    ["砧","Gakkenほいくえん砧",[9,3,2,1,0,0]],
+    ["砧","生活クラブ保育園ぽむ・砧",[null,2,0,0,0,0]],
+    ["砧","生活クラブ保育園ぽむ・砧分園",[12,null,null,null,null,null]],
+    ["砧","ちきゅうのこどもほいくえん成城",[9,5,0,0,0,1]],
+    ["砧","太陽の子世田谷きぬた",[9,1,2,3,1,0]],
+    ["砧","AIAI NURSERY祖師谷",[null,10,0,0,0,0]],
+    ["砧","チャイルドスクエアそしがや",[3,3,4,0,0,0]],
+    ["砧","太陽の子めぐりさわ",[6,8,0,null,null,null]],
+    ["砧","太陽の子めぐりさわ分園太陽の子千歳台二丁目",[3,1,0,0,0,0]],
+    ["砧","にじいろ保育園千歳台",[6,4,2,2,0,0]],
+    ["砧","鎌田のびやか園",[6,6,2,0,0,0]],
+    ["砧","鎌田のびやか園(送迎)",[null,null,null,0,0,0]],
+    ["砧","鎌田のびやか園分園A",[4,0,0,null,null,null]],
+    ["砧","鎌田のびやか園分園Ｃ",[2,1,0,null,null,null]],
+    ["砧","はあと保育園成城",[6,0,0,0,0,0]],
+    ["砧","はあと保育園成城喜多見分園",[6,1,1,null,null,null]],
+    ["砧","フラヌール",[null,null,null,0,0,0]],
+    ["砧","フラヌール保育園分園",[9,6,0,null,null,null]],
+    ["砧","キッズスマイル世田谷千歳台",[8,1,2,2,0,0]],
+    ["砧","もみの木保育園希望丘",[9,1,0,0,0,0]],
+    ["砧","YMCA保育園ねがい",[9,6,0,0,0,0]],
+    ["砧","RISSHO KID'S きらり岡本",[6,7,0,0,0,0]],
+    ["砧","RISSHO KID'S きらり岡本(送迎)",[null,null,null,0,0,0]],
+    ["砧","ひなたの森保育園",[null,6,0,0,0,0]],
+    ["砧","ひなたの森保育園分園",[6,1,0,null,null,null]],
+    ["砧","日本女子体育大学附属",[9,3,0,8,0,0]],
+    ["砧","高木",[5,2,1,null,null,null]],
+    ["砧","えにっくす成城",[null,10,0,null,null,null]],
+    ["砧","もみの木保育園希望丘分園",[null,10,0,null,null,null]],
+    ["砧","喜多見こどもの家",[3,10,0,null,null,null]],
+    ["砧","えにっくす芦花公園",[null,10,0,null,null,null]],
+    ["砧","★（仮称）船橋３丁目保育施設",[null,15,20,null,null,null]],
+    ["砧","認定こども園世田谷ベアーズ",[6,8,1,0,0,0]],
+    ["砧","らふ・くるー まむ",[null,9,0,null,null,null]],
+    ["砧","青い空の家",[3,0,0,null,null,null]],
+    ["砧","えにっくす",[3,5,0,null,null,null]],
+    ["烏山","松沢",[null,16,1,4,0,0]],
+    ["烏山","上北沢",[12,7,0,1,0,0]],
+    ["烏山","上祖師谷",[null,20,0,1,0,0]],
+    ["烏山","上祖師谷南",[4,13,2,1,0,0]],
+    ["烏山","南八幡山",[null,11,5,1,0,0]],
+    ["烏山","八幡山",[null,17,1,3,1,0]],
+    ["烏山","給田",[5,13,2,1,0,0]],
+    ["烏山","芦花",[8,7,3,2,0,1]],
+    ["烏山","烏山北",[null,15,0,5,0,0]],
+    ["烏山","西之谷",[7,11,0,1,0,1]],
+    ["烏山","祖師谷",[9,7,2,4,2,0]],
+    ["烏山","祖師谷分園",[9,5,1,0,0,0]],
+    ["烏山","烏山杉の子",[7,1,3,0,0,0]],
+    ["烏山","烏山",[13,6,2,1,0,0]],
+    ["烏山","せたがや小鳥の森",[9,3,0,0,0,0]],
+    ["烏山","北烏山なごみ",[9,9,4,0,0,0]],
+    ["烏山","小さなおうち",[null,6,0,0,0,0]],
+    ["烏山","烏山いちご",[6,4,1,0,0,0]],
+    ["烏山","第二いちご",[9,7,2,0,0,0]],
+    ["烏山","烏山翼",[9,4,0,0,0,0]],
+    ["烏山","上北沢こぐま",[9,8,0,0,0,0]],
+    ["烏山","いずみの園",[null,10,1,0,0,0]],
+    ["烏山","ChaCha Children Soshigayakoen",[null,4,0,0,0,0]],
+    ["烏山","ChaCha Children Soshigayakoen Park Side",[12,6,2,null,null,null]],
+    ["烏山","芦花そらいろ",[6,4,2,2,0,0]],
+    ["烏山","芦花の丘かたるぱ",[12,3,0,4,0,0]],
+    ["烏山","ピノキオ幼児舎芦花",[9,4,1,0,0,0]],
+    ["烏山","京王キッズプラッツ烏山",[9,6,1,null,null,null]],
+    ["烏山","にじいろ保育園給田",[3,2,1,0,0,0]],
+    ["烏山","にじいろ保育園給田分園",[9,3,0,null,null,null]],
+    ["烏山","えにっくす八幡山",[6,3,0,null,null,null]],
+    ["烏山","ラフ・クルー烏山",[6,3,0,0,0,0]],
+    ["烏山","ラフ・クルー烏山保育園分園",[4,4,0,null,null,null]],
+    ["烏山","メネス",[6,6,0,null,null,null]],
+    ["烏山","★（仮称）八幡山２丁目保育施設",[null,10,12,null,null,null]],
+    ["烏山","★（仮称）南烏山４丁目保育施設",[null,10,10,null,null,null]],
+    ["烏山","おうち①",[5,5,0,null,null,null]],
+    ["烏山","おうち②",[1,1,0,null,null,null]],
+    ["烏山","ららるー",[2,1,1,null,null,null]],
+    ["烏山","千歳ぴっち",[2,3,0,null,null,null]],
+    ["烏山","翼の鐘A",[4,0,0,null,null,null]],
+    ["烏山","翼の鐘B",[1,0,0,null,null,null]]
+  ]
+};
+/*VAC-END*/
+</script>
+<script>
+/* now.js */
+/*NOW-START*/
+/* now.js */
+window.SHISUU_NOW = {
+  checkedOn: '2026年10月27日',
+  regions: {"世田谷": {"asOf": "令和8年11月1日", "updated": "2026年10月1日", "url": "https://www.city.setagaya.lg.jp/01044/1583.html"}, "北沢": {"asOf": "令和8年9月1日", "updated": "2026年8月1日", "url": "https://www.city.setagaya.lg.jp/01044/1584.html"}, "玉川": {"asOf": "令和8年11月1日", "updated": "2026年10月1日", "url": "https://www.city.setagaya.lg.jp/01044/1585.html"}, "砧": {"asOf": "令和8年11月1日", "updated": "2026年10月1日", "url": "https://www.city.setagaya.lg.jp/01044/5465.html"}, "烏山": {"asOf": "令和8年11月1日", "updated": "2026年10月1日", "url": "https://www.city.setagaya.lg.jp/01044/1586.html"}},
+  rows: [
+    ["世田谷","池尻",[null,0,1,7,6,1]],
+    ["世田谷","三宿",[0,0,0,5,1,2]],
+    ["世田谷","太子堂",[0,0,1,2,0,4]],
+    ["世田谷","三軒茶屋",[null,0,2,2,0,0]],
+    ["世田谷","世田谷",[0,0,0,0,0,4]],
+    ["世田谷","桜",[null,0,0,1,0,3]],
+    ["世田谷","東弦巻",[0,0,0,0,0,0]],
+    ["世田谷","弦巻",[null,0,0,0,1,8]],
+    ["世田谷","西弦巻",[0,0,0,1,4,5]],
+    ["世田谷","南桜丘",[0,0,0,0,0,0]],
+    ["世田谷","わかくさ",[0,0,0,0,0,0]],
+    ["世田谷","下馬",[0,0,5,3,4,0]],
+    ["世田谷","駒沢",[null,0,1,1,5,2]],
+    ["世田谷","上馬",[0,0,0,0,1,3]],
+    ["世田谷","鳩ぽっぽ",[0,0,0,2,0,0]],
+    ["世田谷","さくらのその",[null,null,null,0,0,0]],
+    ["世田谷","さくらのその分園つぼみ",[0,0,0,null,null,null]],
+    ["世田谷","池尻かもめ",[0,0,0,0,0,0]],
+    ["世田谷","下馬鳩ぽっぽ",[0,0,0,1,3,0]],
+    ["世田谷","下馬鳩ぽっぽ分園野の花園",[0,0,0,1,1,1]],
+    ["世田谷","おともだち",[0,0,2,6,1,6]],
+    ["世田谷","おともだち分園こまどめ",[null,null,2,10,11,10]],
+    ["世田谷","おともだち分園こまつなぎ",[0,0,null,null,null,null]],
+    ["世田谷","桜ヶ丘",[0,0,0,1,1,0]],
+    ["世田谷","経堂",[0,0,0,0,0,0]],
+    ["世田谷","オリービア",[null,0,0,1,0,0]],
+    ["世田谷","太子堂なごみ",[0,0,0,0,4,4]],
+    ["世田谷","烏山杉の子分園みなみ風",[null,0,0,0,0,0]],
+    ["世田谷","すこやか園分園キリン",[0,0,0,0,1,0]],
+    ["世田谷","もみの木保育園太子堂",[0,0,0,0,0,0]],
+    ["世田谷","世田谷はっと",[0,0,0,0,0,1]],
+    ["世田谷","遊愛",[0,0,0,3,0,1]],
+    ["世田谷","桜すくすく",[0,0,0,0,0,0]],
+    ["世田谷","駒沢こだま",[0,0,0,0,1,1]],
+    ["世田谷","世田谷いちい北ウイング",[0,0,0,0,0,0]],
+    ["世田谷","世田谷いちい南ウイング",[0,0,0,1,0,0]],
+    ["世田谷","ポピンズナーサリースクール経堂南",[0,0,0,0,0,0]],
+    ["世田谷","キッズスマイル世田谷上馬",[0,0,0,2,5,2]],
+    ["世田谷","クラルテ",[0,0,0,0,0,0]],
+    ["世田谷","ミアヘルサ保育園ひびき上馬",[0,0,2,null,null,null]],
+    ["世田谷","ラフ・クルー経堂",[0,0,0,null,null,null]],
+    ["世田谷","昭和ナースリー",[0,0,0,null,null,null]],
+    ["世田谷","グローバルキッズ世田谷四丁目園",[0,0,1,0,1,0]],
+    ["世田谷","グローバルキッズ若林園",[0,0,0,3,4,5]],
+    ["世田谷","桜の詩",[0,0,0,1,0,0]],
+    ["世田谷","おともだち・ララ",[0,0,1,3,1,4]],
+    ["世田谷","わらべうた三宿",[0,0,2,null,null,null]],
+    ["世田谷","祖師谷わかば千歳船橋分園あおばＡ",[0,0,0,null,null,null]],
+    ["世田谷","祖師谷わかば千歳船橋分園あおばＢ",[0,0,0,null,null,null]],
+    ["世田谷","三宿の杜なごみ",[0,0,0,0,null,null]],
+    ["世田谷","三軒茶屋えほん",[0,0,0,1,4,5]],
+    ["世田谷","よつば",[0,1,0,1,1,0]],
+    ["世田谷","三茶こだま",[0,0,0,0,3,1]],
+    ["世田谷","上町しぜんの国",[0,0,0,1,1,0]],
+    ["世田谷","天使の詩",[0,0,0,2,7,3]],
+    ["世田谷","三軒茶屋わこう",[0,0,0,null,null,null]],
+    ["世田谷","世田谷1丁目ゆたか園",[0,0,0,2,2,1]],
+    ["世田谷","スマイルキッズ駒繋",[0,1,0,4,1,2]],
+    ["世田谷","モニカ三軒茶屋園",[0,0,0,null,null,null]],
+    ["世田谷","つくし",[0,0,0,null,null,null]],
+    ["世田谷","フロンティアキッズ上町",[0,0,0,0,5,1]],
+    ["世田谷","いいほいくえん用賀",[null,0,0,1,1,0]],
+    ["世田谷","フロンティアキッズ上馬",[0,0,0,1,0,3]],
+    ["世田谷","野沢そらの木",[0,0,0,4,4,6]],
+    ["世田谷","若葉の詩",[0,0,0,2,2,1]],
+    ["世田谷","つむぎ",[0,0,0,0,2,2]],
+    ["世田谷","サン・ベビールーム",[0,0,2,null,null,null]],
+    ["世田谷","グローバルキッズ松陰神社駅前保育園",[0,0,0,1,0,2]],
+    ["世田谷","多聞幼稚園",[null,null,null,null,0,0]],
+    ["世田谷","青葉学園野沢こども園",[null,0,0,0,0,0]],
+    ["世田谷","昭和女子大学附属昭和こども園",[0,0,0,0,0,0]],
+    ["世田谷","日本大学認定こども園",[0,0,0,0,0,0]],
+    ["世田谷","もみの木Mom太子堂Ａ",[0,0,0,null,null,null]],
+    ["世田谷","もみの木Mom太子堂Ｂ",[0,0,0,null,null,null]],
+    ["世田谷","ふたばクラブ三軒茶屋",[0,0,0,null,null,null]],
+    ["世田谷","なかよしほいくえん",[0,0,0,null,null,null]],
+    ["世田谷","ベベ・ア・パリ経堂",[0,0,0,null,null,null]],
+    ["世田谷","上馬つきの木",[0,0,2,null,null,null]],
+    ["世田谷","マリアの家",[0,0,0,null,null,null]],
+    ["世田谷","世田谷ほしにねがいをＡ",[0,0,0,null,null,null]],
+    ["世田谷","世田谷ほしにねがいをＢ",[0,0,0,null,null,null]],
+    ["世田谷","ヤクルト経堂",[null,0,0,null,null,null]],
+    ["北沢","豪徳寺",[null,0,0,0,1,2]],
+    ["北沢","守山",[null,0,0,0,0,0]],
+    ["北沢","若竹",[null,0,0,1,2,3]],
+    ["北沢","松原北",[0,0,0,1,2,5]],
+    ["北沢","赤堤",[null,0,0,1,0,0]],
+    ["北沢","春明",[0,0,0,1,1,2]],
+    ["北沢","松原",[0,0,0,0,1,1]],
+    ["北沢","早苗",[0,0,0,2,1,2]],
+    ["北沢","早苗分園ほなみ",[0,0,0,null,null,null]],
+    ["北沢","河田",[null,0,0,3,3,1]],
+    ["北沢","梅丘至誠",[0,0,0,0,0,1]],
+    ["北沢","東北沢ききょう",[0,0,0,0,0,1]],
+    ["北沢","梅丘なごみ",[null,0,1,1,0,0]],
+    ["北沢","代沢みこころ",[null,0,4,0,0,4]],
+    ["北沢","代沢みこころ保育園分園小さな森の保育園",[null,1,3,null,null,null]],
+    ["北沢","みんなのおうち",[0,0,0,1,0,0]],
+    ["北沢","ポピンズナーサリースクール羽根木",[0,0,0,2,6,10]],
+    ["北沢","赤堤ゆりの木",[0,0,0,0,0,2]],
+    ["北沢","マリア",[0,0,0,0,1,0]],
+    ["北沢","わらべうた経堂",[0,0,1,null,null,null]],
+    ["北沢","スマイルキッズ下北沢",[0,0,0,2,0,1]],
+    ["北沢","にじのおうち",[0,0,0,2,0,0]],
+    ["北沢","代沢ききょう",[0,0,0,0,0,1]],
+    ["北沢","RISSHO KID'S きらり代沢",[0,0,0,0,0,0]],
+    ["北沢","世田谷代田仁慈保幼園",[0,0,0,0,1,1]],
+    ["北沢","北沢みこころ",[0,0,3,null,null,null]],
+    ["北沢","まつばらけやき保育園分園",[0,0,null,null,null,null]],
+    ["北沢","まつばらけやき保育園本園",[0,0,0,0,1,7]],
+    ["北沢","キッズスマイル世田谷梅丘",[0,0,0,0,5,4]],
+    ["北沢","葵みこころ",[0,0,0,2,5,7]],
+    ["北沢","にじいろ保育園松原",[0,0,0,0,3,1]],
+    ["北沢","梅丘至誠パーチェ",[0,0,0,null,null,null]],
+    ["北沢","おおわだ保育園世田谷豪徳寺",[0,0,0,0,1,1]],
+    ["北沢","スマイルキッズドレミファ",[0,0,3,null,null,null]],
+    ["北沢","京王キッズプラッツ桜上水",[null,0,0,1,1,1]],
+    ["北沢","風の丘めぐみ保育園森棟",[null,null,null,0,3,3]],
+    ["北沢","風の丘めぐみ保育園風棟",[0,0,0,null,null,null]],
+    ["北沢","下北沢そらいろ",[0,0,0,0,0,4]],
+    ["北沢","あそびの森ゆう",[0,0,0,null,null,null]],
+    ["北沢","あそびの森ゆう＋",[null,null,null,0,0,3]],
+    ["北沢","下北沢",[0,0,0,0,0,1]],
+    ["北沢","学び処世田谷保育屋敷わびさびあそび",[0,0,1,1,0,0]],
+    ["北沢","みこと",[0,0,0,1,1,6]],
+    ["北沢","羽根木こども園",[0,0,0,2,0,0]],
+    ["北沢","円光院幼稚園",[null,null,null,7,0,1]],
+    ["北沢","アルタベビー下北沢園",[0,0,2,null,null,null]],
+    ["玉川","南奥沢",[null,0,0,1,9,8]],
+    ["玉川","奥沢",[0,0,0,2,0,2]],
+    ["玉川","中町",[0,0,0,0,1,1]],
+    ["玉川","玉川",[null,0,0,0,3,1]],
+    ["玉川","上用賀",[0,0,0,2,3,3]],
+    ["玉川","ふじみ",[null,0,0,2,4,5]],
+    ["玉川","用賀",[null,0,0,0,5,2]],
+    ["玉川","用賀分園わくわく",[null,0,0,0,4,7]],
+    ["玉川","等々力中央",[0,0,0,2,1,7]],
+    ["玉川","新町",[null,0,0,6,1,2]],
+    ["玉川","めぐみ",[0,0,0,1,0,4]],
+    ["玉川","いずみ",[0,0,0,2,2,1]],
+    ["玉川","わかな",[null,0,0,2,2,1]],
+    ["玉川","ナオミ",[0,0,0,0,1,0]],
+    ["玉川","ナオミ分園ぶどうの木",[0,0,0,1,4,6]],
+    ["玉川","空の鳥分園りんごの木",[0,0,0,1,1,0]],
+    ["玉川","等々力",[0,0,0,0,1,1]],
+    ["玉川","等々力分園このは",[0,0,0,0,2,1]],
+    ["玉川","尾山台",[0,0,2,2,0,3]],
+    ["玉川","用賀なのはな",[0,0,0,1,0,0]],
+    ["玉川","用賀なのはな深沢分園",[null,0,0,null,null,null]],
+    ["玉川","さくらの木",[0,0,0,0,1,1]],
+    ["玉川","身延山",[0,0,0,0,1,11]],
+    ["玉川","身延山分園さくら青空",[null,0,1,null,null,null]],
+    ["玉川","さくらしんまち",[0,0,0,0,0,0]],
+    ["玉川","ぴっころ",[0,0,0,2,0,3]],
+    ["玉川","グリーンヒル奥沢",[0,0,0,0,1,2]],
+    ["玉川","グリーンヒル奥沢分園グリーンバレー等々力",[null,0,0,0,0,2]],
+    ["玉川","上用賀青い空分園森の家",[null,0,0,2,1,2]],
+    ["玉川","たまがわみんなの家",[0,0,0,0,3,0]],
+    ["玉川","グリーンフィールド上野毛",[0,0,0,0,2,0]],
+    ["玉川","駒沢どろんこ",[0,0,0,3,0,1]],
+    ["玉川","Gakkenほいくえん等々力",[0,0,0,0,0,2]],
+    ["玉川","ふかさわミル",[0,0,0,4,0,1]],
+    ["玉川","せたがやこころ",[0,0,0,0,0,0]],
+    ["玉川","ベネッセ桜新町",[0,0,0,0,0,2]],
+    ["玉川","わらべうた桜新町",[0,0,0,1,2,1]],
+    ["玉川","ポピンズナーサリースクール世田谷中町",[0,1,0,0,1,2]],
+    ["玉川","馬事公苑ひかり",[0,0,0,0,0,0]],
+    ["玉川","用賀みこころ",[0,0,0,2,0,3]],
+    ["玉川","ニチイキッズ深沢坂上",[0,0,0,3,5,1]],
+    ["玉川","ChaCha Children Todoroki",[0,0,0,1,2,0]],
+    ["玉川","世田谷仁慈保幼園",[0,0,1,1,0,0]],
+    ["玉川","キッド・ステイ世田谷南",[0,0,0,1,1,4]],
+    ["玉川","わらべうた等々力",[0,0,0,null,null,null]],
+    ["玉川","スマイルキッズ桜新町",[0,0,0,0,1,1]],
+    ["玉川","スマイルキッズ深沢",[null,0,0,null,null,null]],
+    ["玉川","グリーンホーム東玉川",[0,0,1,0,0,0]],
+    ["玉川","尾山台みどり",[0,0,1,1,1,4]],
+    ["玉川","上用賀青い空",[0,0,0,0,0,0]],
+    ["玉川","用賀ルンビニ",[0,0,0,0,1,0]],
+    ["玉川","コンビプラザ等々力",[0,0,0,1,1,2]],
+    ["玉川","空の鳥",[0,0,1,0,0,1]],
+    ["玉川","RISSHO KID'S きらり玉川",[0,0,0,null,null,null]],
+    ["玉川","駒沢わこう(送迎)",[0,0,0,0,2,1]],
+    ["玉川","にじのこ",[0,0,0,0,1,3]],
+    ["玉川","いいほいくえん用賀分園",[0,null,null,null,null,null]],
+    ["玉川","東玉川善隣",[null,0,0,3,0,1]],
+    ["玉川","かほる",[0,0,0,0,0,0]],
+    ["玉川","ラフ・クルー駒沢",[null,0,0,0,1,1]],
+    ["玉川","おひさま",[0,0,0,null,null,null]],
+    ["玉川","ホームマミーおくさわA",[0,0,0,null,null,null]],
+    ["玉川","ホームマミーおくさわB",[null,0,0,null,null,null]],
+    ["玉川","駒沢ほしにねがいをＡ",[0,0,0,null,null,null]],
+    ["玉川","駒沢ほしにねがいをＢ",[0,0,0,null,null,null]],
+    ["玉川","駒沢ほしにねがいをＣ",[0,0,0,null,null,null]],
+    ["玉川","ラフ・クルー駒沢公園ナーサリー",[0,0,0,null,null,null]],
+    ["玉川","等々力ほしにねがいを",[0,0,0,null,null,null]],
+    ["砧","船橋東",[null,0,0,0,2,0]],
+    ["砧","希望丘",[0,0,0,0,0,0]],
+    ["砧","小梅",[null,0,0,2,0,2]],
+    ["砧","喜多見",[null,0,0,0,0,1]],
+    ["砧","南大蔵",[0,0,0,1,2,2]],
+    ["砧","大蔵",[null,0,0,2,0,0]],
+    ["砧","祖師谷わかば",[0,0,0,0,0,0]],
+    ["砧","砧",[0,0,0,1,0,0]],
+    ["砧","世田谷つくしんぼ",[0,0,0,0,0,0]],
+    ["砧","千歳",[0,0,0,2,2,6]],
+    ["砧","千歳なないろ",[0,0,0,1,1,4]],
+    ["砧","すこやか園",[0,0,0,0,0,0]],
+    ["砧","宇奈根なごやか園(送迎)",[0,0,0,0,0,0]],
+    ["砧","青い空",[0,0,0,0,1,0]],
+    ["砧","成育しせい",[0,0,0,0,0,0]],
+    ["砧","大蔵ふたば",[0,0,0,0,0,0]],
+    ["砧","ひだまり",[0,0,0,0,1,0]],
+    ["砧","喜多見バオバブ",[0,0,0,0,2,0]],
+    ["砧","成城つくしんぼ",[0,0,0,0,1,2]],
+    ["砧","岡本こもれび",[0,0,2,3,2,1]],
+    ["砧","喜多見野の花",[0,0,0,0,0,0]],
+    ["砧","世田谷おとぎの森",[null,0,0,0,2,1]],
+    ["砧","太陽の子世田谷船橋",[0,0,0,0,1,0]],
+    ["砧","Gakkenほいくえん砧",[0,0,0,3,1,0]],
+    ["砧","生活クラブ保育園ぽむ・砧",[null,0,0,5,0,1]],
+    ["砧","生活クラブ保育園ぽむ・砧分園",[0,null,null,null,null,null]],
+    ["砧","ちきゅうのこどもほいくえん成城",[0,0,0,0,0,1]],
+    ["砧","太陽の子世田谷きぬた",[0,0,0,0,0,0]],
+    ["砧","AIAI NURSERY祖師谷",[null,0,0,1,0,0]],
+    ["砧","チャイルドスクエアそしがや",[0,0,0,1,0,0]],
+    ["砧","太陽の子めぐりさわ",[0,0,0,null,null,null]],
+    ["砧","太陽の子めぐりさわ分園太陽の子千歳台二丁目",[0,0,0,4,2,2]],
+    ["砧","にじいろ保育園千歳台",[0,0,0,7,0,9]],
+    ["砧","鎌田のびやか園(送迎)",[0,0,0,0,1,2]],
+    ["砧","鎌田のびやか園分園A",[0,0,0,null,null,null]],
+    ["砧","鎌田のびやか園分園Ｃ",[0,0,0,null,null,null]],
+    ["砧","はあと保育園成城",[0,0,0,0,1,0]],
+    ["砧","はあと保育園成城喜多見分園",[0,0,0,null,null,null]],
+    ["砧","フラヌール",[null,null,null,0,0,0]],
+    ["砧","フラヌール保育園分園",[0,0,0,null,null,null]],
+    ["砧","キッズスマイル世田谷千歳台",[0,0,0,2,2,3]],
+    ["砧","もみの木保育園希望丘",[0,0,0,2,3,0]],
+    ["砧","YMCA保育園ねがい",[0,0,0,3,1,6]],
+    ["砧","RISSHO KID'S きらり岡本(送迎)",[0,0,0,0,0,0]],
+    ["砧","ひなたの森保育園",[null,0,0,1,0,0]],
+    ["砧","ひなたの森保育園分園",[0,0,0,null,null,null]],
+    ["砧","日本女子体育大学附属",[0,0,0,0,2,1]],
+    ["砧","高木",[0,0,0,null,null,null]],
+    ["砧","えにっくす成城",[null,0,0,null,null,null]],
+    ["砧","喜多見こどもの家",[0,0,0,null,null,null]],
+    ["砧","えにっくす芦花公園",[null,0,0,null,null,null]],
+    ["砧","もみの木保育園希望丘分園",[null,0,0,null,null,null]],
+    ["砧","認定こども園世田谷ベアーズ",[0,0,0,0,0,0]],
+    ["砧","らふ・くるー まむ",[0,0,0,null,null,null]],
+    ["砧","青い空の家",[0,0,0,null,null,null]],
+    ["砧","えにっくす",[0,0,0,null,null,null]],
+    ["烏山","松沢",[null,0,0,3,2,2]],
+    ["烏山","上北沢",[0,0,0,1,1,3]],
+    ["烏山","上祖師谷",[null,0,0,0,3,1]],
+    ["烏山","上祖師谷南",[0,0,0,3,2,3]],
+    ["烏山","南八幡山",[null,0,0,4,0,0]],
+    ["烏山","八幡山",[null,0,0,0,4,3]],
+    ["烏山","給田",[0,0,0,0,0,0]],
+    ["烏山","芦花",[0,0,0,1,1,4]],
+    ["烏山","烏山北",[null,0,0,0,1,1]],
+    ["烏山","西之谷",[0,0,0,0,0,2]],
+    ["烏山","祖師谷",[0,0,0,3,0,3]],
+    ["烏山","祖師谷分園",[0,0,0,0,0,2]],
+    ["烏山","烏山杉の子",[0,0,0,0,0,1]],
+    ["烏山","烏山",[0,0,0,0,0,0]],
+    ["烏山","せたがや小鳥の森",[0,0,0,0,0,4]],
+    ["烏山","北烏山なごみ",[0,0,0,0,0,3]],
+    ["烏山","小さなおうち",[null,0,0,1,0,0]],
+    ["烏山","烏山いちご",[0,0,0,0,0,1]],
+    ["烏山","第二いちご",[0,0,0,0,0,0]],
+    ["烏山","烏山翼",[0,0,0,0,8,0]],
+    ["烏山","上北沢こぐま",[0,0,0,0,2,1]],
+    ["烏山","いずみの園",[null,0,0,0,2,2]],
+    ["烏山","ChaCha Children Soshigayakoen",[null,0,0,1,0,0]],
+    ["烏山","ChaCha Children Soshigayakoen Park Side",[0,0,0,null,null,null]],
+    ["烏山","芦花そらいろ",[0,0,0,5,2,1]],
+    ["烏山","芦花の丘かたるぱ",[0,0,0,1,0,0]],
+    ["烏山","ピノキオ幼児舎芦花",[0,0,0,1,0,0]],
+    ["烏山","京王キッズプラッツ烏山",[0,0,0,null,null,null]],
+    ["烏山","にじいろ保育園給田分園",[0,0,0,null,null,null]],
+    ["烏山","えにっくす八幡山",[0,0,0,null,null,null]],
+    ["烏山","にじいろ保育園給田",[0,0,0,0,0,2]],
+    ["烏山","ラフ・クルー烏山",[0,0,0,0,0,1]],
+    ["烏山","ラフ・クルー烏山保育園分園",[0,0,0,null,null,null]],
+    ["烏山","メネス",[0,0,1,null,null,null]],
+    ["烏山","おうち①",[0,0,2,null,null,null]],
+    ["烏山","おうち②",[0,0,0,null,null,null]],
+    ["烏山","ららるー",[0,0,0,null,null,null]],
+    ["烏山","千歳ぴっち",[0,0,0,null,null,null]],
+    ["烏山","翼の鐘A",[0,0,0,null,null,null]],
+    ["烏山","翼の鐘B",[0,0,0,null,null,null]]
+  ]
+};
+/*NOW-END*/
+</script>
+<script>
+/* distribution-r8.js */
+/* 世田谷区 4月入園児童の選考指数分布(地域別・クラス別)  令和8年(2026年)4月入園
+   各地域・各クラス(0〜5歳児)について、入園した児童の人数 n と、指数の6区分ごとの人数 c を持つ。
+   c が null のものは、区が10人未満のため人数を公表していない(資料では「＊」)。
+   令和9年分が公表されたら distribution-r9.js として追加する。
+   出典: https://www.city.setagaya.lg.jp/documents/33613/12_r8nen4gatu_nyuenjidonosenkoshisubunpu_chikikurasubetu.pdf */
+window.SHISUU_DIST = window.SHISUU_DIST || {};
+window.SHISUU_DIST.r8 = {
+  id: 'r8', order: 2026,
+  label: '令和8年(2026年)4月に入園した児童',
+  checkedOn: '2026年10月27日',
+  source: { name: '4月入園児童の選考指数分布(地域別・クラス別)[令和8年]', url: 'https://www.city.setagaya.lg.jp/documents/33613/12_r8nen4gatu_nyuenjidonosenkoshisubunpu_chikikurasubetu.pdf' },
+  bands: [
+    { l: '99点以下', lo: -1e9, hi: 99 },
+    { l: '100〜104点', lo: 100, hi: 104 },
+    { l: '105点', lo: 105, hi: 105 },
+    { l: '106点', lo: 106, hi: 106 },
+    { l: '107〜109点', lo: 107, hi: 109 },
+    { l: '110点以上', lo: 110, hi: 1e9 }
+  ],
+  regions: ['全体', '世田谷', '北沢', '玉川', '砧', '烏山'],
+  data: {"全体":[{"n":1535,"c":[80,47,872,38,21,477]},{"n":1783,"c":[51,37,945,102,70,578]},{"n":452,"c":[55,81,76,77,59,104]},{"n":513,"c":[77,81,16,56,54,229]},{"n":128,"c":[19,38,1,4,38,28]},{"n":52,"c":null}],"世田谷":[{"n":440,"c":[16,10,247,9,7,151]},{"n":493,"c":[14,15,263,32,14,155]},{"n":102,"c":[16,22,16,18,12,18]},{"n":132,"c":[17,19,3,7,11,75]},{"n":33,"c":[4,15,1,0,6,7]},{"n":17,"c":[7,3,0,1,2,4]}],"北沢":[{"n":236,"c":[8,15,128,11,0,74]},{"n":261,"c":[5,5,133,15,12,91]},{"n":78,"c":[7,12,16,14,13,16]},{"n":97,"c":[9,19,3,14,11,41]},{"n":26,"c":[8,6,0,0,6,6]},{"n":8,"c":null}],"玉川":[{"n":357,"c":[16,12,220,11,5,93]},{"n":405,"c":[0,4,226,31,15,129]},{"n":106,"c":[12,17,16,19,8,34]},{"n":106,"c":[16,21,4,16,7,42]},{"n":25,"c":[2,7,0,1,7,8]},{"n":10,"c":[1,3,0,3,2,1]}],"砧":[{"n":290,"c":[19,4,159,4,9,95]},{"n":338,"c":[21,8,165,18,21,105]},{"n":100,"c":[14,20,18,17,14,17]},{"n":97,"c":[16,14,0,11,20,36]},{"n":29,"c":[4,9,0,2,8,6]},{"n":12,"c":[1,4,0,0,4,3]}],"烏山":[{"n":212,"c":[21,6,118,3,0,64]},{"n":286,"c":[11,5,158,6,8,98]},{"n":66,"c":[6,10,10,9,12,19]},{"n":81,"c":[19,8,6,8,5,35]},{"n":15,"c":[1,1,0,1,11,1]},{"n":5,"c":null}]}
+};
+
+</script>
+
+<script>
+(function(){
+  var $ = function(id){return document.getElementById(id)};
+  var DATA = window.SHISUU_DATA || {};
+  var keys = Object.keys(DATA).sort(function(a,b){return DATA[b].order - DATA[a].order});
+  if(!keys.length){
+    document.querySelector('.wrap').innerHTML = '<p class="notice">点数表を読み込めませんでした。ページを開き直してください。</p>';
+    return;
+  }
+  var Y, state;
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function sign(v){ return v > 0 ? '+'+v : '−'+Math.abs(v); }
+
+  function setYear(key){
+    Y = DATA[key];
+    state = {
+      year:key, round:'first',
+      p:[{cat:'work', idx:0}, {cat:'work', idx:1}],
+      adj:{}
+    };
+    $('tag').textContent = '世田谷区・認可保育園・' + Y.label;
+    buildParent('parentA', 0, '保護者A');
+    buildParent('parentB', 1, '保護者B');
+    buildAdj();
+    $('round').value = 'first';
+    $('src').innerHTML = '点数表の出典: <a href="'+Y.source.url+'" target="_blank" rel="noopener">'+esc(Y.source.name)+'</a>(確認日 '+Y.checkedOn+')<br>申込期限: '+Y.deadlines.map(esc).join(' / ');
+    $('tiebreak').innerHTML = Y.tiebreak.map(function(t){return '<li>'+esc(t)+'</li>'}).join('');
+    $('notices').innerHTML = Y.notices.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')
+      + '<li>この点数は目安です。園ごとの倍率は反映していません。申込前に、保育認定・調整課(03-5432-1200)か、お住まいの地域の総合支所子ども家庭支援課で確認してください。</li>';
+    render();
+  }
+
+  function cat(id){ return Y.categories.filter(function(c){return c.id===id})[0]; }
+
+  function buildParent(boxId, i, title){
+    var box = $(boxId);
+    var cid = boxId + '-cat', did = boxId + '-det';
+    box.innerHTML = '<h3>'+title+'</h3>'
+      + '<label class="field" for="'+cid+'">区分</label><select id="'+cid+'"></select>'
+      + '<label class="field" for="'+did+'">内容</label><select id="'+did+'"></select>'
+      + '<p class="hint" id="'+boxId+'-note"></p>';
+    var cs = $(cid), ds = $(did);
+    cs.innerHTML = Y.categories.map(function(c){return '<option value="'+c.id+'">'+esc(c.label)+'</option>'}).join('');
+    cs.value = state.p[i].cat;
+    function fillDetail(){
+      var c = cat(state.p[i].cat);
+      ds.innerHTML = c.items.map(function(it, k){return '<option value="'+k+'">'+esc(it.l)+'('+it.p+'点)</option>'}).join('');
+      if(state.p[i].idx >= c.items.length) state.p[i].idx = 0;
+      ds.value = state.p[i].idx;
+      $(boxId+'-note').textContent = c.note || '';
+    }
+    fillDetail();
+    cs.addEventListener('change', function(){
+      state.p[i].cat = cs.value; state.p[i].idx = 0; fillDetail();
+      if(cs.value === 'absent') setSingle(true);
+      render();
+    });
+    ds.addEventListener('change', function(){ state.p[i].idx = +ds.value; render(); });
+  }
+
+  function setSingle(on){
+    var cb = $('adj-single');
+    if(cb){ cb.checked = on; state.adj.single = on; }
+  }
+
+  function buildAdj(){
+    var box = $('adj'), html = '', lastG = null;
+    Y.adjustments.forEach(function(a){
+      if(a.g !== lastG){ html += '<h3 class="grp">'+esc(a.g)+'</h3>'; lastG = a.g; }
+      var note = a.n ? '<small>'+esc(a.n)+'</small>' : '';
+      var head = '<span class="no">調整基準'+a.no+'</span>'+esc(a.l);
+      if(a.choices){
+        var opts = '<option value="-1">該当しない</option>' + a.choices.map(function(c,k){return '<option value="'+k+'">'+esc(c.l)+'('+sign(c.p)+')</option>'}).join('');
+        html += '<div class="check" id="row-'+a.id+'"><span class="txt">'+head+note+'<select id="adj-'+a.id+'" aria-label="'+esc(a.l)+'">'+opts+'</select></span></div>';
+      } else {
+        html += '<label class="check" id="row-'+a.id+'"><input type="checkbox" id="adj-'+a.id+'"><span class="txt">'+head+note+'</span><span class="pt '+(a.p>0?'p':'m')+'">'+sign(a.p)+'</span></label>';
+      }
+    });
+    box.innerHTML = html;
+    Y.adjustments.forEach(function(a){
+      var el = $('adj-'+a.id);
+      el.addEventListener('change', function(){
+        state.adj[a.id] = a.choices ? (+el.value) : el.checked;
+        render();
+      });
+    });
+  }
+
+  function syncSecondOnly(){
+    Y.adjustments.forEach(function(a){
+      if(!a.secondOnly) return;
+      var ok = state.round === 'second';
+      var el = $('adj-'+a.id), row = $('row-'+a.id);
+      el.disabled = !ok; row.classList.toggle('off', !ok);
+      if(!ok){ el.checked = false; state.adj[a.id] = false; }
+    });
+  }
+
+  /* 計算: 保護者ごとの指数(各50まで)+調整基準。同時に使えない項目は高い方だけ数える。 */
+  function calc(){
+    var rows = [], total = 0;
+    state.p.forEach(function(p, i){
+      var c = cat(p.cat), it = c.items[p.idx], v = Math.min(it.p, 50);
+      rows.push({t:'保護者'+(i?'B':'A')+' '+c.label.replace(/\(.*?\)/,''), s:it.l, v:v});
+      total += v;
+    });
+    var sel = {};
+    Y.adjustments.forEach(function(a){
+      var s = state.adj[a.id];
+      if(a.secondOnly && state.round !== 'second') return;
+      if(a.choices){ if(s >= 0 && s !== undefined && a.choices[s]) sel[a.id] = {a:a, v:a.choices[s].p, s:a.choices[s].l}; }
+      else if(s){ sel[a.id] = {a:a, v:a.p}; }
+    });
+    var dropped = {};
+    Y.exclusive.forEach(function(g){
+      var hit = g.ids.filter(function(id){return sel[id] && !dropped[id]});
+      if(hit.length < 2) return;
+      hit.sort(function(x,y){return sel[y].v - sel[x].v});
+      for(var k=1;k<hit.length;k++) dropped[hit[k]] = g.why;
+    });
+    Y.adjustments.forEach(function(a){
+      var x = sel[a.id]; if(!x) return;
+      var row = {t:'調整基準'+a.no+' '+a.l, s:x.s, v:x.v};
+      if(dropped[a.id]){ row.dropped = dropped[a.id]; }
+      else total += x.v;
+      rows.push(row);
+    });
+    return {rows:rows, total:total};
+  }
+
+  function render(){
+    syncSecondOnly();
+    var r = calc();
+    renderDist(r.total);
+    $('total').textContent = r.total;
+    $('barTotal').textContent = r.total;
+    $('rows').innerHTML = r.rows.map(function(x){
+      var v = x.dropped ? '0' : (x.v < 0 ? sign(x.v) : (x.t.indexOf('調整基準')===0 ? sign(x.v) : String(x.v)));
+      var sub = x.dropped ? '<small>'+esc(x.dropped)+'</small>' : (x.s ? '<small>'+esc(x.s)+'</small>' : '');
+      return '<li'+(x.dropped?' class="dropped"':'')+'><span>'+esc(x.t)+sub+'</span><span class="v" style="color:var('+(x.v<0&&!x.dropped?'--minus':'--fg')+')">'+v+'</span></li>';
+    }).join('');
+  }
+
+  var step = 1;
+  function show(n){
+    step = n;
+    ['s1','s2','s3'].forEach(function(id, i){ $(id).hidden = (i+1) !== n; });
+    var lis = $('steps').children;
+    for(var i=0;i<lis.length;i++){
+      lis[i].removeAttribute('aria-current');
+      lis[i].classList.toggle('done', i < n-1);
+      if(i === n-1) lis[i].setAttribute('aria-current','step');
+    }
+    window.scrollTo(0, 0);
+  }
+
+  $('round').addEventListener('change', function(e){ state.round = e.target.value; render(); });
+  if(keys.length > 1){
+    $('yearBox').hidden = false;
+    $('year').innerHTML = keys.map(function(k){return '<option value="'+k+'">'+esc(DATA[k].label)+'</option>'}).join('');
+    $('year').addEventListener('change', function(e){ setYear(e.target.value); });
+  }
+  $('to2').addEventListener('click', function(){ show(2); });
+  $('back1').addEventListener('click', function(){ show(1); });
+  $('to3').addEventListener('click', function(){ show(3); });
+  $('back2').addEventListener('click', function(){ show(1); });
+
+  /* ---- 見学メモ(記録はこのブラウザのlocalStorageに保存。使えない環境では画面を閉じるまでだけ保持) ---- */
+  var V_ITEMS = [
+    {id:'policy',  l:'保育方針・1日の流れ'},
+    {id:'teacher', l:'先生の雰囲気・子どもへの声かけ'},
+    {id:'yard',    l:'園庭・室内の広さと清潔さ'},
+    {id:'lunch',   l:'給食(自園調理・アレルギー対応)'},
+    {id:'hours',   l:'開所時間・延長保育'},
+    {id:'route',   l:'送迎の動線・駐輪場'},
+    {id:'goods',   l:'おむつ・布団など持ち物の負担'},
+    {id:'nareshi', l:'慣らし保育の期間と進め方'},
+    {id:'sick',    l:'発熱時の対応・病児保育'}
+  ];
+  var V_AREAS = ['世田谷','北沢','玉川','砧','烏山'];
+  var V_STATUS = {g:{t:'良い', s:'○'}, w:{t:'気になる', s:'△'}, q:{t:'聞き忘れ', s:'？'}};
+  var CLASSES = [
+    '0歳児クラス(令和8年4月2日以降生まれ)',
+    '1歳児クラス(令和7年4月2日〜令和8年4月1日生まれ)',
+    '2歳児クラス(令和6年4月2日〜令和7年4月1日生まれ)',
+    '3歳児クラス(令和5年4月2日〜令和6年4月1日生まれ)',
+    '4歳児クラス(令和4年4月2日〜令和5年4月1日生まれ)',
+    '5歳児クラス(令和3年4月2日〜令和4年4月1日生まれ)'
+  ];
+  var V_KEY = 'hoikatsu-visits-v1', C_KEY = 'hoikatsu-class-v1';
+  var editing = null, askDel = null, vSort = 'added';
+  var fRegion = '', fMode = 'card', fSort = 'r2asc', fHide = true, fNow = false, fShown = 15, fRows = [];
+
+  /* 園ごとの昨年の実績(data/facilities-*.js の新しい年度を使う) */
+  var FACS = window.SHISUU_FAC || {};
+  var facKeys = Object.keys(FACS).sort(function(a,b){return FACS[b].order - FACS[a].order});
+  var FAC = facKeys.length ? FACS[facKeys[0]] : null;
+  /* 今年の入園可能数だけが先に公表されたとき(data/vacancy-*.js)は、昨年の申込数に重ねて倍率を出す。
+     行の形: [地域, 園名, 入園可能数(倍率の分母), 全希望の申込数, 第1希望の申込数, 昨年の入園可能数] */
+  var VACS = window.SHISUU_VAC || {};
+  var vacKeys = Object.keys(VACS).sort(function(a,b){return VACS[b].order - VACS[a].order});
+  var VAC = vacKeys.length ? VACS[vacKeys[0]] : null;
+  var overlay = !!(FAC && VAC && VAC.order > FAC.order);
+  var NULL6 = [null, null, null, null, null, null];
+  var facRows = [];
+  if(FAC){
+    if(overlay){
+      var oldRows = {};
+      FAC.rows.forEach(function(r){ oldRows[r[0] + '|' + r[1]] = r; });
+      facRows = VAC.rows.map(function(v){
+        var o = oldRows[v[0] + '|' + v[1]];
+        return [v[0], v[1], v[2], o ? o[3] : NULL6, o ? o[4] : NULL6, o ? o[2] : NULL6];
+      });
+    } else {
+      facRows = FAC.rows.map(function(r){ return [r[0], r[1], r[2], r[3], r[4], r[2]]; });
+    }
+  }
+  var facMap = {};
+  facRows.forEach(function(r){ facMap[r[0] + '|' + r[1]] = r; });
+  var BASIS = !FAC ? '' : (overlay ? VAC.short + 'の入園可能数と、' + FAC.short + 'の申込数' : FAC.short + '(一次)');
+
+  var cls = 1;
+  try{ var cs0 = localStorage.getItem(C_KEY); if(cs0 !== null && +cs0 >= 0 && +cs0 <= 5) cls = +cs0; }catch(e){}
+
+  function pack(str){ var o = {}; V_ITEMS.forEach(function(it, i){ o[it.id] = str.charAt(i) || 'q'; }); return o; }
+  function vLoad(){
+    try{ var s = localStorage.getItem(V_KEY); if(s !== null) return JSON.parse(s); }catch(e){}
+    return null;
+  }
+  function vSave(){ try{ localStorage.setItem(V_KEY, JSON.stringify(visits)); }catch(e){} }
+  function today(){
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
+  }
+  function rate(n){ return n ? n + ' / 5' : '未評価'; }
+  function vFind(id){ return visits.filter(function(v){return v.id === id})[0]; }
+
+  /* 倍率: 第1希望の申込数 ÷ 入園可能数、全希望順位の申込数 ÷ 入園可能数 */
+  function stat(f, c){
+    var vac = f[2][c], all = f[3][c], fi = f[4][c];
+    return { vac:vac, all:all, fi:fi, vacLast:f[5][c],
+      r1: (vac > 0 && fi !== null) ? fi / vac : null,
+      r2: (vac > 0 && all !== null) ? all / vac : null };
+  }
+  function times(x){ return x === null ? '―' : (x < 10 ? x.toFixed(1) : String(Math.round(x))) + '倍'; }
+  /* 現在の空き(区が毎月更新) */
+  var NOW = window.SHISUU_NOW || null, nowMap = {};
+  if(NOW) NOW.rows.forEach(function(r){ nowMap[r[0] + '|' + r[1]] = r[2]; });
+  function nowOf(f){ return NOW ? (nowMap[f[0] + '|' + f[1]] || null) : null; }
+  function nowTotal(f){ var n = nowOf(f); return n ? n.reduce(function(a, b){ return a + (b || 0); }, 0) : 0; }
+  function nowStrip(f){
+    var n = nowOf(f); if(!n) return '<p class="nonow">今の空き: 新しい園などで、区の空き表にはまだ載っていません。</p>';
+    var m = NOW.regions[f[0]], old = m.asOf.indexOf('11月') < 0;
+    var cells = n.map(function(v, c){
+      return '<span class="nc ' + (v === null ? 'na' : (v > 0 ? 'ok' : 'zero')) + '"><i>' + c + '歳</i><b>' + (v === null ? '―' : v) + '</b></span>';
+    }).join('');
+    return '<div class="now"><div class="nowh"><b>いま入れる空き</b><span>' + esc(m.asOf) + '入園の予定数</span>' + (old ? '<em>区の更新が古い(' + esc(m.updated) + ')</em>' : '') + '</div><div class="nowg">' + cells + '</div></div>';
+  }
+  function facLine(f){
+    var s = stat(f, cls), yr = overlay ? '昨年の' : '';
+    var last = (overlay && s.vacLast !== null && s.vacLast !== s.vac) ? '(昨年 ' + s.vacLast + '人)' : '';
+    if(s.vac === null) return '資料に記載がありません(このクラスがない園など)';
+    if(s.vac === 0) return '入園可能数は0人' + (overlay ? '' : 'でした') + last + (s.fi !== null ? '(' + yr + '第1希望 ' + s.fi + '人 / ' + yr + '全希望 ' + s.all + '人)' : '');
+    if(s.fi === null) return '入園可能 ' + s.vac + '人' + last + '(' + yr + '申込数の記載なし)';
+    return '入園可能 ' + s.vac + '人' + last + ' / ' + yr + '第1希望 ' + s.fi + '人(' + times(s.r1) + ') / ' + yr + '全希望 ' + s.all + '人(' + times(s.r2) + ')';
+  }
+  function sv(v){ var f = v.fac && facMap[v.fac]; return f ? stat(f, cls) : null; }
+
+  var visits = vLoad();
+  if(!visits){
+    visits = [
+      {id:'ex1', ex:true, name:'(例)サンプル第一保育園', area:'世田谷', date:'2026-10-12', st:pack('ggwggqqgq'), ra:4, rb:3, memo:'園庭が広い。延長保育の対象時間は要確認。', cmp:true},
+      {id:'ex2', ex:true, name:'(例)サンプル第二保育園', area:'北沢', date:'2026-10-19', st:pack('gqggwgqqq'), ra:3, rb:4, memo:'駐輪場が狭い。給食は自園調理。', cmp:true}
+    ];
+    vSave();
+  }
+
+  function counts(v){ var c = {g:0, w:0, q:0}; V_ITEMS.forEach(function(it){ c[v.st[it.id] || 'q']++; }); return c; }
+  function rk(v){ var s = sv(v); return (s && s.r2 !== null) ? s.r2 : 1e9; }
+  function avg(v){ var n = (v.ra ? 1 : 0) + (v.rb ? 1 : 0); return n ? ((v.ra || 0) + (v.rb || 0)) / n : 0; }
+  function sortedVisits(){
+    var a = visits.slice();
+    if(vSort === 'date') a.sort(function(x, y){ return (y.date || '').localeCompare(x.date || ''); });
+    else if(vSort === 'rate') a.sort(function(x, y){ return rk(x) - rk(y); });
+    else if(vSort === 'score') a.sort(function(x, y){ return avg(y) - avg(x); });
+    return a;
+  }
+
+  function renderVisit(){
+    $('vScore').textContent = calc().total;
+    var nSel = visits.filter(function(v){return v.cmp}).length;
+    $('vCount').textContent = '(' + visits.length + '園)';
+    if(!visits.length){
+      $('vList').innerHTML = '<p class="hint" style="margin:0">まだ記録がありません。「見学を追加する」か、下の「園を探す」から、最初の1園を入力してください。</p>';
+    } else {
+      var h = '<div class="tblwrap"><table class="vtbl"><thead><tr><th scope="col">園</th><th scope="col">○△？</th><th scope="col">全希望</th><th scope="col">比べる</th></tr></thead><tbody>';
+      h += sortedVisits().map(function(v){
+        var c = counts(v), f = v.fac && facMap[v.fac], st = f ? stat(f, cls) : null;
+        var dis = (!v.cmp && nSel >= 3) ? ' disabled' : '';
+        var btns = askDel === v.id
+          ? '<button type="button" class="mini" data-act="delok" data-id="'+v.id+'" style="color:var(--minus)">削除する</button><button type="button" class="mini" data-act="delno" data-id="'+v.id+'">やめる</button>'
+          : '<button type="button" class="mini" data-act="edit" data-id="'+v.id+'">編集</button><button type="button" class="mini" data-act="del" data-id="'+v.id+'">削除</button>';
+        var meta = esc(v.area) + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + ' ・ A' + (v.ra || '―') + ' B' + (v.rb || '―');
+        return '<tr><th scope="row"><span class="fn">' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</span><small>' + meta + '</small>'
+          + (v.memo ? '<small class="memo1">' + esc(v.memo) + '</small>' : '') + '<span class="vb">' + btns + '</span></th>'
+          + '<td class="cnt"><span class="g">○' + c.g + '</span> <span class="w">△' + c.w + '</span> <span class="q">？' + c.q + '</span></td>'
+          + '<td>' + (st && st.r2 !== null ? '<b>' + times(st.r2) + '</b>' : '―') + '</td>'
+          + '<td><input type="checkbox" class="big" data-act="cmp" data-id="'+v.id+'"'+(v.cmp?' checked':'')+dis+' aria-label="' + esc(v.name) + 'を比べる"></td>'
+          + '</tr>';
+      }).join('');
+      $('vList').innerHTML = h + '</tbody></table></div><p class="hint">全希望の倍率は、' + cls + '歳児クラスの数字です。区の一覧にある園名を選ぶと出ます。</p>';
+    }
+    renderCmp();
+  }
+
+  function renderCmp(){
+    var all = visits.filter(function(v){return v.cmp});
+    $('vCmpHint').textContent = all.length >= 3
+      ? '無料では3園まで比べられます。4園以上を並べる機能は有料版で用意する予定です(準備中)。'
+      : '「比べる」にチェックを入れた園が並びます(最大3園)。';
+    var sel = all.slice(0, 3);
+    if(sel.length < 2){ $('vCmp').innerHTML = '<p class="hint">2園以上にチェックを入れると、比較表が出ます。</p>'; return; }
+    function row(label, fn){ return '<tr><th scope="row">' + esc(label) + '</th>' + sel.map(function(v){ return '<td>' + fn(v) + '</td>'; }).join('') + '</tr>'; }
+    function num(fn){ return function(v){ var s = sv(v); var x = s ? fn(s) : null; return x === null || x === undefined ? '―' : x; }; }
+    var h = '<table class="cmp"><thead><tr><th scope="col">項目</th>'
+      + sel.map(function(v){ return '<th scope="col">' + esc(v.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    h += row('評価 A / B', function(v){ return (v.ra || '―') + ' / ' + (v.rb || '―'); });
+    h += row((overlay ? VAC.short + 'の' : '昨年の') + '入園可能数(' + cls + '歳児)', num(function(s){ return s.vac === null ? null : s.vac + '人'; }));
+    h += row('第1希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r1 === null ? null : times(s.r1)); }));
+    h += row('全希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r2 === null ? null : times(s.r2)); }));
+    V_ITEMS.forEach(function(it){
+      h += row(it.l, function(v){
+        var s = v.st[it.id] || 'q';
+        return '<span class="s ' + s + '" role="img" aria-label="' + V_STATUS[s].t + '">' + V_STATUS[s].s + '</span>';
+      });
+    });
+    h += row('聞き忘れの数', function(v){ return counts(v).q + ' 項目'; });
+    $('vCmp').innerHTML = h + '</tbody></table><p class="hint">○ 良い / △ 気になる / ？ 聞き忘れ / ― 数字なし' + (overlay ? '。倍率は、昨年の申込数を今年の入園可能数で割った数字です。' : '') + '</p>';
+  }
+
+  /* 園を探す(昨年の倍率の一覧) */
+  function renderFind(){
+    if(!FAC){ $('fList').innerHTML = '<p class="hint">園ごとのデータを読み込めませんでした。</p>'; $('fMore').hidden = true; return; }
+    var a = facRows.filter(function(f){ return !fRegion || f[0] === fRegion; })
+      .map(function(f){ return {f:f, s:stat(f, cls)}; });
+    if(fHide) a = a.filter(function(x){ return x.s.vac > 0 && x.s.fi !== null; });
+    if(fNow) a = a.filter(function(x){ return nowTotal(x.f) > 0; });
+    function rv(x){ return fSort.indexOf('r2') === 0 ? x.s.r2 : x.s.r1; }
+    if(fSort === 'r1asc' || fSort === 'r2asc') a.sort(function(x, y){ return (rv(x) === null ? 1e9 : rv(x)) - (rv(y) === null ? 1e9 : rv(y)); });
+    else if(fSort === 'r1desc' || fSort === 'r2desc') a.sort(function(x, y){ return (rv(y) === null ? -1 : rv(y)) - (rv(x) === null ? -1 : rv(x)); });
+    else if(fSort === 'nowdesc') a.sort(function(x, y){ return nowTotal(y.f) - nowTotal(x.f); });
+    else if(fSort === 'vacdesc') a.sort(function(x, y){ return (y.s.vac === null ? -1 : y.s.vac) - (x.s.vac === null ? -1 : x.s.vac); });
+    else a.sort(function(x, y){ return x.f[1].localeCompare(y.f[1], 'ja'); });
+    fRows = a;
+    var shown = a.slice(0, fShown);
+    $('fCount').textContent = cls + '歳児クラス ' + a.length + '園中 ' + shown.length + '園を表示';
+    function cell(n, r){ return n === null ? '―' : '<b>' + times(r) + '</b><small>' + n + '人</small>'; }
+    function ageTable(f){
+      var t = '<details class="ages"><summary>0〜5歳児ごとの倍率</summary><table class="agetbl"><thead><tr><th scope="col">クラス</th><th scope="col">入園可能</th><th scope="col">第1希望</th><th scope="col">全希望</th></tr></thead><tbody>';
+      for(var c = 0; c < 6; c++){
+        var q = stat(f, c);
+        function m(n, r){ return (q.vac === 0 || n === null) ? '―' : '<b>' + times(r) + '</b> <small>' + n + '人</small>'; }
+        t += '<tr' + (c === cls ? ' class="cur"' : '') + '><th scope="row">' + c + '歳児</th><td>' + (q.vac === null ? '―' : q.vac + '人') + '</td><td>' + m(q.fi, q.r1) + '</td><td>' + m(q.all, q.r2) + '</td></tr>';
+      }
+      return t + '</tbody></table></details>';
+    }
+    if(fMode === 'card'){
+      var ch = shown.map(function(x, i){
+        var s = x.s, z = (s.vac === 0);
+        function st(label, v, sub){ return '<div class="st"><span class="lb">' + label + '</span>' + v + (sub ? '<small>' + sub + '</small>' : '') + '</div>'; }
+        var last = (overlay && s.vacLast !== null && s.vacLast !== s.vac && s.vac !== null) ? '昨年 ' + s.vacLast + '人' : '';
+        return '<article class="fcard"><div class="fh"><span class="fn">' + esc(x.f[1]) + '</span><span class="area">' + esc(x.f[0]) + '</span>'
+          + '<button type="button" class="mini" data-fadd="' + i + '" aria-label="' + esc(x.f[1]) + 'の見学を記録">＋ 記録</button></div>'
+          + '<div class="fs">'
+          + st('入園可能', s.vac === null ? '―' : '<b>' + s.vac + '人</b>', last)
+          + st('第1希望', (z || s.fi === null) ? '―' : '<b>' + times(s.r1) + '</b>', (z || s.fi === null) ? '' : s.fi + '人')
+          + st('全希望', (z || s.all === null) ? '―' : '<b>' + times(s.r2) + '</b>', (z || s.all === null) ? '' : s.all + '人')
+          + '</div>' + nowStrip(x.f) + ageTable(x.f) + '</article>';
+      }).join('');
+      $('fList').innerHTML = '<div class="fcards">' + ch + '</div>';
+      $('fMore').hidden = shown.length >= a.length;
+      return;
+    }
+    if(fMode === 'row'){
+      var hh = '<div class="tblwrap hwrap"><table class="ftbl htbl"><thead><tr><th scope="col">園</th>'
+        + shown.map(function(x){ return '<th scope="col"><span class="fn">' + esc(x.f[1]) + '</span><span class="area">' + esc(x.f[0]) + '</span></th>'; }).join('') + '</tr></thead><tbody>';
+      function hr(label, fn){ return '<tr><th scope="row">' + label + '</th>' + shown.map(function(x){ return '<td>' + fn(x.s) + '</td>'; }).join('') + '</tr>'; }
+      hh += hr('入園可能', function(s){ return s.vac === null ? '―' : '<b>' + s.vac + '人</b>' + ((overlay && s.vacLast !== null && s.vacLast !== s.vac) ? '<small>昨年 ' + s.vacLast + '人</small>' : ''); });
+      hh += hr('第1希望', function(s){ return s.vac === 0 ? '―' : cell(s.fi, s.r1); });
+      hh += hr('全希望', function(s){ return s.vac === 0 ? '―' : cell(s.all, s.r2); });
+      hh += '<tr><th scope="row">記録</th>' + shown.map(function(x, i){ return '<td><button type="button" class="mini" data-fadd="' + i + '" aria-label="' + esc(x.f[1]) + 'の見学を記録">＋</button></td>'; }).join('') + '</tr>';
+      $('fList').innerHTML = hh + '</tbody></table></div><p class="hint">左右にスクロールすると、ほかの園が見られます。</p>';
+      $('fMore').hidden = shown.length >= a.length;
+      return;
+    }
+    var h = '<div class="tblwrap"><table class="ftbl"><thead><tr><th scope="col">園</th><th scope="col">入園可能</th><th scope="col">第1希望</th><th scope="col">全希望</th><th scope="col"><span class="sr">記録</span></th></tr></thead><tbody>';
+    h += shown.map(function(x, i){
+      var s = x.s, last = (overlay && s.vacLast !== null && s.vacLast !== s.vac && s.vac !== null) ? '<small>昨年 ' + s.vacLast + '人</small>' : '';
+      return '<tr><th scope="row"><span class="fn">' + esc(x.f[1]) + '</span> <span class="area">' + esc(x.f[0]) + '</span></th>'
+        + '<td>' + (s.vac === null ? '―' : '<b>' + s.vac + '人</b>' + last) + '</td>'
+        + '<td>' + (s.vac === 0 ? '―' : cell(s.fi, s.r1)) + '</td>'
+        + '<td>' + (s.vac === 0 ? '―' : cell(s.all, s.r2)) + '</td>'
+        + '<td><button type="button" class="mini" data-fadd="' + i + '" aria-label="' + esc(x.f[1]) + 'の見学を記録">＋</button></td></tr>';
+    }).join('');
+    $('fList').innerHTML = h + '</tbody></table></div>';
+    $('fMore').hidden = shown.length >= a.length;
+  }
+
+  function buildItems(){
+    $('vItems').innerHTML = V_ITEMS.map(function(it){
+      var seg = ['g','w','q'].map(function(k){
+        return '<label><input type="radio" name="st-'+it.id+'" value="'+k+'"><span class="'+k+'" title="'+V_STATUS[k].t+'">'+V_STATUS[k].s+'<i class="sr">'+V_STATUS[k].t+'</i></span></label>';
+      }).join('');
+      return '<div class="item" role="group" aria-label="'+esc(it.l)+'"><span class="il">'+esc(it.l)+'</span><div class="seg">'+seg+'</div></div>';
+    }).join('');
+    var rs = '<option value="0">未評価</option>' + [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+' / 5</option>'; }).join('');
+    $('v-ra').innerHTML = rs; $('v-rb').innerHTML = rs;
+    $('v-area').innerHTML = V_AREAS.map(function(a){ return '<option value="'+a+'">'+a+'</option>'; }).join('');
+    $('fRegion').innerHTML = '<option value="">すべて</option>' + V_AREAS.map(function(a){ return '<option value="'+a+'">'+a+'</option>'; }).join('');
+    $('vCls').innerHTML = CLASSES.map(function(c, i){ return '<option value="'+i+'">'+esc(c)+'</option>'; }).join('');
+    $('vCls').value = cls;
+    if(FAC){
+      var srcs = FAC.sources.concat(overlay ? [VAC.source] : []);
+      $('fSrc').innerHTML = '出典: ' + srcs.map(function(s){ return '<a href="'+s.url+'" target="_blank" rel="noopener">'+esc(s.name)+'</a>'; }).join(' / ')
+        + (overlay ? '(申込数は' + esc(FAC.label) + '、入園可能数は' + esc(VAC.label) + '。確認日 ' + VAC.checkedOn + ')。倍率は、昨年の申込数を今年の入園可能数で割った数字です。今年の申込数は、区が最終集計を公表したら差し替えます。'
+                     : '(' + esc(FAC.label) + '、確認日 ' + FAC.checkedOn + ')。倍率は、申込数を入園可能数で割った数字です。');
+      if(overlay) $('fIntro').textContent = $('fIntro').textContent.replace('昨年の4月入園(一次選考)で、申込数が入園可能数の何倍だったかを並べています。', '今年(' + VAC.short + ')の入園可能数に対して、昨年(' + FAC.short + '・一次)の申込数が何倍だったかを並べています。');
+    }
+  }
+
+  function fillNames(){
+    var area = $('v-area').value;
+    $('v-names').innerHTML = FAC ? facRows.filter(function(r){ return r[0] === area; })
+      .map(function(r){ return '<option value="' + esc(r[1]) + '"></option>'; }).join('') : '';
+  }
+  function matchFac(name){
+    var area = $('v-area').value;
+    if(facMap[area + '|' + name]) return facMap[area + '|' + name];
+    var hit = null, n = 0;
+    facRows.forEach(function(r){ if(r[1] === name){ hit = r; n++; } });
+    return n === 1 ? hit : null;
+  }
+  function linkHint(){
+    var n = $('v-name').value.trim(), el = $('vLink');
+    if(!n || !FAC){ el.textContent = FAC ? '園の名前を入力すると、区の一覧から候補が出ます。' : ''; return; }
+    var f = matchFac(n);
+    el.textContent = f ? '区の一覧にある園です。昨年の倍率が表示されます。' : '区の一覧に同じ名前の園がありません。倍率は表示されません(候補から選ぶと表示されます)。';
+  }
+
+  function openForm(id, pre){
+    editing = id || null;
+    var v = id ? vFind(id) : {name:(pre && pre.name) || '', area:(pre && pre.area) || V_AREAS[0], date:today(), st:pack(''), ra:0, rb:0, memo:''};
+    $('v-area').value = v.area; fillNames();
+    $('v-name').value = v.name; $('v-date').value = v.date || '';
+    $('v-ra').value = v.ra || 0; $('v-rb').value = v.rb || 0; $('v-memo').value = v.memo || '';
+    V_ITEMS.forEach(function(it){
+      document.querySelector('input[name="st-'+it.id+'"][value="'+(v.st[it.id] || 'q')+'"]').checked = true;
+    });
+    $('vErr').hidden = true; linkHint();
+    $('vForm').hidden = false;
+    $('v-name').focus();
+    $('vForm').scrollIntoView({block:'start'});
+  }
+
+  $('vAdd').addEventListener('click', function(){ openForm(null); });
+  $('vCancel').addEventListener('click', function(){ $('vForm').hidden = true; });
+  $('v-area').addEventListener('change', function(){ fillNames(); linkHint(); });
+  $('v-name').addEventListener('input', function(){
+    var f = matchFac($('v-name').value.trim());
+    if(f && f[0] !== $('v-area').value){ $('v-area').value = f[0]; fillNames(); }
+    linkHint();
+  });
+  $('vSave').addEventListener('click', function(){
+    var name = $('v-name').value.trim();
+    if(!name){
+      $('vErr').textContent = '園の名前を入力してください。'; $('vErr').hidden = false; $('v-name').focus(); return;
+    }
+    var rec = editing ? vFind(editing) : {id:'v' + Date.now(), cmp: visits.filter(function(v){return v.cmp}).length < 3};
+    var f = matchFac(name);
+    rec.name = name; rec.area = f ? f[0] : $('v-area').value; rec.fac = f ? f[0] + '|' + f[1] : null;
+    rec.date = $('v-date').value;
+    rec.ra = +$('v-ra').value; rec.rb = +$('v-rb').value; rec.memo = $('v-memo').value.trim(); rec.ex = false;
+    rec.st = {};
+    V_ITEMS.forEach(function(it){ rec.st[it.id] = document.querySelector('input[name="st-'+it.id+'"]:checked').value; });
+    if(!editing) visits.push(rec);
+    vSave(); $('vForm').hidden = true; renderVisit();
+    $('vList').scrollIntoView({block:'start'});
+  });
+
+  $('vList').addEventListener('click', function(e){
+    var b = e.target.closest('[data-act]'); if(!b) return;
+    var act = b.getAttribute('data-act'), id = b.getAttribute('data-id');
+    if(act === 'edit') openForm(id);
+    else if(act === 'del'){ askDel = id; renderVisit(); }
+    else if(act === 'delno'){ askDel = null; renderVisit(); }
+    else if(act === 'delok'){ visits = visits.filter(function(v){return v.id !== id}); askDel = null; vSave(); renderVisit(); }
+  });
+  $('vList').addEventListener('change', function(e){
+    var t = e.target; if(t.getAttribute('data-act') !== 'cmp') return;
+    vFind(t.getAttribute('data-id')).cmp = t.checked; vSave(); renderVisit();
+  });
+  $('vSort').addEventListener('change', function(e){ vSort = e.target.value; renderVisit(); });
+  function setCls(c){
+    cls = c;
+    try{ localStorage.setItem(C_KEY, String(cls)); }catch(err){}
+    $('vCls').value = c; $('dCls').value = c;
+    fShown = 15; renderVisit(); renderFind(); renderDist();
+  }
+  $('vCls').addEventListener('change', function(e){ setCls(+e.target.value); });
+  $('dCls').addEventListener('change', function(e){ setCls(+e.target.value); });
+  $('dReg').addEventListener('change', function(e){ dReg = e.target.value; renderDist(); });
+  $('fRegion').addEventListener('change', function(e){ fRegion = e.target.value; fShown = 15; renderFind(); });
+  $('fSort').addEventListener('change', function(e){ fSort = e.target.value; fShown = 15; renderFind(); });
+  $('fMode').addEventListener('change', function(e){ fMode = e.target.value; renderFind(); });
+  $('fNow').addEventListener('change', function(e){ fNow = e.target.checked; fShown = 15; renderFind(); });
+  $('fHide').addEventListener('change', function(e){ fHide = e.target.checked; fShown = 15; renderFind(); });
+  $('fMore').addEventListener('click', function(){ fShown += 15; renderFind(); });
+  $('fList').addEventListener('click', function(e){
+    var b = e.target.closest('[data-fadd]'); if(!b) return;
+    var x = fRows[+b.getAttribute('data-fadd')];
+    openForm(null, {name:x.f[1], area:x.f[0]});
+  });
+
+  /* ---- 昨年入園した子の指数分布 ---- */
+  var DISTS = window.SHISUU_DIST || {};
+  var dKeys = Object.keys(DISTS).sort(function(a,b){return DISTS[b].order - DISTS[a].order});
+  var DIST = dKeys.length ? DISTS[dKeys[0]] : null;
+  var dReg = '全体';
+  var CLS_SHORT = ['0歳児','1歳児','2歳児','3歳児','4歳児','5歳児'];
+  function bandOf(total){ for(var i = 0; i < DIST.bands.length; i++){ var b = DIST.bands[i]; if(total >= b.lo && total <= b.hi) return i; } return 0; }
+  function pct(x){ return (Math.round(x * 10) / 10).toFixed(1) + '%'; }
+  function renderDist(total){
+    if(!DIST){ $('distPanel').hidden = true; return; }
+    if(total === undefined) total = calc().total;
+    var cell = DIST.data[dReg][cls], me = bandOf(total), sum = '', bars = '';
+    if(!cell.c){
+      sum = dReg + 'の' + CLS_SHORT[cls] + 'は、入園した子が10人未満のため、区は人数を公表していません。';
+    } else {
+      var n = cell.n, c = cell.c, lower = 0, mx = Math.max.apply(null, c);
+      for(var i = 0; i < me; i++) lower += c[i];
+      sum = '予想指数 ' + total + '点は「' + DIST.bands[me].l + '」の区分です。昨年、' + dReg + 'で' + CLS_SHORT[cls] + 'クラスに入園した' + n + '人のうち、この区分は' + c[me] + '人(' + pct(c[me] / n * 100) + ')、これより低い区分は' + lower + '人(' + pct(lower / n * 100) + ')でした。';
+      bars = c.map(function(v, i){
+        return '<li' + (i === me ? ' class="me"' : '') + '><span>' + DIST.bands[i].l + (i === me ? '(あなた)' : '') + '</span>'
+          + '<span class="track"><i style="width:' + (mx ? Math.max(v / mx * 100, 1) : 1) + '%"></i></span>'
+          + '<span class="n">' + v + '人 ' + pct(v / n * 100) + '</span></li>';
+      }).join('');
+    }
+    $('dSummary').textContent = sum; $('dBars').innerHTML = bars;
+  }
+  function buildDist(){
+    if(!DIST) return;
+    $('dReg').innerHTML = DIST.regions.map(function(r){ return '<option value="'+r+'">'+r+(r === '全体' ? '(5地域の合計)' : '')+'</option>'; }).join('');
+    $('dCls').innerHTML = CLS_SHORT.map(function(c, i){ return '<option value="'+i+'">'+c+'</option>'; }).join('');
+    $('dCls').value = cls;
+    $('dSrc').innerHTML = '出典: <a href="'+DIST.source.url+'" target="_blank" rel="noopener">'+esc(DIST.source.name)+'</a>(' + esc(DIST.label) + '、確認日 ' + DIST.checkedOn + ')。10人未満の区分は区が人数を伏せています。';
+  }
+
+  function tab(which){
+    var v = which === 'visit';
+    var ab = which === 'about';
+    $('viewIndex').hidden = v || ab; $('viewVisit').hidden = !v; $('viewAbout').hidden = !ab;
+    $('tabIndex').setAttribute('aria-selected', (!v && !ab) ? 'true' : 'false');
+    $('tabVisit').setAttribute('aria-selected', v ? 'true' : 'false');
+    $('tabAbout').setAttribute('aria-selected', ab ? 'true' : 'false');
+    document.querySelector('.bar').hidden = ab;
+    if(v){ renderVisit(); renderFind(); }
+    window.scrollTo(0, 0);
+  }
+  $('tabIndex').addEventListener('click', function(){ tab('index'); });
+  $('tabVisit').addEventListener('click', function(){ tab('visit'); });
+  $('tabAbout').addEventListener('click', function(){ tab('about'); });
+  $('aboutGo').addEventListener('click', function(){ tab('index'); });
+  $('toVisit').addEventListener('click', function(){ tab('visit'); });
+  buildItems();
+  buildDist();
+
+  setYear(keys[0]); show(1);
+})();
+</script>
+
+</body>
+</html>
