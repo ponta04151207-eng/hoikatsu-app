@@ -243,7 +243,8 @@ if(!PREMIUM){
   + '<details class="plus" id="hkD2"><summary>❓ 質問リスト</summary><div id="hkQ"></div></details>'
   + '<details class="plus" id="hkD3"><summary>📊 すべての園を並べて比べる</summary><div id="hkAll"></div></details>'
   + '<details class="plus" id="hkD4"><summary>📄 PDFにする・印刷する</summary><div><p class="hint" style="margin:0 0 8px">印刷の画面で「PDFに保存」を選ぶと、PDFになります。</p><button type="button" id="hkP1" style="width:100%; margin-bottom:8px">選んだ園のレポート(写真つき)</button><button type="button" id="hkP2" style="width:100%">すべての園のレポート</button></div></details>'
-  + '<details class="plus" id="hkD5"><summary>👪 夫婦・家族で共有する</summary><div id="hkSh"></div></details>';
+  + '<details class="plus" id="hkD5"><summary>👪 夫婦・家族で共有する</summary><div id="hkSh"></div></details>'
+  + '<details class="plus" id="hkD6"><summary>🏁 希望園の並べ方(第10希望まで)</summary><div id="hkWish"></div></details>';
 }
 
 function vis(){ return HK.getVisits(); }
@@ -421,12 +422,71 @@ $('hkS3').addEventListener('click', function(){
   }catch(e){ m.textContent = '共有コードを読み取れませんでした。HK1:から最後まで、全部貼り付けてください。'; }
 });
 
+
+/* --- 希望園の並べ方 --- */
+var W_KEY = 'hoikatsu-wish-v1';
+var wish = lsGet(W_KEY, []);
+if(!Array.isArray(wish)) wish = [];
+function wSave(){ lsSet(W_KEY, wish); }
+var WSRC = {url: 'https://www.city.setagaya.lg.jp/01044/1554.html', name: '区「選考方法について」', upd: '2026年9月1日', checked: '2026年10月29日'};
+function wVisit(id){ return vis().filter(function(v){ return v.id === id; })[0]; }
+function wR2(v){ var s = vst(v); return s && s.r2 !== null ? s.r2 : null; }
+function renderWish(){
+  var box = $('hkWish'); if(!box) return;
+  wish = wish.filter(function(id){ return wVisit(id); });
+  var vs = realVisits(), h = '';
+  h += '<p class="hint" style="margin:0 0 8px">区は「希望する園の数や順位で、有利・不利にはならない」と説明しています(出典: <a href="' + WSRC.url + '" target="_blank" rel="noopener">' + esc(WSRC.name) + '</a>、区の更新 ' + esc(WSRC.upd) + '、確認日 ' + esc(WSRC.checked) + ')。選考は指数の高い順です。だから、順位は<b>行きたい順</b>で大丈夫です。このリストは、考えを整理して、申込書に写すためのものです。</p>';
+  h += '<p style="margin:0 0 8px"><b>' + wish.length + ' / 10園</b>(第10希望まで書けます)</p>';
+  if(!wish.length) h += '<p class="hint">下から園を追加してください。見学メモに入れた園が出ます。</p>';
+  wish.forEach(function(id, i){
+    var v = wVisit(id), s = vst(v), r = wR2(v);
+    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + esc(v.name) + '</b><small>' + esc(v.area || '') + ' / 評価 ' + (v.ra || '―') + '・' + (v.rb || '―') + ' / ' + (s && s.vac !== null ? '入園可能 ' + s.vac + '人・全希望の倍率 ' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small></span>'
+      + '<span style="display:flex; gap:4px; flex:none"><button type="button" data-w="up" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0" aria-label="外す">✕</button></span></div>';
+  });
+  var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
+  if(wish.length < 10 && rest.length){
+    h += '<label class="field" for="hkWadd">園を追加する</label><div style="display:flex; gap:8px"><select id="hkWadd" style="flex:1; min-width:0">' + rest.map(function(v){ return '<option value="' + esc(v.id) + '">' + esc(v.name) + '</option>'; }).join('') + '</select><button type="button" id="hkWaddB" class="primary" style="flex:none">追加</button></div>';
+  } else if(!rest.length && wish.length < 10){
+    h += '<p class="hint">見学メモにある園は、すべて入っています。見学した園を増やすと、ここに出ます。</p>';
+  }
+  if(wish.length > 1){
+    h += '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px"><button type="button" id="hkWs1" style="flex:1">倍率が低い順に並べる</button><button type="button" id="hkWs2" style="flex:1">評価が高い順に並べる</button></div>';
+  }
+  /* ひとこと */
+  var notes = [], withR = wish.map(function(id){ return wR2(wVisit(id)); }).filter(function(x){ return x !== null; });
+  if(wish.length && wish.length < 10) notes.push('まだ' + (10 - wish.length) + '園ぶん、空きがあります。区は数で不利にならないと説明しています。通える園は、ほかにも候補に入れておくと、選べる道が増えます。');
+  if(withR.length >= 3 && withR.every(function(x){ return x >= 3; })) notes.push('いまの園は、' + HK.cls() + '歳児クラスで、昨年の全希望の倍率がすべて3倍以上です。倍率が低かった園も、見学の候補に入れてみてください。');
+  if(wish.length && withR.length < wish.length) notes.push('昨年の数字がない園があります(新しい園や、クラスがない園など)。倍率だけで決めないでください。');
+  notes.push('「内定したけれど辞退」をすると、「入園(転園)待機通知書」は出ません(区の「保育のごあんない」)。通えない園は、リストに入れないでください。');
+  notes.push('倍率は昨年の数字で、今年の入りやすさを約束するものではありません。' + HK.cls() + '歳児クラスの数字です。');
+  h += '<ul class="hint" style="margin:12px 0 0; padding-left:1.2em; display:grid; gap:6px">' + notes.map(function(n){ return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>';
+  if(wish.length) h += '<button type="button" id="hkWcp" style="width:100%; margin-top:10px">申込書に写す用に、文字でコピーする</button><div id="hkWm" class="hint" role="status"></div>';
+  box.innerHTML = h;
+}
+$('hkWish').addEventListener('click', function(e){
+  var t = e.target, w = t.getAttribute && t.getAttribute('data-w'), i;
+  if(w){
+    i = +t.getAttribute('data-i');
+    if(w === 'up' && i > 0){ var a = wish[i]; wish[i] = wish[i - 1]; wish[i - 1] = a; }
+    if(w === 'dn' && i < wish.length - 1){ var b = wish[i]; wish[i] = wish[i + 1]; wish[i + 1] = b; }
+    if(w === 'rm') wish.splice(i, 1);
+    wSave(); renderWish(); return;
+  }
+  if(t.id === 'hkWaddB'){ var v = $('hkWadd').value; if(v && wish.length < 10 && wish.indexOf(v) < 0){ wish.push(v); wSave(); renderWish(); } }
+  else if(t.id === 'hkWs1'){ wish.sort(function(x, y){ var a = wR2(wVisit(x)), b = wR2(wVisit(y)); return (a === null ? 1e9 : a) - (b === null ? 1e9 : b); }); wSave(); renderWish(); }
+  else if(t.id === 'hkWs2'){ wish.sort(function(x, y){ function av(v){ var n = (v.ra ? 1 : 0) + (v.rb ? 1 : 0); return n ? ((v.ra || 0) + (v.rb || 0)) / n : 0; } return av(wVisit(y)) - av(wVisit(x)); }); wSave(); renderWish(); }
+  else if(t.id === 'hkWcp'){
+    var txt = '希望園リスト\n' + wish.map(function(id, k){ return '第' + (k + 1) + '希望 ' + wVisit(id).name; }).join('\n');
+    copy(txt, function(ok){ $('hkWm').textContent = ok ? 'コピーしました。' : 'コピーできませんでした。画面の文字を見て写してください。'; });
+  }
+});
+
 /* --- 全体の更新 --- */
 function refreshSel(){
   var s = $('hkSel'), keep = s.value;
   s.innerHTML = vis().map(function(v){ return '<option value="' + esc(v.id) + '">' + esc(v.name) + '</option>'; }).join('');
   if(keep && vis().some(function(v){ return v.id === keep; })) s.value = keep;
-  renderPhotos(); renderQ(); renderAll();
+  renderPhotos(); renderQ(); renderAll(); renderWish();
 }
 $('hkSel').addEventListener('change', function(){ renderPhotos(); renderQ(); });
 refreshSel();
