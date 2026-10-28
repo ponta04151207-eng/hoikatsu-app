@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>保活アプリ（指数シミュレーター・園ごと比較、見学メモ）</title>
+<title>保活アプリ（点数シミュレーター・園ごと比較、見学メモ）</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <style>
@@ -109,9 +109,12 @@ details li{margin-bottom:4px}
 .bar .in{max-width:640px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px}
 .bar .t{font-size:14px; color:var(--muted); font-weight:700}
 .bar .n{font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums}
-.tabs{display:flex; gap:6px; margin:0 0 14px; background:var(--surface); border-radius:999px; padding:5px; box-shadow:var(--shadow)}
-.tabs button{flex:1; min-height:48px; border:0; background:transparent; color:var(--muted); padding:0 4px; font-size:14px; white-space:nowrap}
-.tabs button[aria-selected="true"]{background:var(--accent); color:var(--accent-fg); box-shadow:none}
+.tabs{display:grid; grid-template-columns:repeat(12,1fr); gap:8px; margin:0 0 16px}
+.tabs button{grid-column:span 3; min-height:64px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 2px; border-radius:20px; border:2px solid var(--line); background:var(--surface); color:var(--fg); font-size:13px; line-height:1.25; box-shadow:var(--shadow)}
+.tabs button.hero{grid-column:span 12; flex-direction:row; gap:10px; min-height:60px; font-size:17px}
+.tabs button .ti{font-size:22px; line-height:1}
+.tabs button.hero .ti{font-size:26px}
+.tabs button[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:var(--accent-fg); box-shadow:0 4px 0 rgba(0,0,0,.12)}
 .chip{display:inline-block; font-size:13px; background:var(--field); border-radius:999px; padding:0 10px; margin:0 6px 4px 0; color:var(--muted); white-space:nowrap}
 .chip.g{color:var(--plus); background:var(--accent-soft)}
 .chip.w{color:var(--minus); background:var(--pop-soft)}
@@ -262,14 +265,16 @@ img{max-width:100%}
 <g><circle cx="282" cy="86" r="8.5" fill="#ffd9b8"/><rect x="274" y="94" width="16" height="16" rx="7" fill="#ffd36b"/><circle cx="279" cy="85" r="1.4" fill="#1f3340"/><circle cx="285" cy="85" r="1.4" fill="#1f3340"/></g>
 </svg>
     <p class="tag" id="tag">世田谷区・認可保育園</p>
-    <h1>保活アプリ<span class="sub">（指数シミュレーター・園ごと比較、見学メモ）</span></h1>
+    <h1>保活アプリ<span class="sub">（点数シミュレーター・園ごと比較、見学メモ）</span></h1>
     <p class="lead">入力は2〜3分です。表示は目安で、実際の指数は区の「保育のごあんない」と提出書類で決まります。</p>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="機能">
-    <button type="button" role="tab" id="tabIndex" aria-selected="true">指数</button>
-    <button type="button" role="tab" id="tabVisit" aria-selected="false">園・見学メモ</button>
-    <button type="button" role="tab" id="tabAbout" aria-selected="false">できること</button>
+    <button type="button" role="tab" class="hero" id="tabIndex" aria-selected="true"><span class="ti">🧮</span><span>点数シミュレーター</span></button>
+    <button type="button" role="tab" id="tabFind" aria-selected="false"><span class="ti">🔍</span><span>園を探す</span></button>
+    <button type="button" role="tab" id="tabCmp" aria-selected="false"><span class="ti">⚖️</span><span>園を比べる</span></button>
+    <button type="button" role="tab" id="tabVisit" aria-selected="false"><span class="ti">📝</span><span>見学メモ</span></button>
+    <button type="button" role="tab" id="tabAbout" aria-selected="false"><span class="ti">💡</span><span>できること</span></button>
   </nav>
 
   <div id="viewIndex">
@@ -384,15 +389,15 @@ img{max-width:100%}
         <li>予想指数と過去の倍率を重ねた、希望園の並べ方の提案</li>
         <li>申込書類の下書きと、家族での分担管理</li>
       </ul>
-      <button class="primary" id="aboutGo" type="button" style="width:100%; margin-top:16px">指数を計算する</button>
+      <button class="primary" id="aboutGo" type="button" style="width:100%; margin-top:16px">点数を計算する</button>
     </section>
   </div>
 
   <div id="viewVisit" hidden>
-    <section class="panel">
+    <section class="panel" id="secMemo">
       <h2>見学メモ</h2>
       <p class="hint" style="margin:0 0 10px">見学した園の記録をためて、昨年の倍率と並べて園を比べます。記録はこのブラウザにだけ保存され、他の人には見えません(試作版)。</p>
-      <p class="notice" style="margin:0 0 4px">予想指数 <b id="vScore">0</b> 点(「指数」タブの入力が反映されます)</p>
+      <p class="notice" style="margin:0 0 4px">予想指数 <b id="vScore">0</b> 点(「点数シミュレーター」タブの入力が反映されます)</p>
       <label class="field" for="vCls">申込むクラス(令和9年4月時点)</label>
       <select id="vCls"></select>
       <p class="hint">クラスは生年月日で決まります。区の令和9年度クラス編成表で確認してください。倍率はこのクラスの数字で出ます。</p>
@@ -437,13 +442,13 @@ img{max-width:100%}
       <div id="vList" style="margin-top:12px"></div>
     </section>
 
-    <section class="panel">
+    <section class="panel" id="secCmp">
       <h2>園を比べる</h2>
       <p class="hint" id="vCmpHint" style="margin:0"></p>
       <div class="tblwrap" id="vCmp"></div>
     </section>
 
-    <section class="panel" aria-labelledby="h-find">
+    <section class="panel" id="secFind" aria-labelledby="h-find">
       <h2 id="h-find">園を探す(昨年の倍率)</h2>
       <p class="hint" id="fIntro" style="margin:0 0 6px">昨年の4月入園(一次選考)で、申込数が入園可能数の何倍だったかを並べています。「第1希望」はその園を第一に希望した人、「全希望」は希望順位に関係なく書いた人の数です。第1希望が少なくても全希望が多い園は、他の園に入れなかった人が集まるため、高い指数が必要になることがあります。指数(点数)による有利・不利は反映していません。昨年の実績で、今年の結果を保証するものではありません。</p>
       <div class="ctl">
@@ -2148,19 +2153,23 @@ window.SHISUU_DIST.r8 = {
     $('dSrc').innerHTML = '出典: <a href="'+DIST.source.url+'" target="_blank" rel="noopener">'+esc(DIST.source.name)+'</a>(' + esc(DIST.label) + '、確認日 ' + DIST.checkedOn + ')。10人未満の区分は区が人数を伏せています。';
   }
 
-  function tab(which){
+  function tab(which, anchor){
     var v = which === 'visit';
     var ab = which === 'about';
     $('viewIndex').hidden = v || ab; $('viewVisit').hidden = !v; $('viewAbout').hidden = !ab;
-    $('tabIndex').setAttribute('aria-selected', (!v && !ab) ? 'true' : 'false');
-    $('tabVisit').setAttribute('aria-selected', v ? 'true' : 'false');
-    $('tabAbout').setAttribute('aria-selected', ab ? 'true' : 'false');
+    var sel = anchor === 'secCmp' ? 'tabCmp' : anchor === 'secFind' ? 'tabFind' : (v ? 'tabVisit' : ab ? 'tabAbout' : 'tabIndex');
+    ['tabIndex', 'tabFind', 'tabCmp', 'tabVisit', 'tabAbout'].forEach(function(id){
+      $(id).setAttribute('aria-selected', id === sel ? 'true' : 'false');
+    });
     document.querySelector('.bar').hidden = ab;
     if(v){ renderVisit(); renderFind(); }
-    window.scrollTo(0, 0);
+    var el = anchor ? $(anchor) : null;
+    window.scrollTo(0, el ? Math.max(0, el.getBoundingClientRect().top + window.pageYOffset - 12) : 0);
   }
   $('tabIndex').addEventListener('click', function(){ tab('index'); });
-  $('tabVisit').addEventListener('click', function(){ tab('visit'); });
+  $('tabFind').addEventListener('click', function(){ tab('visit', 'secFind'); });
+  $('tabCmp').addEventListener('click', function(){ tab('visit', 'secCmp'); });
+  $('tabVisit').addEventListener('click', function(){ tab('visit', 'secMemo'); });
   $('tabAbout').addEventListener('click', function(){ tab('about'); });
   $('aboutGo').addEventListener('click', function(){ tab('index'); });
   $('toVisit').addEventListener('click', function(){ tab('visit'); });
