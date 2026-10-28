@@ -145,7 +145,8 @@ tabs.parentNode.insertBefore(banner, tabs);
 
 function showSched(){
   ['viewIndex', 'viewVisit', 'viewAbout'].forEach(function(id){ $(id).hidden = true; });
-  view.hidden = false;
+  view.hidden = false; var vd = document.getElementById('viewDocs'); if(vd) vd.hidden = true;
+  var td = document.getElementById('tabDocs'); if(td) td.setAttribute('aria-selected', 'false');
   ['tabIndex', 'tabFind', 'tabCmp', 'tabVisit', 'tabAbout'].forEach(function(id){ $(id).setAttribute('aria-selected', 'false'); });
   tb.setAttribute('aria-selected', 'true');
   document.querySelector('.bar').hidden = true;
@@ -432,6 +433,137 @@ refreshSel();
 var timer = null;
 new MutationObserver(function(){ clearTimeout(timer); timer = setTimeout(refreshSel, 120); }).observe($('vList'), {childList: true, subtree: true});
 }
+
+/* ===== 提出前チェックと書類リスト ===== */
+var DSRC = {
+  name: '世田谷区「保育のごあんない」(令和8年9月)・区の保育園申込のページ',
+  url: 'https://www.city.setagaya.lg.jp/01044/1552.html',
+  my: 'https://www.city.setagaya.lg.jp/01044/1560.html',
+  checked: '2026年10月29日'
+};
+var SITS = [
+  ['work', '就労(会社員・パートなど。内定を含む)'],
+  ['self', '自営(予定を含む)'],
+  ['search', '求職中'],
+  ['leave', '育児休業中(復職予定)'],
+  ['ill', '病気・けが'],
+  ['disab', '障害'],
+  ['care', '介護・看護'],
+  ['study', '就学(予定を含む)'],
+  ['birth', '出産(予定)']
+];
+var SIT_DOCS = {
+  work: [['就労証明書(区指定の様式)', '勤務先に書いてもらいます。勤め先が複数あるときは、すべて必要です。シフト制などで勤務時間が決まっていないときは、シフト表やスケジュールも出します。', true]],
+  self: [['就労証明書(区指定の様式)', '自営の方も区指定の様式です。', true], ['事業の実態がわかる資料', '営業許可証、登記事項証明書など。保護者か3親等内の親族が代表者の会社も、自営として扱われます。', false]],
+  search: [['就労確約書', '求職で申込むときに出します。申請から3か月たってもまだ求職で申込むときは、就労確約書の出し直しと、求職活動状況報告書が必要です。', false]],
+  leave: [['育児休業の確認書類', '雇用保険に入っている方は「育児休業給付金支給決定通知書」の写し。雇用保険に入っていない外勤の方は「育児・介護休業取扱通知書」の写し。自営の方は出産から子が満1歳になる年度末まで対象で、この書類は不要と案内されています。', false], ['復職証明書(入園が決まったあと)', '復職したあと2週間以内に出します。入園月の月末に育休中だと選考の対象外です。入園した月のうちに、同じ勤め先へ復職することが条件です。', false]],
+  ill: [['医師の診断書', '保育ができないことが書かれたもの。', true]],
+  disab: [['障害者手帳などの写し', '身体障害者手帳、精神障害者保健福祉手帳、療育手帳などの写し。', false]],
+  care: [['介護状況申告書', '介護度がわかる書類なども付けます。場合によって、手帳の写しや診断書を求められます。', false]],
+  study: [['就学(予定)状況証明書', '通っている(通う予定の)学校に書いてもらいます。', true]],
+  birth: [['母子健康手帳の写し', '表紙と、分娩予定日のページ。出産で申込んだ場合、出産の要件の期間が終わると申込みは無効になります。', false]]
+};
+var DOPTS = [
+  ['single', 'ひとり親(保護者がひとり)', [['ひとり親世帯の申立書', '離婚・死別などの状況がわかる資料(児童扶養手当証書、ひとり親医療証、戸籍謄本など)も付けられます。未婚や事実婚でも、保育にかかわるパートナーがいるときは、ひとり親にはなりません。', false]]],
+  ['ext', '区立保育園の延長保育を使いたい(満1歳以上・月ぎめ)', [['区立保育園等延長保育申込書', 'オンライン(電子申請)ではできません。', false]]],
+  ['ninka', 'いま認可外保育施設・ベビーシッターなどに預けている', [['受託証明書', '預けている施設ごとに必要です。施設に書いてもらいます。これから預けるときは、預け始めてから出します。ベビーシッターなどの場合は、認可外保育施設設置届の写しも付けます。', true]]],
+  ['move', '世田谷区へ転入する予定がある', [['本人確認書類・転入に関する申立書・転入を証明する資料', '入園月の前月までに転入が確認できるときだけ、区民と同じ指数で選考されます。', false]]]
+];
+var DOC_COMMON = [
+  ['申込書兼給付認定申請書', '「保育所等入園(転園)申込書兼教育・保育給付認定申請書(2号・3号認定用)」。世帯で1通です。区のページからダウンロードできます。'],
+  ['マイナンバーの番号確認', 'マイナンバーカード、またはマイナンバーが書かれた住民票の写しなど。窓口は原本を見せます。郵送は写しを同封します。'],
+  ['本人確認', '運転免許証など1点、または健康保険証など2点以上。窓口は原本、郵送は写し。保険証の写しは、記号・番号・保険者番号を黒く塗ります。'],
+  ['税の書類', '令和9年4月入園は、令和8年度の住民税課税証明書(または住民税決定通知書)。税の未申告のときは先に申告が必要です(確定申告書の控えや源泉徴収票では代わりになりません)。配偶者控除の対象になっている方は、税の書類も申告も不要です。']
+];
+var D_KEY = 'hoikatsu-docs-v1';
+var dd = lsGet(D_KEY, {a: 'work', b: 'work', opts: {}, done: {}, way: 'mail'});
+if(!dd.opts) dd.opts = {}; if(!dd.done) dd.done = {}; if(!dd.way) dd.way = 'mail';
+function dSave(){ lsSet(D_KEY, dd); }
+function evDate(id){ return EVENTS.filter(function(e){ return e.id === id; })[0].date; }
+function monthsBack(s, n){ var d = ymd(s); d.setMonth(d.getMonth() - n); return fmt(d); }
+
+var tbD = document.createElement('button');
+tbD.type = 'button'; tbD.id = 'tabDocs'; tbD.className = 'hero'; tbD.setAttribute('role', 'tab'); tbD.setAttribute('aria-selected', 'false');
+tbD.style.gridColumn = 'span 12';
+tbD.innerHTML = '<span class="ti">📋</span><span>提出前チェックと書類リスト</span>';
+tabs.insertBefore(tbD, $('tabFind'));
+var viewD = document.createElement('div'); viewD.id = 'viewDocs'; viewD.hidden = true;
+view.parentNode.insertBefore(viewD, view);
+var TABIDS = ['tabIndex', 'tabSched', 'tabFind', 'tabCmp', 'tabVisit', 'tabAbout'];
+function showDocs(){
+  ['viewIndex', 'viewVisit', 'viewAbout'].forEach(function(id){ $(id).hidden = true; });
+  view.hidden = true; viewD.hidden = false;
+  TABIDS.forEach(function(id){ $(id).setAttribute('aria-selected', 'false'); });
+  tbD.setAttribute('aria-selected', 'true');
+  document.querySelector('.bar').hidden = true;
+  renderDocs(); window.scrollTo(0, 0);
+}
+tbD.addEventListener('click', showDocs);
+Array.prototype.forEach.call(tabs.querySelectorAll('button'), function(b){
+  if(b !== tbD) b.addEventListener('click', function(){ viewD.hidden = true; tbD.setAttribute('aria-selected', 'false'); });
+});
+
+function docList(){
+  var out = [], seen = {};
+  function add(id, t, n, dated, grp){ if(seen[id]) return; seen[id] = 1; out.push({id: id, t: t, n: n, dated: dated, grp: grp}); }
+  DOC_COMMON.forEach(function(x, i){ add('c' + i, x[0], x[1], false, '全員が出すもの'); });
+  [['a', '保護者1'], ['b', '保護者2']].forEach(function(p){
+    var s = dd[p[0]];
+    if(p[0] === 'b' && s === 'none') return;
+    (SIT_DOCS[s] || []).forEach(function(x, i){ add(p[0] + s + i, x[0], x[1], x[2], p[1] + 'の分'); });
+  });
+  DOPTS.forEach(function(o){ if(dd.opts[o[0]]) o[2].forEach(function(x, i){ add(o[0] + i, x[0], x[1], x[2], 'あてはまる方だけ'); }); });
+  return out;
+}
+function selHtml(id, val, withNone){
+  var h = '<select id="' + id + '" style="width:100%">';
+  SITS.forEach(function(s){ h += '<option value="' + s[0] + '"' + (val === s[0] ? ' selected' : '') + '>' + esc(s[1]) + '</option>'; });
+  if(withNone) h += '<option value="none"' + (val === 'none' ? ' selected' : '') + '>いない(ひとり親など)</option>';
+  return h + '</select>';
+}
+function renderDocs(){
+  var list = docList(), done = list.filter(function(d){ return dd.done[d.id]; }).length;
+  var dl = dd.way === 'mail' ? evDate('first-mail') : evDate('first-visit');
+  var k = daysLeft(dl);
+  var h = '<section class="panel"><h2>提出前チェックと書類リスト</h2><p class="hint" style="margin:0">令和9年4月入園(認可保育園)の申込みに必要な書類を、状況に合わせて一覧にします。出典: <a href="' + DSRC.url + '" target="_blank" rel="noopener">' + esc(DSRC.name) + '</a>(確認日 ' + esc(DSRC.checked) + ')。人によって増える書類もあるので、出す前に区のページでも確認してください。</p></section>';
+  h += '<section class="panel"><h2>1. あてはまる状況を選ぶ</h2>'
+    + '<label class="field" for="hkDa">保護者1の状況</label>' + selHtml('hkDa', dd.a, false)
+    + '<label class="field" for="hkDb">保護者2の状況</label>' + selHtml('hkDb', dd.b, true);
+  DOPTS.forEach(function(o){ h += '<label class="qk" style="border-top:0"><span style="display:flex; gap:10px; align-items:flex-start"><input type="checkbox" data-o="' + o[0] + '"' + (dd.opts[o[0]] ? ' checked' : '') + ' style="width:24px; height:24px; flex:none"><span>' + esc(o[1]) + '</span></span></label>'; });
+  h += '</section>';
+  h += '<section class="panel"><h2>2. 出し方と、書類の日付</h2>'
+    + '<label class="field" for="hkDway">出し方</label><select id="hkDway" style="width:100%"><option value="mail"' + (dd.way === 'mail' ? ' selected' : '') + '>郵送・オンライン(締切 ' + md(evDate('first-mail')) + ')</option><option value="visit"' + (dd.way === 'visit' ? ' selected' : '') + '>窓口(締切 ' + md(evDate('first-visit')) + ')</option></select>'
+    + '<div class="nx"><div class="big">あと' + (k < 0 ? 0 : k) + '日</div><div>' + (k < 0 ? 'この締切は過ぎています。' : '締切 ' + md(dl)) + '</div></div>'
+    + '<p class="hint">就労証明書・診断書・就学証明・受託証明書は、<b>提出日の直近3か月以内</b>に作られたものが必要です。締切日に出す場合の目安は、<b>' + md(monthsBack(dl, 3)) + '以降</b>の日付のものです。書いてもらうのに日数がかかるので、早めにお願いしましょう。</p></section>';
+  h += '<section class="panel"><h2>3. 書類リスト <span class="sc ' + (done === list.length ? '' : 'soon') + '">' + done + '/' + list.length + '</span></h2>';
+  var last = '';
+  list.forEach(function(d){
+    if(d.grp !== last){ h += '<h3 style="font-size:15px; margin:14px 0 2px; color:var(--muted)">' + esc(d.grp) + '</h3>'; last = d.grp; }
+    h += '<label class="tk' + (dd.done[d.id] ? ' dn' : '') + '"><input type="checkbox" data-d="' + d.id + '"' + (dd.done[d.id] ? ' checked' : '') + '><span class="x"><b>' + esc(d.t) + '</b>' + (d.dated ? ' <span class="sc soon">3か月以内</span>' : '') + '<small>' + esc(d.n) + '</small></span></label>';
+  });
+  h += '<p class="hint">様式のダウンロードは <a href="' + DSRC.url + '" target="_blank" rel="noopener">区の申込みのページ</a>、マイナンバーの確認は <a href="' + DSRC.my + '" target="_blank" rel="noopener">区のマイナンバーのページ</a> へ。</p></section>';
+  var CHK = [
+    ['pen', '鉛筆・消せるボールペン・修正液・修正テープで書いたところがない', '使うと無効になります。'],
+    ['fill', '申込書にもれなく書いて、うそがない', 'うその記載は無効になります。'],
+    ['back', '申込書の裏面の「入園申込送付書類チェックリスト」で確認した', '送る前の最後の確認に使います。'],
+    ['copy', '出す書類のコピーをとった', '一度出した書類は、理由にかかわらず返してもらえません。'],
+    ['way', dd.way === 'mail' ? '郵送は、特定記録郵便か簡易書留にした(締切は消印有効)' : '窓口に行く日と時間を決めた', dd.way === 'mail' ? '普通郵便で届かなかったときは、区は責任を負えません。郵送の締切は窓口より早く設定されています。送ったあとに届く「提出書類等確認票」は、入園が決まるまで保管します。' : '窓口の締切は郵送より遅いですが、期限ぎりぎりは混みます。'],
+    ['web', '(オンラインのとき)申請者IDとパスワードを控えた', '申請したあとの確認のたびに必要です。添付ファイルが読み取れないと、郵送での提出を求められることがあります。']
+  ];
+  h += '<section class="panel"><h2>4. 出す前の最終チェック</h2>';
+  CHK.forEach(function(c){ h += '<label class="tk' + (dd.done['z' + c[0]] ? ' dn' : '') + '"><input type="checkbox" data-d="z' + c[0] + '"' + (dd.done['z' + c[0]] ? ' checked' : '') + '><span class="x"><b>' + esc(c[1]) + '</b><small>' + esc(c[2]) + '</small></span></label>'; });
+  h += '</section>';
+  h += '<section class="panel"><p class="hint" style="margin:0">この一覧は、区の公開資料をもとにした目安です。申込みのルールや必要書類は、区が決めたものが正しいので、出す前に必ず区のページか窓口で確認してください。</p></section>';
+  viewD.innerHTML = h;
+}
+viewD.addEventListener('change', function(e){
+  var t = e.target;
+  if(t.id === 'hkDa'){ dd.a = t.value; dSave(); renderDocs(); }
+  else if(t.id === 'hkDb'){ dd.b = t.value; dSave(); renderDocs(); }
+  else if(t.id === 'hkDway'){ dd.way = t.value; dSave(); renderDocs(); }
+  else if(t.getAttribute('data-o')){ dd.opts[t.getAttribute('data-o')] = t.checked; dSave(); renderDocs(); }
+  else if(t.getAttribute('data-d')){ dd.done[t.getAttribute('data-d')] = t.checked; dSave(); renderDocs(); }
+});
 
 /* 無料版のひとことを、プラスへの案内に差し替える */
 var hint = $('vCmpHint');
