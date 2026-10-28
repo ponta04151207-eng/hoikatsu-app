@@ -614,8 +614,58 @@ function renderDocs(){
   CHK.forEach(function(c){ h += '<label class="tk' + (dd.done['z' + c[0]] ? ' dn' : '') + '"><input type="checkbox" data-d="z' + c[0] + '"' + (dd.done['z' + c[0]] ? ' checked' : '') + '><span class="x"><b>' + esc(c[1]) + '</b><small>' + esc(c[2]) + '</small></span></label>'; });
   h += '</section>';
   h += '<section class="panel"><p class="hint" style="margin:0">この一覧は、区の公開資料をもとにした目安です。申込みのルールや必要書類は、区が決めたものが正しいので、出す前に必ず区のページか窓口で確認してください。</p></section>';
+  h += draftSection();
   viewD.innerHTML = h;
 }
+
+/* --- 下書き: 書き写しメモ / 勤務先への依頼文 --- */
+var F_KEY = 'hoikatsu-draft-v1';
+var fd = lsGet(F_KEY, {});
+if(!fd || typeof fd !== 'object') fd = {};
+var DFIELDS = [
+  ['申込むお子さん', [['cn', 'お子さんの名前(ふりがなも)', ''], ['cb', '生年月日', '例: 令和◯年◯月◯日'], ['cm', '入園希望月', '令和9年4月']]],
+  ['世帯', [['ad', '住所', ''], ['sb', 'きょうだい(名前・年齢)', '例: 上の子 4歳']]],
+  ['保護者1', [['an', '氏名・続柄', ''], ['aw', '勤務先の名前・住所・電話', ''], ['at', '勤務の曜日と時間(通勤時間も)', '例: 月〜金 9:00〜18:00、通勤30分']]],
+  ['保護者2', [['bn', '氏名・続柄', ''], ['bw', '勤務先の名前・住所・電話', ''], ['bt', '勤務の曜日と時間(通勤時間も)', '']]]
+];
+function fSave(){ lsSet(F_KEY, fd); }
+function draftText(){
+  var t = '【入園申込 書き写しメモ】令和9年4月入園\n';
+  DFIELDS.forEach(function(g){
+    var rows = g[1].filter(function(f){ return fd[f[0]]; });
+    if(rows.length) t += '\n■' + g[0] + '\n' + rows.map(function(f){ return f[1] + ': ' + fd[f[0]]; }).join('\n') + '\n';
+  });
+  if(wish.length) t += '\n■希望園\n' + wish.map(function(id, k){ var v = wVisit(id); return '第' + (k + 1) + '希望 ' + (v ? v.name : ''); }).join('\n') + '\n';
+  return t;
+}
+function empText(dl){
+  var ask = md(addDays(dl, -10));
+  return 'お疲れさまです。\n認可保育園の入園申込みのため、就労証明書(世田谷区指定の様式)の作成をお願いしたく、ご連絡しました。\n\n様式は、区のホームページからダウンロードしたものを添付します。\n区への提出期限が' + md(dl) + 'のため、' + ask + 'ごろまでにいただけると助かります。\n発行日は、提出日の直近3か月以内のものが必要です。(' + md(monthsBack(dl, 3)) + '以降の日付でお願いします)\n\nお手数をおかけしますが、どうぞよろしくお願いいたします。';
+}
+function draftSection(){
+  var dl = dd.way === 'mail' ? evDate('first-mail') : evDate('first-visit');
+  var h = '<section class="panel"><h2>5. 下書き</h2><p class="hint" style="margin:0 0 6px">区の申込書は、決まった様式に自分で書きます。ここでは、書く内容を先に整えておくメモと、勤務先へのお願いの文章を作ります。<b>マイナンバーや口座番号は、入れないでください。</b>入れた内容は、この端末の中だけに保存されます。</p>';
+  DFIELDS.forEach(function(g){
+    h += '<h3 style="font-size:15px; margin:14px 0 2px; color:var(--muted)">' + esc(g[0]) + '</h3>';
+    g[1].forEach(function(f){ h += '<label class="field" for="hkF_' + f[0] + '">' + esc(f[1]) + '</label><input type="text" id="hkF_' + f[0] + '" data-f="' + f[0] + '" value="' + esc(fd[f[0]] || (f[0] === 'cm' ? '令和9年4月' : '')) + '" placeholder="' + esc(f[2]) + '" style="width:100%">'; });
+  });
+  h += '<p class="hint">希望園は、「見学メモ プラス」の「希望園の並べ方」で作ったリストが、メモの最後に入ります(' + wish.length + '園)。</p>'
+    + '<button type="button" id="hkFcp" style="width:100%; margin-top:6px">書き写しメモを文字でコピーする</button>'
+    + '<h3 style="font-size:15px; margin:18px 0 2px; color:var(--muted)">勤務先への依頼文(就労証明書)</h3>'
+    + '<textarea id="hkEmp" readonly style="width:100%; min-height:200px; font:inherit; font-size:14px">' + esc(empText(dl)) + '</textarea>'
+    + '<button type="button" id="hkEcp" style="width:100%; margin-top:6px">依頼文をコピーする</button><div id="hkFm" class="hint" role="status"></div></section>';
+  return h;
+}
+viewD.addEventListener('input', function(e){
+  var k = e.target.getAttribute && e.target.getAttribute('data-f');
+  if(k){ fd[k] = e.target.value; fSave(); }
+});
+viewD.addEventListener('click', function(e){
+  var id = e.target.id, m = $('hkFm');
+  if(id === 'hkFcp') copy(draftText(), function(ok){ m.textContent = ok ? 'コピーしました。' : 'コピーできませんでした。'; });
+  else if(id === 'hkEcp') copy($('hkEmp').value, function(ok){ m.textContent = ok ? 'コピーしました。' : 'コピーできませんでした。文字を長押しして選んでください。'; });
+});
+
 viewD.addEventListener('change', function(e){
   var t = e.target;
   if(t.id === 'hkDa'){ dd.a = t.value; dSave(); renderDocs(); }
