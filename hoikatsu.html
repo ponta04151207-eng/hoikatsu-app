@@ -2214,8 +2214,15 @@ window.SHISUU_DIST.r8 = {
   })();
 
   setYear(keys[0]); show(1);
+  window.HK = {
+    getVisits: function(){ return visits; },
+    setVisits: function(a){ visits = a; vSave(); renderVisit(); },
+    facMap: facMap, stat: stat, times: times, cls: function(){ return cls; }, esc: esc,
+    items: V_ITEMS, status: V_STATUS, counts: counts, tab: tab
+  };
 })();
 </script>
 
+<script src="features.js?v=1"></script>
 </body>
 </html>
