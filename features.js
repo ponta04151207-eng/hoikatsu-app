@@ -453,36 +453,86 @@ function copy(text, done){
   if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(false); });
   else done(false);
 }
-$('hkSh').innerHTML = '<p class="hint" style="margin:0 0 8px">サーバーを使わずに、LINEなどで送って共有します。写真は共有されません。</p>'
+$('hkSh').innerHTML = '<p class="hint" style="margin:0 0 8px">LINEなどで送るだけで、夫婦で見学メモを共有できます。相手が、届いたリンクをタップして「取り込む」を押すだけです。写真は共有されません。</p>'
   + '<button type="button" id="hkS1" style="width:100%; margin-bottom:8px">見学メモを文章で送る</button>'
-  + '<button type="button" id="hkS2" style="width:100%">共有コードを作る(相手のアプリに取り込めます)</button>'
-  + '<textarea id="hkCode" readonly hidden></textarea><p class="hint" id="hkSm"></p>'
-  + '<label class="field" for="hkIn">受け取った共有コードを取り込む</label><textarea id="hkIn" placeholder="HK1:で始まるコードを貼り付けます"></textarea><button type="button" class="primary" id="hkS3" style="width:100%; margin-top:8px">取り込む</button>';
+  + '<button type="button" class="primary" id="hkS4" style="width:100%; margin-bottom:8px">LINEなどで送る(相手がタップするだけで取り込めます)</button>'
+  + '<button type="button" id="hkS2" style="width:100%">共有コードを作る(リンクが使えないとき)</button>'
+  + '<textarea id="hkCode" readonly hidden></textarea><p class="hint" id="hkShM"></p>'
+  + '<label class="field" for="hkIn">受け取った共有コードを取り込む</label><textarea id="hkIn" placeholder="HK1:かHK2:で始まるコードを貼り付けます"></textarea><button type="button" class="primary" id="hkS3" style="width:100%; margin-top:8px">取り込む</button>';
 $('hkS1').addEventListener('click', function(){
   var t = shareText();
   if(navigator.share) navigator.share({text: t}).catch(function(){});
-  else copy(t, function(ok){ $('hkSm').textContent = ok ? '文章をコピーしました。LINEなどに貼り付けてください。' : 'コピーできませんでした。'; });
+  else copy(t, function(ok){ $('hkShM').textContent = ok ? '文章をコピーしました。LINEなどに貼り付けてください。' : 'コピーできませんでした。'; });
 });
 $('hkS2').addEventListener('click', function(){
   var code = 'HK1:' + b64e(JSON.stringify({v: realVisits().filter(function(v){ return !v.ex; }), q: qd}));
   var ta = $('hkCode'); ta.hidden = false; ta.value = code; ta.focus(); ta.select();
-  copy(code, function(ok){ $('hkSm').textContent = ok ? '共有コードをコピーしました。LINEなどに貼り付けて送ってください。' : '上のコードを全部コピーして、送ってください。'; });
+  copy(code, function(ok){ $('hkShM').textContent = ok ? '共有コードをコピーしました。LINEなどに貼り付けて送ってください。' : '上のコードを全部コピーして、送ってください。'; });
+});
+/* 共有データを、いまの記録にまぜる(同じ園は、上書きしない) */
+function mergeShared(d){
+  var have = {}, add = 0;
+  vis().forEach(function(v){ have[v.id] = true; });
+  var list = vis().filter(function(v){ return !v.ex; });
+  (d.v || []).forEach(function(v){ if(v && v.id && !have[v.id]){ list.push(v); add++; } });
+  var q = d.q || {};
+  (q.custom || []).forEach(function(c){ if(!qd.custom.some(function(x){ return x.id === c.id; })) qd.custom.push(c); });
+  Object.keys(q.a || {}).forEach(function(id){ if(!qd.a[id]) qd.a[id] = q.a[id]; });
+  qSave(); HK.setVisits(list);
+  return add;
+}
+/* HK1: ふつうの文字 / HK2: ちぢめた文字(短い) */
+function u8b64(u){ var s = ''; for(var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+function b64u8(t){ t = t.replace(/-/g, '+').replace(/_/g, '/'); while(t.length % 4) t += '='; var s = atob(t), u = new Uint8Array(s.length); for(var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+function pipe(stream, data){ return new Response(new Blob([data]).stream().pipeThrough(stream)).arrayBuffer(); }
+function encodeShare(obj){
+  var js = JSON.stringify(obj);
+  if(window.CompressionStream) return pipe(new CompressionStream('deflate-raw'), new TextEncoder().encode(js)).then(function(b){ return 'HK2:' + u8b64(new Uint8Array(b)); });
+  return Promise.resolve('HK1:' + b64e(js));
+}
+function decodeShare(str){
+  str = str.trim();
+  if(str.indexOf('HK1:') === 0) return Promise.resolve(JSON.parse(b64d(str.slice(4))));
+  if(str.indexOf('HK2:') === 0 && window.DecompressionStream) return pipe(new DecompressionStream('deflate-raw'), b64u8(str.slice(4))).then(function(b){ return JSON.parse(new TextDecoder().decode(b)); });
+  return Promise.reject(new Error('x'));
+}
+function shareData(){ return {v: realVisits().filter(function(v){ return !v.ex; }), q: qd}; }
+var SHARE_BASE = 'https://ponta04151207-eng.github.io/hoikatsu-app/hoikatsu.html';
+$('hkS2').addEventListener('click', function(){
+  encodeShare(shareData()).then(function(code){
+    var ta = $('hkCode'); ta.hidden = false; ta.value = code; ta.focus(); ta.select();
+    copy(code, function(ok){ $('hkShM').textContent = ok ? '共有コードをコピーしました。LINEなどに貼り付けて送ってください。' : '上のコードを全部コピーして、送ってください。'; });
+  });
+});
+$('hkS4').addEventListener('click', function(){
+  var m = $('hkShM');
+  if(!shareData().v.length){ m.textContent = '見学した園を、先に追加してください。'; return; }
+  encodeShare(shareData()).then(function(code){
+    var url = SHARE_BASE + '#hk=' + code;
+    var text = '見学メモを送ります。このリンクをタップすると、保活アプリで取り込めます。(写真は入りません)';
+    if(navigator.share) navigator.share({title: '保活アプリ 見学メモ', text: text, url: url}).catch(function(){});
+    else copy(text + '\n' + url, function(ok){ m.textContent = ok ? 'リンクをコピーしました。LINEなどに貼り付けて送ってください。' : 'コピーできませんでした。'; });
+  });
 });
 $('hkS3').addEventListener('click', function(){
-  var s = $('hkIn').value.trim(), m = $('hkSm');
-  try{
-    if(s.indexOf('HK1:') !== 0) throw new Error('x');
-    var d = JSON.parse(b64d(s.slice(4))), have = {}, add = 0;
-    vis().forEach(function(v){ have[v.id] = true; });
-    var list = vis().filter(function(v){ return !v.ex; });
-    (d.v || []).forEach(function(v){ if(v && v.id && !have[v.id]){ list.push(v); add++; } });
-    var q = d.q || {};
-    (q.custom || []).forEach(function(c){ if(!qd.custom.some(function(x){ return x.id === c.id; })) qd.custom.push(c); });
-    Object.keys(q.a || {}).forEach(function(id){ if(!qd.a[id]) qd.a[id] = q.a[id]; });
-    qSave(); HK.setVisits(list);
-    m.textContent = add + '園を取り込みました。';
-  }catch(e){ m.textContent = '共有コードを読み取れませんでした。HK1:から最後まで、全部貼り付けてください。'; }
+  var m = $('hkShM');
+  decodeShare($('hkIn').value).then(function(d){ m.textContent = mergeShared(d) + '園を取り込みました。'; })
+    .catch(function(){ m.textContent = '共有コードを読み取れませんでした。HK1:かHK2:から最後まで、全部貼り付けてください。'; });
 });
+/* 送られてきたリンクを開いたとき */
+(function(){
+  var m = location.hash.match(/^#hk=(HK[12]:[A-Za-z0-9+\/=_\-]+)$/);
+  if(!m) return;
+  var b = document.createElement('div'); b.className = 'hkb on'; b.style.flexWrap = 'wrap';
+  decodeShare(m[1]).then(function(d){
+    var n = (d.v || []).length;
+    b.innerHTML = '<span class="t">👪 共有された見学メモ(' + n + '園)があります。取り込みますか?</span><button type="button" class="primary" id="hkImY">取り込む</button><button type="button" id="hkImN">やめる</button>';
+    tabs.parentNode.insertBefore(b, tabs);
+    function clear(){ history.replaceState(null, '', location.pathname + location.search); }
+    $('hkImY').addEventListener('click', function(){ var a = mergeShared(d); clear(); b.innerHTML = '<span class="t">' + a + '園を取り込みました。「見学メモ」のタブで見られます。</span>'; setTimeout(function(){ b.remove(); }, 6000); });
+    $('hkImN').addEventListener('click', function(){ clear(); b.remove(); });
+  }).catch(function(){ b.innerHTML = '<span class="t">共有リンクを読み取れませんでした。送り直してもらってください。</span>'; tabs.parentNode.insertBefore(b, tabs); });
+})();
 
 
 /* --- 希望園の並べ方 --- */
@@ -870,7 +920,7 @@ var viewS = document.createElement('div'); viewS.id = 'viewSet'; viewS.hidden = 
 view.parentNode.insertBefore(viewS, view);
 var FAQ = [
   ['入力した内容は、どこに保存されますか?', 'お使いのスマホのブラウザの中だけです。運営者のサーバーには送られません。ブラウザのデータを消したり、端末を変えたりすると、消えます。大切な記録は、PDFなどで控えてください。'],
-  ['夫婦で見学メモを共有できますか?', '「見学メモ プラス」の「夫婦・家族で共有する」で、共有コードを作れます。コードをLINEなどで送り、相手が取り込みます。'],
+  ['夫婦で見学メモを共有できますか?', '「見学メモ プラス」の「夫婦・家族で共有する」で、「LINEなどで送る」を押します。届いたリンクを相手がタップして、「取り込む」を押すだけです。写真は共有されません。'],
   ['表示される指数や倍率は、正しいですか?', '区が公表した資料をもとにした目安です。実際の指数、日程、必要書類は、区の資料で決まります。申込みの前に、必ず区の資料で確認してください。'],
   ['空き数は、いつ更新されますか?', '毎月1日と15日の朝に、区のページから自動で更新します。区の更新が古いときは、赤い印が出ます。'],
   ['有料の機能は、どうなりますか?', 'いまは、お試しで全員が無料です。有料になるときは、先にお知らせします。料金の予定は、「課金でできること」で見られます。'],
