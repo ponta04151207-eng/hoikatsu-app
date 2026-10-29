@@ -140,6 +140,13 @@ css.textContent = [
 '.tk.dn .x b{text-decoration:line-through; color:var(--muted)}',
 '.srow{display:flex; justify-content:space-between; align-items:center; width:100%; min-height:56px; padding:0 6px; background:none; border:0; border-top:1px solid var(--line); border-radius:0; box-shadow:none; font-size:16px; font-weight:700; text-align:left}.slist .srow:first-child{border-top:0}.faq{padding:8px 6px; border-top:1px dotted var(--line)}.faq summary{font-weight:700; font-size:15px; cursor:pointer}.faq p{margin:6px 0 0; font-size:14px; line-height:1.7}',
 '.plans{display:grid; gap:12px}.plan{display:grid; gap:4px; text-align:left; position:relative; padding:16px 16px 14px; min-height:0; border:2px solid var(--line); border-radius:20px; background:var(--surface); box-shadow:none; font-weight:400}.plan.on{border-color:var(--fg,#222); box-shadow:0 6px 14px rgba(0,0,0,.18); background:var(--field)}.plan .pb{position:absolute; top:-12px; right:14px; background:#d96b6b; color:#fff; font-size:13px; font-weight:700; border-radius:999px; padding:2px 14px}.plan .pn{font-size:15px; font-weight:700}.plan .pp b{font-size:26px; font-family:var(--font-display)}.plan .ps{font-size:13px; color:var(--muted)}.buy{display:block; width:100%; box-sizing:border-box; text-align:center; text-decoration:none; background:#2b2b2b; color:#fff; font-weight:700; font-size:17px; border:0; border-radius:16px; padding:16px; min-height:0}.buy[disabled]{opacity:.55}',
+'.cal7{display:grid; grid-template-columns:repeat(7,1fr); gap:4px}.cal7 .wd{text-align:center; font-size:12px; font-weight:700; color:var(--muted); padding:2px 0}.cal7 .wd.su{color:var(--minus)}.cal7 .wd.sa{color:var(--accent)}',
+'.cday{position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:3px; min-height:46px; padding:5px 0 4px; border:2px solid transparent; border-radius:14px; background:var(--field); box-shadow:none; font-size:15px; font-weight:700; color:var(--fg,inherit)}',
+'.cday.out{background:none; opacity:.35}.cday.today{border-color:var(--accent)}.cday.sel{background:var(--accent); color:var(--accent-fg,#fff)}.cday .dots{display:flex; gap:3px; min-height:7px}.dt{width:8px; height:8px; border-radius:50%; display:inline-block; flex:none}',
+'.dt.k1{background:#e0524d}.dt.k2{background:#2a8fd0}.dt.k3{background:#3aa66a}.dt.k4{background:#e0a100}.dt.k5{background:#8a6fd0}.cday.sel .dt{outline:1.5px solid #fff}',
+'.calh{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}.calh b{font-size:18px}.calh button{min-height:40px; min-width:44px; padding:0 12px}',
+'.cleg{display:flex; flex-wrap:wrap; gap:4px 12px; font-size:12px; color:var(--muted); margin:8px 0}.cleg span{display:inline-flex; align-items:center; gap:4px}',
+'.dd{border-top:2px dotted var(--line); padding:8px 0}.dd:first-child{border-top:0}.dd .t{font-weight:700}.dd small{display:block; color:var(--muted); font-size:13px}',
 '.tk.dk{padding:6px 0; gap:8px}.tk.dk .x{font-size:15px; line-height:1.4}.tk.dk details{margin:0}.tk.dk summary{font-size:12px; line-height:1.3; min-height:0; height:auto; margin:0; color:var(--muted); cursor:pointer; padding:0; width:max-content; display:list-item}.tk.dk .x b{display:inline}.tk.dk .sc{font-size:11px; padding:0 8px}.tk.dk input{width:24px; height:24px}.tk.dk small{margin-top:2px}',
 '.addtk{display:grid; gap:8px; margin-top:10px}',
 '#hkPlus details.plus{border-top:2px dotted var(--line); padding:10px 0}#hkPlus details.plus > summary{font-family:var(--font-display); font-weight:700; font-size:17px; cursor:pointer; padding:6px 0}',
@@ -244,6 +251,37 @@ function allTasks(){
   sched.custom.forEach(function(c){ a.push({id: c.id, title: c.title, due: c.date || null, own: true}); });
   return a;
 }
+
+/* ===== 保活カレンダー(月のカレンダーで、この日は何があるかを見る) ===== */
+var KIND = {1: ['締切', '#e0524d'], 2: ['区の予定', '#2a8fd0'], 3: ['やること', '#3aa66a'], 4: ['見学', '#e0a100'], 5: ['自分の予定', '#8a6fd0']};
+var calY = (new Date()).getFullYear(), calM = (new Date()).getMonth(), calSel = fmt(new Date());
+function dayItems(d){
+  var a = [];
+  EVENTS.forEach(function(e){ if(e.date === d) a.push({k: e.kind === '締切' ? 1 : 2, t: e.title, n: e.note}); });
+  allTasks().forEach(function(t){ if(t.due === d) a.push({k: t.own ? 5 : 3, t: t.title, n: t.own ? '自分で足した予定' : '目安の日付', done: !!sched.done[t.id]}); });
+  HK.getVisits().forEach(function(v){ if(!v.ex && v.date === d) a.push({k: 4, t: v.name + ' の見学', n: v.area || ''}); });
+  return a;
+}
+function renderCal(){
+  var box = $('hkCal'); if(!box) return;
+  var first = new Date(calY, calM, 1), start = first.getDay(), dim = new Date(calY, calM + 1, 0).getDate(), today = fmt(new Date());
+  var h = '<div class="calh"><button type="button" data-cm="-1" aria-label="前の月">◀</button><b>' + calY + '年' + (calM + 1) + '月</b><button type="button" data-cm="1" aria-label="次の月">▶</button></div><div class="cal7">';
+  '日月火水木金土'.split('').forEach(function(w, i){ h += '<div class="wd' + (i === 0 ? ' su' : i === 6 ? ' sa' : '') + '">' + w + '</div>'; });
+  for(var i = 0; i < start; i++) h += '<div></div>';
+  for(var d = 1; d <= dim; d++){
+    var ds = calY + '-' + pad(calM + 1) + '-' + pad(d), it = dayItems(ds), kinds = {};
+    it.forEach(function(x){ kinds[x.k] = 1; });
+    h += '<button type="button" class="cday' + (ds === today ? ' today' : '') + (ds === calSel ? ' sel' : '') + '" data-cd="' + ds + '" aria-label="' + (calM + 1) + '月' + d + '日 ' + it.length + '件"><span>' + d + '</span><span class="dots">' + Object.keys(kinds).slice(0, 4).map(function(k){ return '<i class="dt k' + k + '"></i>'; }).join('') + '</span></button>';
+  }
+  h += '</div><div class="cleg">' + [1, 2, 3, 4, 5].map(function(k){ return '<span><i class="dt k' + k + '"></i>' + KIND[k][0] + '</span>'; }).join('') + '</div>';
+  var items = dayItems(calSel);
+  h += '<h3 style="font-size:16px; margin:8px 0 4px">' + md(calSel) + (daysLeft(calSel) >= 0 ? ' <span class="sc">' + (daysLeft(calSel) === 0 ? '今日' : 'あと' + daysLeft(calSel) + '日') + '</span>' : '') + '</h3>';
+  if(!items.length) h += '<p class="hint" style="margin:0">この日の予定は、ありません。</p>';
+  items.forEach(function(x){ h += '<div class="dd"><div class="t"><i class="dt k' + x.k + '" style="display:inline-block; margin-right:6px"></i>' + esc(x.t) + (x.done ? ' ✔' : '') + '</div><small>' + KIND[x.k][0] + (x.n ? ' / ' + esc(x.n) : '') + '</small></div>'; });
+  h += '<div class="addtk"><label class="field" for="hkCalT" style="margin:0">この日に、自分の予定を足す</label><input id="hkCalT" type="text" placeholder="例: ○○保育園の見学(10時)"><button type="button" class="primary" id="hkCalA">この日に足す</button></div>';
+  box.innerHTML = h;
+}
+
 function renderSched(){
   var nx = nextDeadline(), h = '';
   h += '<section class="panel"><h2>' + CR + ' スケジュール</h2><p class="hint" style="margin:0">令和9年4月入園(認可保育園)の、区の日程です。出典: <a href="' + SRC.url + '" target="_blank" rel="noopener">' + esc(SRC.name) + '</a>(確認日 ' + esc(SRC.checked) + ')。日程は変わることがあるので、区のページも確認してください。</p>';
@@ -254,6 +292,7 @@ function renderSched(){
   }
   h += '</section>';
 
+  h += '<section class="panel" id="hkCal"></section>';
   h += '<section class="panel"><h2>区の日程</h2>';
   EVENTS.forEach(function(ev){
     var k = daysLeft(ev.date);
@@ -275,6 +314,7 @@ function renderSched(){
   });
   h += '<div class="addtk"><label class="field" for="hkNt" style="margin:0">自分のやることを足す</label><input id="hkNt" type="text" placeholder="例: 祖父母に送迎をお願いする"><label class="field" for="hkNd" style="margin:0">日付(なくても大丈夫です)</label><input id="hkNd" type="date"><button type="button" class="primary" id="hkNa">追加する</button></div></section>';
   view.innerHTML = h;
+  renderCal();
   $('hkIcs').addEventListener('click', function(){ download('hoikatsu-schedule.ics', icsText(), 'text/calendar'); });
   Array.prototype.forEach.call(view.querySelectorAll('input[data-t]'), function(c){
     c.addEventListener('change', function(){ if(c.checked) sched.done[c.dataset.t] = true; else delete sched.done[c.dataset.t]; sSave(); renderSched(); });
@@ -287,6 +327,16 @@ function renderSched(){
     sched.custom.push({id: 'c' + Date.now(), title: t, date: $('hkNd').value || ''}); sSave(); renderSched();
   });
 }
+view.addEventListener('click', function(e){
+  var t = e.target, b = t.closest ? t.closest('[data-cm],[data-cd],#hkCalA') : null; if(!b) return;
+  if(b.getAttribute('data-cm')){ calM += +b.getAttribute('data-cm'); if(calM < 0){ calM = 11; calY--; } if(calM > 11){ calM = 0; calY++; } calSel = ''; var f = calY + '-' + pad(calM + 1) + '-01'; calSel = f; renderCal(); }
+  else if(b.getAttribute('data-cd')){ calSel = b.getAttribute('data-cd'); renderCal(); }
+  else if(b.id === 'hkCalA'){
+    var tx2 = $('hkCalT').value.trim(); if(!tx2) return;
+    sched.custom.push({id: 'c' + Date.now(), title: tx2, date: calSel}); sSave();
+    var y = window.scrollY; renderSched(); window.scrollTo(0, y);
+  }
+});
 renderBanner();
 
 /* ===== 見学メモ プラス ===== */
