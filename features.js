@@ -7,7 +7,17 @@ if(!HK || !document.querySelector('.tabs')) return;
 var $ = function(id){ return document.getElementById(id); };
 var esc = HK.esc;
 var CR = '<svg class="cr" viewBox="0 0 32 32" width="18" height="18" aria-label="有料版の機能" role="img" style="vertical-align:-3px; flex:none"><path d="M4 11l6 5 6-9 6 9 6-5-3 15H7z" fill="#ffd36b" stroke="#f0b429" stroke-width="1.5" stroke-linejoin="round"/><circle cx="4" cy="11" r="2" fill="#ff7b6b"/><circle cx="16" cy="6" r="2" fill="#ff7b6b"/><circle cx="28" cy="11" r="2" fill="#ff7b6b"/></svg>';
-var PREMIUM = true; /* 決済を入れるまでは、全員にお試しで開けておく。falseにすると見学メモ プラスが閉じます */
+/* ===== 有料版の設定 =====
+   TRIAL = true の間は、有料の機能を全員に開けておきます(お試し)。有料を始めるときに false にします。
+   PAYLINK: Stripeの「支払いリンク」のURL。空のあいだは、購入ボタンは出ません。
+   CODE_HASHES: 購入コードの「ハッシュ」の一覧(tools/make_code.py で作ります)。コードそのものは、ここに書きません。 */
+var TRIAL = true;
+var PAYLINK = '';
+var PRICE = '980円(税込)';
+var UNTIL = '2027年4月30日';
+var CODE_HASHES = [];
+var UL_KEY = 'hoikatsu-unlock-v1';
+var PREMIUM = TRIAL || lsGet(UL_KEY, false) === true;
 
 function lsGet(k, d){ try{ var s = localStorage.getItem(k); return s === null ? d : JSON.parse(s); }catch(e){ return d; } }
 function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -64,6 +74,32 @@ var QUESTIONS = [
   '連絡帳(紙・アプリ)と、保護者への連絡の方法',
   '地震・火事・不審者のときの避難と対策'
 ];
+
+
+/* ===== 有料版のカギ ===== */
+function legalLinks(){ return '<a href="terms.html" target="_blank" rel="noopener">利用規約</a> / <a href="privacy.html" target="_blank" rel="noopener">プライバシー</a> / <a href="tokusho.html" target="_blank" rel="noopener">特定商取引法に基づく表記</a>'; }
+function buyHtml(){
+  return '<p style="margin:10px 0 4px"><b>' + CR + ' 令和9年4月入園パック ' + esc(PRICE) + '</b><br><span class="hint">1回の支払いで、' + esc(UNTIL) + 'まで、有料の機能がすべて使えます。夫婦の2人で使えます。</span></p>'
+    + (PAYLINK ? '<a class="primary" href="' + esc(PAYLINK) + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:12px; border-radius:999px; font-weight:700; margin:8px 0">購入する</a>' : '<p class="hint">購入の受付は、準備中です。</p>')
+    + '<label class="field">購入コードを持っているとき</label><div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>'
+    + '<p class="hint" style="margin-top:10px">' + legalLinks() + '</p>';
+}
+function lockCard(name){ return '<section class="panel"><h2>' + CR + ' ' + esc(name) + '</h2><p class="hint" style="margin:0">この機能は、有料版です。</p>' + buyHtml() + '</section>'; }
+function sha256hex(t){
+  var b = new TextEncoder().encode(t);
+  return crypto.subtle.digest('SHA-256', b).then(function(h){ return Array.prototype.map.call(new Uint8Array(h), function(x){ return ('0' + x.toString(16)).slice(-2); }).join(''); });
+}
+document.addEventListener('click', function(e){
+  var t = e.target; if(!t.getAttribute || !t.getAttribute('data-unlock')) return;
+  var box = t.parentNode.parentNode, inp = box.querySelector('.hkCode'), msg = box.querySelector('[data-um]');
+  var code = (inp.value || '').toUpperCase().replace(/[\s\-ー]/g, '');
+  if(!code){ msg.textContent = 'コードを入れてください。'; return; }
+  if(!(window.crypto && crypto.subtle)){ msg.textContent = 'この環境では確認できません。別のブラウザで開いてください。'; return; }
+  sha256hex(code).then(function(h){
+    if(CODE_HASHES.indexOf(h) >= 0){ lsSet(UL_KEY, true); msg.textContent = '開きました。画面を読み直します。'; setTimeout(function(){ location.reload(); }, 600); }
+    else msg.textContent = 'コードが合いません。購入のあとに表示された、コードを確認してください。';
+  });
+});
 
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
@@ -153,7 +189,7 @@ function showSched(){
   ['tabIndex', 'tabFind', 'tabCmp', 'tabVisit', 'tabAbout'].forEach(function(id){ $(id).setAttribute('aria-selected', 'false'); });
   tb.setAttribute('aria-selected', 'true');
   document.querySelector('.bar').hidden = true;
-  renderSched(); window.scrollTo(0, 0);
+  if(PREMIUM) renderSched(); else view.innerHTML = lockCard('スケジュール'); window.scrollTo(0, 0);
 }
 tb.addEventListener('click', showSched);
 Array.prototype.forEach.call(tabs.querySelectorAll('button'), function(b){
@@ -237,7 +273,7 @@ plus.className = 'panel'; plus.id = 'hkPlus';
 vSec.parentNode.insertBefore(plus, vSec.nextSibling);
 var CROWN = '<span class="hi" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 11l6 5 6-9 6 9 6-5-3 15H7z" fill="#ffd36b" stroke="#f0b429" stroke-width="1.5" stroke-linejoin="round"/><circle cx="4" cy="11" r="2" fill="#ff7b6b"/><circle cx="16" cy="6" r="2" fill="#ff7b6b"/><circle cx="28" cy="11" r="2" fill="#ff7b6b"/></svg></span>';
 if(!PREMIUM){
-  plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge" style="font-size:12px">有料版</span></h2><p class="hint">写真、質問リスト、すべての園を並べて比べる、PDF、家族での共有は、有料版の機能です(準備中)。</p>';
+  plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge" style="font-size:12px">有料版</span></h2><p class="hint" style="margin:0">写真、質問リスト、すべての園を並べて比べる、PDF、家族での共有、希望園の並べ方は、有料版の機能です。</p>' + buyHtml();
 } else {
   plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge">有料版・お試し中</span></h2>'
   + '<p class="hint" style="margin:0 0 6px">いまは、お試しで全員が使えます。有料になるときは、先にお知らせします。</p>'
@@ -560,7 +596,7 @@ function showDocs(){
   TABIDS.forEach(function(id){ $(id).setAttribute('aria-selected', 'false'); });
   tbD.setAttribute('aria-selected', 'true');
   document.querySelector('.bar').hidden = true;
-  renderDocs(); window.scrollTo(0, 0);
+  if(PREMIUM) renderDocs(); else viewD.innerHTML = lockCard('提出前チェックと書類リスト'); window.scrollTo(0, 0);
 }
 tbD.addEventListener('click', showDocs);
 Array.prototype.forEach.call(tabs.querySelectorAll('button'), function(b){
@@ -699,10 +735,11 @@ var PAID = [
   ['wish', '希望園の並べ方', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。']
 ];
 function renderPaid(){
-  var h = '<section class="panel"><h2>' + CR + ' 課金でできること</h2><p class="hint" style="margin:0">王冠のマークが付いた機能が、有料版の機能です。<b>いまは、お試しで全員が無料で使えます。</b>有料になるときは、先にお知らせします。料金はまだ決まっていません。</p></section>';
+  var own = lsGet(UL_KEY, false) === true, st = TRIAL ? 'お試し中' : (own ? '使えます' : '有料');
+  var h = '<section class="panel"><h2>' + CR + ' 課金でできること</h2><p class="hint" style="margin:0">王冠のマークが付いた機能が、有料版の機能です。' + (TRIAL ? '<b>いまは、お試しで全員が無料で使えます。</b>有料になるときは、先にお知らせします。' : (own ? '<b>購入ずみです。' + esc(UNTIL) + 'まで使えます。</b>' : '')) + '</p>' + ((!TRIAL && !own) ? buyHtml() : '<p class="hint" style="margin-top:10px">' + (own ? '' : '料金の予定: ' + esc(PRICE) + '(令和9年4月入園パック・1回の支払い)<br>') + legalLinks() + '</p>') + '</section>';
   h += '<section class="panel">';
   PAID.forEach(function(x){
-    h += '<div class="ev"><div class="d">' + CR + ' ' + esc(x[1]) + ' <span class="badge" style="font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px">お試し中</span></div><div class="n">' + esc(x[2]) + '</div><button type="button" data-p="' + x[0] + '" style="width:max-content; min-height:40px; padding:0 18px; margin-top:4px">開く</button></div>';
+    h += '<div class="ev"><div class="d">' + CR + ' ' + esc(x[1]) + ' <span class="badge" style="font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px">' + st + '</span></div><div class="n">' + esc(x[2]) + '</div><button type="button" data-p="' + x[0] + '" style="width:max-content; min-height:40px; padding:0 18px; margin-top:4px">開く</button></div>';
   });
   h += '</section><section class="panel"><p class="hint" style="margin:0">無料のまま使えるもの: 点数シミュレーター、園を探す、園を比べる、見学メモ(3園まで)。</p></section>';
   viewP.innerHTML = h;
