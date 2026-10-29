@@ -143,7 +143,7 @@ css.textContent = [
 '.cal7{display:grid; grid-template-columns:repeat(7,1fr); gap:4px}.cal7 .wd{text-align:center; font-size:12px; font-weight:700; color:var(--muted); padding:2px 0}.cal7 .wd.su{color:var(--minus)}.cal7 .wd.sa{color:var(--accent)}',
 '.cday{position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:3px; min-height:46px; padding:5px 0 4px; border:2px solid transparent; border-radius:14px; background:var(--field); box-shadow:none; font-size:15px; font-weight:700; color:var(--fg,inherit)}',
 '.cday.out{background:none; opacity:.35}.cday.today{border-color:var(--accent)}.cday.sel{background:var(--accent); color:var(--accent-fg,#fff)}.cday .dots{display:flex; gap:3px; min-height:7px}.dt{width:8px; height:8px; border-radius:50%; display:inline-block; flex:none}',
-'.dt.k1{background:#e0524d}.dt.k2{background:#2a8fd0}.dt.k3{background:#3aa66a}.dt.k4{background:#e0a100}.dt.k5{background:#8a6fd0}.cday.sel .dt{outline:1.5px solid #fff}',
+'.dt.k1{background:#e0524d}.dt.k2{background:#2a8fd0}.dt.k3{background:#3aa66a}.dt.k4{background:#e0a100}.dt.k5{background:#8a6fd0}.dt.k6{background:#17a2a2}.cday.sel .dt{outline:1.5px solid #fff}',
 '.calh{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}.calh b{font-size:18px}.calh button{min-height:40px; min-width:44px; padding:0 12px}',
 '.cleg{display:flex; flex-wrap:wrap; gap:4px 12px; font-size:12px; color:var(--muted); margin:8px 0}.cleg span{display:inline-flex; align-items:center; gap:4px}',
 '.dd{border-top:2px dotted var(--line); padding:8px 0}.dd:first-child{border-top:0}.dd .t{font-weight:700}.dd small{display:block; color:var(--muted); font-size:13px}',
@@ -253,12 +253,15 @@ function allTasks(){
 }
 
 /* ===== 保活カレンダー(月のカレンダーで、この日は何があるかを見る) ===== */
-var KIND = {1: ['締切', '#e0524d'], 2: ['区の予定', '#2a8fd0'], 3: ['やること', '#3aa66a'], 4: ['見学', '#e0a100'], 5: ['自分の予定', '#8a6fd0']};
+var KIND = {1: ['締切', '#e0524d'], 2: ['区の予定', '#2a8fd0'], 3: ['やること', '#3aa66a'], 4: ['見学', '#e0a100'], 5: ['自分の予定', '#8a6fd0'], 6: ['空き数の更新', '#17a2a2']};
+/* 空き数は、このアプリが、毎月1日と15日の午前10時ごろに、区のページから取り込みます(自動) */
+var NOTES = {'2027-01': '区が、令和9年4月(一次)の申込者数を公表する予定です。区は「今後公開予定」としか発表していません。1月ごろは、このアプリの目安で、区が決めた日ではありません。公表されたら、倍率を差し替えます。'};
 var calY = (new Date()).getFullYear(), calM = (new Date()).getMonth(), calSel = fmt(new Date());
 function dayItems(d){
   var a = [];
   EVENTS.forEach(function(e){ if(e.date === d) a.push({k: e.kind === '締切' ? 1 : 2, t: e.title, n: e.note}); });
   allTasks().forEach(function(t){ if(t.due === d) a.push({k: t.own ? 5 : 3, t: t.title, n: t.own ? '自分で足した予定' : '目安の日付', done: !!sched.done[t.id]}); });
+  var dd2 = ymd(d); if((dd2.getDate() === 1 || dd2.getDate() === 15) && d >= '2026-11-01' && d <= '2027-04-30') a.push({k: 6, t: 'このアプリが、区の空き数を取り込む日', n: '午前10時ごろに自動で更新します。区のページの更新が遅いと、古い数字のままのことがあります。'});
   HK.getVisits().forEach(function(v){ if(!v.ex && v.date === d) a.push({k: 4, t: v.name + ' の見学', n: v.area || ''}); });
   return a;
 }
@@ -273,7 +276,9 @@ function renderCal(){
     it.forEach(function(x){ kinds[x.k] = 1; });
     h += '<button type="button" class="cday' + (ds === today ? ' today' : '') + (ds === calSel ? ' sel' : '') + '" data-cd="' + ds + '" aria-label="' + (calM + 1) + '月' + d + '日 ' + it.length + '件"><span>' + d + '</span><span class="dots">' + Object.keys(kinds).slice(0, 4).map(function(k){ return '<i class="dt k' + k + '"></i>'; }).join('') + '</span></button>';
   }
-  h += '</div><div class="cleg">' + [1, 2, 3, 4, 5].map(function(k){ return '<span><i class="dt k' + k + '"></i>' + KIND[k][0] + '</span>'; }).join('') + '</div>';
+  h += '</div><div class="cleg">' + [1, 2, 3, 4, 5, 6].map(function(k){ return '<span><i class="dt k' + k + '"></i>' + KIND[k][0] + '</span>'; }).join('') + '</div>';
+  var nt = NOTES[calY + '-' + pad(calM + 1)];
+  if(nt) h += '<p class="hint" style="margin:0 0 8px">📢 ' + esc(nt) + '</p>';
   var items = dayItems(calSel);
   h += '<h3 style="font-size:16px; margin:8px 0 4px">' + md(calSel) + (daysLeft(calSel) >= 0 ? ' <span class="sc">' + (daysLeft(calSel) === 0 ? '今日' : 'あと' + daysLeft(calSel) + '日') + '</span>' : '') + '</h3>';
   if(!items.length) h += '<p class="hint" style="margin:0">この日の予定は、ありません。</p>';
