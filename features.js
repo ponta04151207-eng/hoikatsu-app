@@ -40,14 +40,15 @@ var EVENTS = [
   {id:'first-mail', date:'2026-11-05', kind:'締切', title:'一次選考 申込締切(郵送・オンライン)', note:'消印有効です。'},
   {id:'first-visit', date:'2026-11-10', kind:'締切', title:'一次選考 申込締切(窓口に持っていく場合)', note:'厳守です。増点につながる変更の届けも、この日までです。'},
   {id:'first-add', date:'2026-11-24', kind:'締切', title:'不足書類の追加提出の期限', note:'締切日までに申込書類を出した人が対象です。郵送・オンラインでも出せます。'},
+  {id:'first-result', date:'2027-01-20', kind:'区', title:'一次選考の結果公表(令和9年4月入園)', note:'区の「入園のご相談および申込み方法」のページの表にある日付です。'},
   {id:'second-mail', date:'2027-01-27', kind:'締切', title:'二次選考 申込締切(郵送・オンライン)', note:'消印有効です。一次で内定しなかった人は、改めて申し込む必要はありません。状況が変わったら書類を出します。'},
   {id:'second-visit', date:'2027-02-01', kind:'締切', title:'二次選考 申込締切(窓口に持っていく場合)', note:'厳守です。'},
+  {id:'second-result', date:'2027-02-18', kind:'区', title:'二次選考の結果公表(令和9年4月入園)', note:'区の「入園のご相談および申込み方法」のページの表にある日付です。'},
   {id:'start', date:'2027-04-01', kind:'入園', title:'令和9年4月 入園', note:''}
 ];
 var UNDATED = [
   '令和9年4月(一次)の入園申込者数の公表(区は「今後公開予定」としています)',
   '令和9年4月(二次)の入園可能数の公表(区は「今後公開予定」としています)',
-  '選考結果の通知(時期は区のページに書かれていません。「令和9年4月入園を申し込まれる方へ」などで確認してください)'
 ];
 /* やることの目安。ev = 基準にする区の日程、off = その何日前(マイナス)か */
 var TASKS = [
@@ -60,7 +61,7 @@ var TASKS = [
   {id:'t-add', ev:'first-add', off:0, title:'不足書類の連絡があれば、追加で出す'},
   {id:'t-rate', ev:null, title:'区が申込者数を公表したら、倍率を見直す'},
   {id:'t-second', ev:'second-mail', off:-7, title:'二次選考に向けて、状況が変わった場合の書類を準備する'},
-  {id:'t-result', ev:null, title:'選考結果の通知を確認する'},
+  {id:'t-result', ev:'first-result', off:0, title:'一次選考の結果を確認する(結果公表日)'},
   {id:'t-after', ev:null, title:'内定したら、入園の手続きと準備を始める'}
 ];
 
@@ -147,6 +148,7 @@ css.textContent = [
 '.calh{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}.calh b{font-size:18px}.calh button{min-height:40px; min-width:44px; padding:0 12px}',
 '.cleg{display:flex; flex-wrap:wrap; gap:4px 12px; font-size:12px; color:var(--muted); margin:8px 0}.cleg span{display:inline-flex; align-items:center; gap:4px}',
 '.dd{border-top:2px dotted var(--line); padding:8px 0}.dd:first-child{border-top:0}.dd .t{font-weight:700}.dd small{display:block; color:var(--muted); font-size:13px}',
+'.fimg{display:flex; gap:10px; align-items:center; margin:6px 0}.fimg .fpic{flex:none; line-height:0}.fimg .ftx{display:grid; gap:2px; min-width:0}.fimg .fcap{color:var(--muted); font-size:11px}.fimg a{font-size:14px; font-weight:700; color:var(--accent); text-decoration:none}',
 '.tk.dk{padding:6px 0; gap:8px}.tk.dk .x{font-size:15px; line-height:1.4}.tk.dk details{margin:0}.tk.dk summary{font-size:12px; line-height:1.3; min-height:0; height:auto; margin:0; color:var(--muted); cursor:pointer; padding:0; width:max-content; display:list-item}.tk.dk .x b{display:inline}.tk.dk .sc{font-size:11px; padding:0 8px}.tk.dk input{width:24px; height:24px}.tk.dk small{margin-top:2px}',
 '.addtk{display:grid; gap:8px; margin-top:10px}',
 '#hkPlus details.plus{border-top:2px dotted var(--line); padding:10px 0}#hkPlus details.plus > summary{font-family:var(--font-display); font-weight:700; font-size:17px; cursor:pointer; padding:6px 0}',
@@ -296,7 +298,7 @@ function renderSched(){
   } else {
     h += '<div class="nx"><b>令和9年4月入園の申込の締切は、すべて過ぎました。</b></div>';
   }
-  h += '</section>';
+  h += '<a href="' + ONLINE + '" target="_blank" rel="noopener" style="display:block; text-align:center; margin-top:10px; font-weight:700; color:var(--accent)">💻 オンラインで申込む(区の電子申請)</a></section>';
 
   h += '<section class="panel" id="hkCal"></section>';
   h += '<section class="panel"><h2>区の日程</h2>';
@@ -673,6 +675,11 @@ $('hkSel').addEventListener('change', function(){ renderPhotos(); renderQ(); });
 refreshSel();
 var timer = null;
 new MutationObserver(function(){ clearTimeout(timer); timer = setTimeout(refreshSel, 120); }).observe($('vList'), {childList: true, subtree: true});
+photoLookup = function(key){
+  var v = vis().filter(function(x){ return !x.ex && x.fac === key; })[0];
+  if(!v) return Promise.resolve(null);
+  return photosOf(v.id).then(function(ps){ return ps.length ? ps[0].d : null; }, function(){ return null; });
+};
 }
 
 /* ===== 提出前チェックと書類リスト ===== */
@@ -716,6 +723,7 @@ var DOC_COMMON = [
   ['本人確認', '運転免許証など1点、または健康保険証など2点以上。窓口は原本、郵送は写し。保険証の写しは、記号・番号・保険者番号を黒く塗ります。'],
   ['税の書類', '令和9年4月入園は、令和8年度の住民税課税証明書(または住民税決定通知書)。税の未申告のときは先に申告が必要です(確定申告書の控えや源泉徴収票では代わりになりません)。配偶者控除の対象になっている方は、税の書類も申告も不要です。']
 ];
+var ONLINE = 'https://www.city.setagaya.lg.jp/01044/1565.html', FORM_PDF = 'https://www.city.setagaya.lg.jp/documents/1552/mousikomisyo_0809.pdf', FORM_XLS = 'https://www.city.setagaya.lg.jp/documents/1552/mousikomisyo_0809.xlsx';
 var D_KEY = 'hoikatsu-docs-v1';
 var dd = lsGet(D_KEY, {a: 'work', b: 'work', opts: {}, done: {}, way: 'mail'});
 if(!dd.opts) dd.opts = {}; if(!dd.done) dd.done = {}; if(!dd.way) dd.way = 'mail';
@@ -771,7 +779,8 @@ function renderDocs(){
   var list = docList(), done = list.filter(function(d){ return dd.done[d.id]; }).length;
   var dl = dd.way === 'mail' ? evDate('first-mail') : evDate('first-visit');
   var k = daysLeft(dl);
-  var h = '<section class="panel"><h2>' + CR + ' 提出前チェックと書類リスト</h2><p class="hint" style="margin:0">令和9年4月入園(認可保育園)の申込みに必要な書類を、状況に合わせて一覧にします。出典: <a href="' + DSRC.url + '" target="_blank" rel="noopener">' + esc(DSRC.name) + '</a>(確認日 ' + esc(DSRC.checked) + ')。人によって増える書類もあるので、出す前に区のページでも確認してください。</p></section>';
+  var h = '<section class="panel"><h2>💻 オンラインで申込む</h2><p class="hint" style="margin:0 0 8px">区の電子申請なら、スマホから申込めます。印刷も郵送もいりません。締切は、郵送と同じ' + md(evDate('first-mail')) + 'です(あと' + Math.max(0, daysLeft(evDate('first-mail'))) + '日)。ログインや入力は、区のページで、ご自身でしてください。</p><a class="primary" href="' + ONLINE + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:14px; border-radius:999px; font-weight:700">区の電子申請のページを開く</a><p class="hint" style="margin:8px 0 0">先に、下の書類リストで、必要な書類をそろえて、写真かPDFにしておくと、早く進みます。申込書の様式は <a href="' + FORM_PDF + '" target="_blank" rel="noopener">PDF</a>・<a href="' + FORM_XLS + '" target="_blank" rel="noopener">Excel</a> です。</p></section>';
+  h += '<section class="panel"><h2>' + CR + ' 提出前チェックと書類リスト</h2><p class="hint" style="margin:0">令和9年4月入園(認可保育園)の申込みに必要な書類を、状況に合わせて一覧にします。出典: <a href="' + DSRC.url + '" target="_blank" rel="noopener">' + esc(DSRC.name) + '</a>(確認日 ' + esc(DSRC.checked) + ')。人によって増える書類もあるので、出す前に区のページでも確認してください。</p></section>';
   h += '<section class="panel"><h2>1. あてはまる状況を選ぶ</h2>'
     + '<label class="field" for="hkDa">保護者1の状況</label>' + selHtml('hkDa', dd.a, false)
     + '<label class="field" for="hkDb">保護者2の状況</label>' + selHtml('hkDb', dd.b, true);
@@ -1074,6 +1083,30 @@ if(API_URL){
   try{ if(sessionStorage.getItem('hk-show-paid') === '1'){ sessionStorage.removeItem('hk-show-paid'); setTimeout(showPaid, 50); } }catch(e){}
 }
 function alert_(t){ var b = document.createElement('div'); b.className = 'hkb on'; b.innerHTML = '<span class="t">' + esc(t) + '</span>'; tabs.parentNode.insertBefore(b, tabs); }
+
+/* ===== 園を探す: 園の画像(自分の写真 / イラスト / 地図) ===== */
+var photoLookup; /* 見学の写真を探す関数(有料の機能の中で入る) */
+var FIMG = '<svg viewBox="0 0 72 56" width="72" height="56" aria-hidden="true"><rect width="72" height="56" rx="12" fill="#e6f4f1"/><circle cx="58" cy="12" r="6" fill="#ffd36b"/><path d="M10 28L36 9l26 19z" fill="#ff8a7a"/><rect x="14" y="28" width="44" height="20" rx="2" fill="#fff6e6"/><rect x="31" y="34" width="10" height="14" rx="2" fill="#2a9d8f"/><rect x="18" y="32" width="8" height="8" rx="1" fill="#bfe3f5"/><rect x="46" y="32" width="8" height="8" rx="1" fill="#bfe3f5"/><circle cx="36" cy="22" r="3" fill="#fff"/></svg>';
+function decorateFind(){
+  var cards = document.querySelectorAll('#fList .fcard:not([data-img])');
+  Array.prototype.forEach.call(cards, function(c){
+    c.setAttribute('data-img', '1');
+    var nm = (c.querySelector('.fn') || {}).textContent || '', ar = (c.querySelector('.area') || {}).textContent || '';
+    var strip = document.createElement('div'); strip.className = 'fimg';
+    var q = encodeURIComponent(nm + ' 保育園 世田谷区');
+    strip.innerHTML = '<span class="fpic">' + FIMG + '</span><span class="ftx"><small class="fcap">イラスト(見学の写真があると、ここに出ます)</small><a href="https://www.google.com/maps/search/?api=1&query=' + q + '" target="_blank" rel="noopener">🗺️ 地図・写真を見る</a></span>';
+    var fs = c.querySelector('.fs'); c.insertBefore(strip, fs);
+    if(photoLookup) photoLookup(ar + '|' + nm).then(function(d){
+      if(d){ strip.querySelector('.fpic').innerHTML = '<img src="' + d + '" alt="見学の写真" style="width:72px; height:56px; object-fit:cover; border-radius:12px; display:block">'; strip.querySelector('.fcap').textContent = '見学で撮った写真'; }
+    });
+  });
+}
+(function(){
+  var fl = $('fList'); if(!fl) return;
+  new MutationObserver(function(){ decorateFind(); }).observe(fl, {childList: true});
+  decorateFind();
+  Array.prototype.forEach.call(document.querySelectorAll('.tabs button'), function(b){ b.addEventListener('click', function(){ setTimeout(function(){ Array.prototype.forEach.call(fl.querySelectorAll('.fcard[data-img]'), function(c){ var im = c.querySelector('.fimg'); if(im) im.remove(); c.removeAttribute('data-img'); }); decorateFind(); }, 80); }); });
+})();
 
 /* 無料版のひとことを、プラスへの案内に差し替える */
 var hint = $('vCmpHint');
