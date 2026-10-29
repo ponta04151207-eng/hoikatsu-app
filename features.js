@@ -80,6 +80,7 @@ css.textContent = [
 '.tk{display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-top:2px dotted var(--line)}.tk:first-child{border-top:0}',
 '.tk input{width:26px; height:26px; flex:none; margin-top:2px}.tk .x{flex:1; min-width:0; overflow-wrap:anywhere}.tk .x small{display:block; color:var(--muted); font-size:13px}',
 '.tk.dn .x b{text-decoration:line-through; color:var(--muted)}',
+'.tk.dk{padding:6px 0; gap:8px}.tk.dk .x{font-size:15px; line-height:1.4}.tk.dk details{margin:0}.tk.dk summary{font-size:12px; line-height:1.3; min-height:0; height:auto; margin:0; color:var(--muted); cursor:pointer; padding:0; width:max-content; display:list-item}.tk.dk .x b{display:inline}.tk.dk .sc{font-size:11px; padding:0 8px}.tk.dk input{width:24px; height:24px}.tk.dk small{margin-top:2px}',
 '.addtk{display:grid; gap:8px; margin-top:10px}',
 '#hkPlus details.plus{border-top:2px dotted var(--line); padding:10px 0}#hkPlus details.plus > summary{font-family:var(--font-display); font-weight:700; font-size:17px; cursor:pointer; padding:6px 0}',
 '#hkPlus .badge{font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px}',
@@ -581,6 +582,10 @@ function selHtml(id, val, withNone){
   if(withNone) h += '<option value="none"' + (val === 'none' ? ' selected' : '') + '>いない(ひとり親など)</option>';
   return h + '</select>';
 }
+function dRow(id, t, n, dated){
+  var on = dd.done[id];
+  return '<div class="tk dk' + (on ? ' dn' : '') + '"><input type="checkbox" data-d="' + id + '"' + (on ? ' checked' : '') + ' aria-label="' + esc(t) + '"><span class="x"><b>' + esc(t) + '</b>' + (dated ? ' <span class="sc soon">3か月以内</span>' : '') + '<details><summary>くわしく</summary><small>' + esc(n) + '</small></details></span></div>';
+}
 function renderDocs(){
   var list = docList(), done = list.filter(function(d){ return dd.done[d.id]; }).length;
   var dl = dd.way === 'mail' ? evDate('first-mail') : evDate('first-visit');
@@ -598,8 +603,8 @@ function renderDocs(){
   h += '<section class="panel"><h2>3. 書類リスト <span class="sc ' + (done === list.length ? '' : 'soon') + '">' + done + '/' + list.length + '</span></h2>';
   var last = '';
   list.forEach(function(d){
-    if(d.grp !== last){ h += '<h3 style="font-size:15px; margin:14px 0 2px; color:var(--muted)">' + esc(d.grp) + '</h3>'; last = d.grp; }
-    h += '<label class="tk' + (dd.done[d.id] ? ' dn' : '') + '"><input type="checkbox" data-d="' + d.id + '"' + (dd.done[d.id] ? ' checked' : '') + '><span class="x"><b>' + esc(d.t) + '</b>' + (d.dated ? ' <span class="sc soon">3か月以内</span>' : '') + '<small>' + esc(d.n) + '</small></span></label>';
+    if(d.grp !== last){ h += '<h3 style="font-size:14px; margin:10px 0 0; color:var(--muted)">' + esc(d.grp) + '</h3>'; last = d.grp; }
+    h += dRow(d.id, d.t, d.n, d.dated);
   });
   h += '<p class="hint">様式のダウンロードは <a href="' + DSRC.url + '" target="_blank" rel="noopener">区の申込みのページ</a>、マイナンバーの確認は <a href="' + DSRC.my + '" target="_blank" rel="noopener">区のマイナンバーのページ</a> へ。</p></section>';
   var CHK = [
@@ -611,7 +616,7 @@ function renderDocs(){
     ['web', '(オンラインのとき)申請者IDとパスワードを控えた', '申請したあとの確認のたびに必要です。添付ファイルが読み取れないと、郵送での提出を求められることがあります。']
   ];
   h += '<section class="panel"><h2>4. 出す前の最終チェック</h2>';
-  CHK.forEach(function(c){ h += '<label class="tk' + (dd.done['z' + c[0]] ? ' dn' : '') + '"><input type="checkbox" data-d="z' + c[0] + '"' + (dd.done['z' + c[0]] ? ' checked' : '') + '><span class="x"><b>' + esc(c[1]) + '</b><small>' + esc(c[2]) + '</small></span></label>'; });
+  CHK.forEach(function(c){ h += dRow('z' + c[0], c[1], c[2], false); });
   h += '</section>';
   h += '<section class="panel"><p class="hint" style="margin:0">この一覧は、区の公開資料をもとにした目安です。申込みのルールや必要書類は、区が決めたものが正しいので、出す前に必ず区のページか窓口で確認してください。</p></section>';
   h += draftSection();
