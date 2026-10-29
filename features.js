@@ -6,6 +6,7 @@ var HK = window.HK;
 if(!HK || !document.querySelector('.tabs')) return;
 var $ = function(id){ return document.getElementById(id); };
 var esc = HK.esc;
+var CR = '<svg class="cr" viewBox="0 0 32 32" width="18" height="18" aria-label="有料版の機能" role="img" style="vertical-align:-3px; flex:none"><path d="M4 11l6 5 6-9 6 9 6-5-3 15H7z" fill="#ffd36b" stroke="#f0b429" stroke-width="1.5" stroke-linejoin="round"/><circle cx="4" cy="11" r="2" fill="#ff7b6b"/><circle cx="16" cy="6" r="2" fill="#ff7b6b"/><circle cx="28" cy="11" r="2" fill="#ff7b6b"/></svg>';
 var PREMIUM = true; /* 決済を入れるまでは、全員にお試しで開けておく。falseにすると見学メモ プラスが閉じます */
 
 function lsGet(k, d){ try{ var s = localStorage.getItem(k); return s === null ? d : JSON.parse(s); }catch(e){ return d; } }
@@ -137,7 +138,7 @@ function download(name, text, type){
 var tabs = document.querySelector('.tabs');
 var tb = document.createElement('button');
 tb.type = 'button'; tb.id = 'tabSched'; tb.className = 'hero'; tb.setAttribute('role', 'tab'); tb.setAttribute('aria-selected', 'false');
-tb.innerHTML = '<span class="ti">📅</span><span>スケジュール</span>';
+tb.innerHTML = '<span class="ti">📅</span><span>' + CR + ' スケジュール</span>';
 tabs.insertBefore(tb, $('tabFind'));
 var view = document.createElement('div'); view.id = 'viewSched'; view.hidden = true;
 $('viewAbout').parentNode.insertBefore(view, $('viewAbout'));
@@ -145,6 +146,7 @@ var banner = document.createElement('div'); banner.className = 'hkb'; banner.id 
 tabs.parentNode.insertBefore(banner, tabs);
 
 function showSched(){
+  hidePaid();
   ['viewIndex', 'viewVisit', 'viewAbout'].forEach(function(id){ $(id).hidden = true; });
   view.hidden = false; var vd = document.getElementById('viewDocs'); if(vd) vd.hidden = true;
   var td = document.getElementById('tabDocs'); if(td) td.setAttribute('aria-selected', 'false');
@@ -185,7 +187,7 @@ function allTasks(){
 }
 function renderSched(){
   var nx = nextDeadline(), h = '';
-  h += '<section class="panel"><h2>スケジュール</h2><p class="hint" style="margin:0">令和9年4月入園(認可保育園)の、区の日程です。出典: <a href="' + SRC.url + '" target="_blank" rel="noopener">' + esc(SRC.name) + '</a>(確認日 ' + esc(SRC.checked) + ')。日程は変わることがあるので、区のページも確認してください。</p>';
+  h += '<section class="panel"><h2>' + CR + ' スケジュール</h2><p class="hint" style="margin:0">令和9年4月入園(認可保育園)の、区の日程です。出典: <a href="' + SRC.url + '" target="_blank" rel="noopener">' + esc(SRC.name) + '</a>(確認日 ' + esc(SRC.checked) + ')。日程は変わることがあるので、区のページも確認してください。</p>';
   if(nx){
     h += '<div class="nx"><div style="font-size:14px; font-weight:700; color:var(--muted)">次の締切</div><div class="big">あと' + daysLeft(nx.date) + '日</div><div><b>' + esc(nx.title) + '</b></div><div style="font-size:14px">' + md(nx.date) + '</div><a class="cal" style="display:inline-block; margin-top:8px; font-size:14px; font-weight:700; color:var(--accent); border:2px solid var(--line); border-radius:999px; padding:6px 14px; background:var(--surface); text-decoration:none" href="' + gcal(nx.title, nx.date, nx.note) + '" target="_blank" rel="noopener">📅 Googleカレンダーに入れる</a></div>';
   } else {
@@ -245,7 +247,7 @@ if(!PREMIUM){
   + '<details class="plus" id="hkD3"><summary>📊 すべての園を並べて比べる</summary><div id="hkAll"></div></details>'
   + '<details class="plus" id="hkD4"><summary>📄 PDFにする・印刷する</summary><div><p class="hint" style="margin:0 0 8px">印刷の画面で「PDFに保存」を選ぶと、PDFになります。</p><button type="button" id="hkP1" style="width:100%; margin-bottom:8px">選んだ園のレポート(写真つき)</button><button type="button" id="hkP2" style="width:100%">すべての園のレポート</button></div></details>'
   + '<details class="plus" id="hkD5"><summary>👪 夫婦・家族で共有する</summary><div id="hkSh"></div></details>'
-  + '<details class="plus" id="hkD6"><summary>🏁 希望園の並べ方(第10希望まで)</summary><div id="hkWish"></div></details>';
+  + '<details class="plus" id="hkD6"><summary>' + CR + ' 🏁 希望園の並べ方(第10希望まで)</summary><div id="hkWish"></div></details>';
 }
 
 function vis(){ return HK.getVisits(); }
@@ -545,13 +547,14 @@ function monthsBack(s, n){ var d = ymd(s); d.setMonth(d.getMonth() - n); return 
 
 var tbD = document.createElement('button');
 tbD.type = 'button'; tbD.id = 'tabDocs'; tbD.className = 'hero'; tbD.setAttribute('role', 'tab'); tbD.setAttribute('aria-selected', 'false');
-tbD.style.gridColumn = 'span 12';
-tbD.innerHTML = '<span class="ti">📋</span><span>提出前チェックと書類リスト</span>';
+tbD.style.gridColumn = 'span 6';
+tbD.innerHTML = '<span class="ti">📋</span><span>' + CR + ' 提出前チェックと書類リスト</span>';
 tabs.insertBefore(tbD, $('tabFind'));
 var viewD = document.createElement('div'); viewD.id = 'viewDocs'; viewD.hidden = true;
 view.parentNode.insertBefore(viewD, view);
 var TABIDS = ['tabIndex', 'tabSched', 'tabFind', 'tabCmp', 'tabVisit', 'tabAbout'];
 function showDocs(){
+  hidePaid();
   ['viewIndex', 'viewVisit', 'viewAbout'].forEach(function(id){ $(id).hidden = true; });
   view.hidden = true; viewD.hidden = false;
   TABIDS.forEach(function(id){ $(id).setAttribute('aria-selected', 'false'); });
@@ -590,7 +593,7 @@ function renderDocs(){
   var list = docList(), done = list.filter(function(d){ return dd.done[d.id]; }).length;
   var dl = dd.way === 'mail' ? evDate('first-mail') : evDate('first-visit');
   var k = daysLeft(dl);
-  var h = '<section class="panel"><h2>提出前チェックと書類リスト</h2><p class="hint" style="margin:0">令和9年4月入園(認可保育園)の申込みに必要な書類を、状況に合わせて一覧にします。出典: <a href="' + DSRC.url + '" target="_blank" rel="noopener">' + esc(DSRC.name) + '</a>(確認日 ' + esc(DSRC.checked) + ')。人によって増える書類もあるので、出す前に区のページでも確認してください。</p></section>';
+  var h = '<section class="panel"><h2>' + CR + ' 提出前チェックと書類リスト</h2><p class="hint" style="margin:0">令和9年4月入園(認可保育園)の申込みに必要な書類を、状況に合わせて一覧にします。出典: <a href="' + DSRC.url + '" target="_blank" rel="noopener">' + esc(DSRC.name) + '</a>(確認日 ' + esc(DSRC.checked) + ')。人によって増える書類もあるので、出す前に区のページでも確認してください。</p></section>';
   h += '<section class="panel"><h2>1. あてはまる状況を選ぶ</h2>'
     + '<label class="field" for="hkDa">保護者1の状況</label>' + selHtml('hkDa', dd.a, false)
     + '<label class="field" for="hkDb">保護者2の状況</label>' + selHtml('hkDb', dd.b, true);
@@ -678,6 +681,48 @@ viewD.addEventListener('change', function(e){
   else if(t.id === 'hkDway'){ dd.way = t.value; dSave(); renderDocs(); }
   else if(t.getAttribute('data-o')){ dd.opts[t.getAttribute('data-o')] = t.checked; dSave(); renderDocs(); }
   else if(t.getAttribute('data-d')){ dd.done[t.getAttribute('data-d')] = t.checked; dSave(); renderDocs(); }
+});
+
+/* ===== 課金でできること ===== */
+var tbP = document.createElement('button');
+tbP.type = 'button'; tbP.id = 'tabPaid'; tbP.className = 'hero'; tbP.setAttribute('role', 'tab'); tbP.setAttribute('aria-selected', 'false');
+tbP.style.gridColumn = 'span 6';
+tbP.innerHTML = '<span class="ti">' + CR.replace('width="18" height="18"', 'width="26" height="26"') + '</span><span>課金でできること</span>';
+tabs.insertBefore(tbP, $('tabFind'));
+var viewP = document.createElement('div'); viewP.id = 'viewPaid'; viewP.hidden = true;
+view.parentNode.insertBefore(viewP, view);
+function hidePaid(){ viewP.hidden = true; tbP.setAttribute('aria-selected', 'false'); }
+var PAID = [
+  ['sched', 'スケジュール', '区の申込みの日程と、やることリスト。締切が近づくと、画面の上にお知らせが出ます。カレンダーにも入れられます。'],
+  ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
+  ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦・家族での共有。'],
+  ['wish', '希望園の並べ方', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。']
+];
+function renderPaid(){
+  var h = '<section class="panel"><h2>' + CR + ' 課金でできること</h2><p class="hint" style="margin:0">王冠のマークが付いた機能が、有料版の機能です。<b>いまは、お試しで全員が無料で使えます。</b>有料になるときは、先にお知らせします。料金はまだ決まっていません。</p></section>';
+  h += '<section class="panel">';
+  PAID.forEach(function(x){
+    h += '<div class="ev"><div class="d">' + CR + ' ' + esc(x[1]) + ' <span class="badge" style="font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px">お試し中</span></div><div class="n">' + esc(x[2]) + '</div><button type="button" data-p="' + x[0] + '" style="width:max-content; min-height:40px; padding:0 18px; margin-top:4px">開く</button></div>';
+  });
+  h += '</section><section class="panel"><p class="hint" style="margin:0">無料のまま使えるもの: 点数シミュレーター、園を探す、園を比べる、見学メモ(3園まで)。</p></section>';
+  viewP.innerHTML = h;
+}
+function showPaid(){
+  ['viewIndex', 'viewVisit', 'viewAbout'].forEach(function(id){ $(id).hidden = true; });
+  view.hidden = true; viewD.hidden = true; viewP.hidden = false; tbD.setAttribute('aria-selected', 'false');
+  TABIDS.forEach(function(id){ $(id).setAttribute('aria-selected', 'false'); });
+  tbP.setAttribute('aria-selected', 'true');
+  document.querySelector('.bar').hidden = true;
+  renderPaid(); window.scrollTo(0, 0);
+}
+tbP.addEventListener('click', showPaid);
+Array.prototype.forEach.call(tabs.querySelectorAll('button'), function(b){ if(b !== tbP) b.addEventListener('click', hidePaid); });
+viewP.addEventListener('click', function(e){
+  var k = e.target.getAttribute && e.target.getAttribute('data-p');
+  if(!k) return;
+  if(k === 'sched') showSched();
+  else if(k === 'docs') showDocs();
+  else { $('tabVisit').click(); setTimeout(function(){ var d = k === 'wish' ? $('hkD6') : null; if(d) d.open = true; var t = $(k === 'plus' ? 'hkPlus' : 'hkD6'); if(t) t.scrollIntoView(); }, 120); }
 });
 
 /* 無料版のひとことを、プラスへの案内に差し替える */
