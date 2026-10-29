@@ -117,6 +117,7 @@ css.textContent = [
 '.tk{display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-top:2px dotted var(--line)}.tk:first-child{border-top:0}',
 '.tk input{width:26px; height:26px; flex:none; margin-top:2px}.tk .x{flex:1; min-width:0; overflow-wrap:anywhere}.tk .x small{display:block; color:var(--muted); font-size:13px}',
 '.tk.dn .x b{text-decoration:line-through; color:var(--muted)}',
+'.srow{display:flex; justify-content:space-between; align-items:center; width:100%; min-height:56px; padding:0 6px; background:none; border:0; border-top:1px solid var(--line); border-radius:0; box-shadow:none; font-size:16px; font-weight:700; text-align:left}.slist .srow:first-child{border-top:0}.faq{padding:8px 6px; border-top:1px dotted var(--line)}.faq summary{font-weight:700; font-size:15px; cursor:pointer}.faq p{margin:6px 0 0; font-size:14px; line-height:1.7}',
 '.tk.dk{padding:6px 0; gap:8px}.tk.dk .x{font-size:15px; line-height:1.4}.tk.dk details{margin:0}.tk.dk summary{font-size:12px; line-height:1.3; min-height:0; height:auto; margin:0; color:var(--muted); cursor:pointer; padding:0; width:max-content; display:list-item}.tk.dk .x b{display:inline}.tk.dk .sc{font-size:11px; padding:0 8px}.tk.dk input{width:24px; height:24px}.tk.dk small{margin-top:2px}',
 '.addtk{display:grid; gap:8px; margin-top:10px}',
 '#hkPlus details.plus{border-top:2px dotted var(--line); padding:10px 0}#hkPlus details.plus > summary{font-family:var(--font-display); font-weight:700; font-size:17px; cursor:pointer; padding:6px 0}',
@@ -727,7 +728,7 @@ tbP.innerHTML = '<span class="ti">' + CR.replace('width="18" height="18"', 'widt
 tabs.insertBefore(tbP, $('tabFind'));
 var viewP = document.createElement('div'); viewP.id = 'viewPaid'; viewP.hidden = true;
 view.parentNode.insertBefore(viewP, view);
-function hidePaid(){ viewP.hidden = true; tbP.setAttribute('aria-selected', 'false'); }
+function hidePaid(){ viewP.hidden = true; tbP.setAttribute('aria-selected', 'false'); if(typeof viewS !== 'undefined' && viewS){ viewS.hidden = true; tbS.setAttribute('aria-selected', 'false'); } }
 var PAID = [
   ['sched', 'スケジュール', '区の申込みの日程と、やることリスト。締切が近づくと、画面の上にお知らせが出ます。カレンダーにも入れられます。'],
   ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
@@ -746,7 +747,7 @@ function renderPaid(){
 }
 function showPaid(){
   ['viewIndex', 'viewVisit', 'viewAbout'].forEach(function(id){ $(id).hidden = true; });
-  view.hidden = true; viewD.hidden = true; viewP.hidden = false; tbD.setAttribute('aria-selected', 'false');
+  view.hidden = true; viewD.hidden = true; viewP.hidden = false; tbD.setAttribute('aria-selected', 'false'); viewS.hidden = true; tbS.setAttribute('aria-selected', 'false');
   TABIDS.forEach(function(id){ $(id).setAttribute('aria-selected', 'false'); });
   tbP.setAttribute('aria-selected', 'true');
   document.querySelector('.bar').hidden = true;
@@ -760,6 +761,61 @@ viewP.addEventListener('click', function(e){
   if(k === 'sched') showSched();
   else if(k === 'docs') showDocs();
   else { $('tabVisit').click(); setTimeout(function(){ var d = k === 'wish' ? $('hkD6') : null; if(d) d.open = true; var t = $(k === 'plus' ? 'hkPlus' : 'hkD6'); if(t) t.scrollIntoView(); }, 120); }
+});
+
+/* ===== 設定 ===== */
+var CONTACT = 'ponta04151207@gmail.com', APP_URL = 'https://ponta04151207-eng.github.io/hoikatsu-app/';
+var tbS = document.createElement('button');
+tbS.type = 'button'; tbS.id = 'tabSet'; tbS.setAttribute('role', 'tab'); tbS.setAttribute('aria-selected', 'false');
+tbS.innerHTML = '<span class="ti">⚙️</span><span>設定</span>';
+tabs.appendChild(tbS);
+$('tabFind').style.gridColumn = 'span 4'; $('tabCmp').style.gridColumn = 'span 4'; $('tabVisit').style.gridColumn = 'span 4';
+$('tabAbout').style.gridColumn = 'span 6'; tbS.style.gridColumn = 'span 6';
+var viewS = document.createElement('div'); viewS.id = 'viewSet'; viewS.hidden = true;
+view.parentNode.insertBefore(viewS, view);
+var FAQ = [
+  ['入力した内容は、どこに保存されますか?', 'お使いのスマホのブラウザの中だけです。運営者のサーバーには送られません。ブラウザのデータを消したり、端末を変えたりすると、消えます。大切な記録は、PDFなどで控えてください。'],
+  ['夫婦で見学メモを共有できますか?', '「見学メモ プラス」の「夫婦・家族で共有する」で、共有コードを作れます。コードをLINEなどで送り、相手が取り込みます。'],
+  ['表示される指数や倍率は、正しいですか?', '区が公表した資料をもとにした目安です。実際の指数、日程、必要書類は、区の資料で決まります。申込みの前に、必ず区の資料で確認してください。'],
+  ['空き数は、いつ更新されますか?', '毎月1日と15日の朝に、区のページから自動で更新します。区の更新が古いときは、赤い印が出ます。'],
+  ['有料の機能は、どうなりますか?', 'いまは、お試しで全員が無料です。有料になるときは、先にお知らせします。料金の予定は、「課金でできること」で見られます。'],
+  ['ほかの区でも使えますか?', 'いまは、世田谷区だけです。ほかの区は、あとで対応する予定です。']
+];
+function renderSet(){
+  var row = function(id, t, extra){ return '<button type="button" class="srow" data-s="' + id + '"><span>' + t + '</span><span aria-hidden="true">›</span></button>'; };
+  var h = '<section class="panel"><h2>設定</h2><div class="slist">'
+    + row('faq', 'よくある質問') + '<div id="hkFaq" hidden>' + FAQ.map(function(q){ return '<details class="faq"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '</div>'
+    + row('share', 'このアプリを友達に教える')
+    + row('mail', 'お問い合わせ')
+    + row('code', '購入コードを入れる・課金でできること')
+    + row('privacy', 'プライバシーポリシー')
+    + row('terms', '利用規約')
+    + row('tokusho', '特定商取引法に基づく表記')
+    + '</div><div id="hkSm" class="hint" role="status"></div><p class="hint" style="margin-top:14px">運営: ハリケア / お問い合わせ: ' + esc(CONTACT) + '</p></section>';
+  viewS.innerHTML = h;
+}
+function showSet(){
+  ['viewIndex', 'viewVisit', 'viewAbout'].forEach(function(id){ $(id).hidden = true; });
+  view.hidden = true; viewD.hidden = true; viewP.hidden = true; viewS.hidden = false;
+  TABIDS.concat(['tabDocs', 'tabPaid']).forEach(function(id){ $(id).setAttribute('aria-selected', 'false'); });
+  tbS.setAttribute('aria-selected', 'true');
+  document.querySelector('.bar').hidden = true;
+  renderSet(); window.scrollTo(0, 0);
+}
+tbS.addEventListener('click', showSet);
+Array.prototype.forEach.call(tabs.querySelectorAll('button'), function(b){ if(b !== tbS) b.addEventListener('click', function(){ if(b !== tbP) { viewS.hidden = true; tbS.setAttribute('aria-selected', 'false'); } }); });
+viewS.addEventListener('click', function(e){
+  var b = e.target.closest ? e.target.closest('[data-s]') : null; if(!b) return;
+  var k = b.getAttribute('data-s'), m = $('hkSm');
+  if(k === 'faq'){ var f = $('hkFaq'); f.hidden = !f.hidden; }
+  else if(k === 'share'){
+    var txt = '保活アプリ(世田谷区の保育園の申込みを手伝うアプリ)';
+    if(navigator.share) navigator.share({title: '保活アプリ', text: txt, url: APP_URL}).catch(function(){});
+    else copy(txt + '\n' + APP_URL, function(ok){ m.textContent = ok ? 'アドレスをコピーしました。LINEなどに貼り付けてください。' : APP_URL; });
+  }
+  else if(k === 'mail') location.href = 'mailto:' + CONTACT + '?subject=' + encodeURIComponent('保活アプリについて');
+  else if(k === 'code') showPaid();
+  else window.open(k + '.html', '_blank', 'noopener');
 });
 
 /* 無料版のひとことを、プラスへの案内に差し替える */
