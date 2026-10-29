@@ -14,6 +14,8 @@ var CR = '<svg class="cr" viewBox="0 0 32 32" width="18" height="18" aria-label=
 var TRIAL = true;
 var PAYLINK = '';
 var PRICE = '980円(税込)';
+var PAYLINK_M = ''; /* 月ごとのプランの支払いリンク */
+var sel = 'pack';
 var UNTIL = '2027年4月30日';
 var CODE_HASHES = [];
 var UL_KEY = 'hoikatsu-unlock-v1';
@@ -78,7 +80,8 @@ var QUESTIONS = [
 
 /* ===== 有料版のカギ ===== */
 function legalLinks(){ return '<a href="terms.html" target="_blank" rel="noopener">利用規約</a> / <a href="privacy.html" target="_blank" rel="noopener">プライバシー</a> / <a href="tokusho.html" target="_blank" rel="noopener">特定商取引法に基づく表記</a>'; }
-function buyHtml(){
+function buyHtml(onlyCode){
+  if(onlyCode) return '<label class="field">購入コードを持っているとき</label><div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>';
   return '<p style="margin:10px 0 4px"><b>' + CR + ' 令和9年4月入園パック ' + esc(PRICE) + '</b><br><span class="hint">1回の支払いで、' + esc(UNTIL) + 'まで、有料の機能がすべて使えます。夫婦の2人で使えます。</span></p>'
     + (PAYLINK ? '<a class="primary" href="' + esc(PAYLINK) + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:12px; border-radius:999px; font-weight:700; margin:8px 0">購入する</a>' : '<p class="hint">購入の受付は、準備中です。</p>')
     + '<label class="field">購入コードを持っているとき</label><div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>'
@@ -118,6 +121,7 @@ css.textContent = [
 '.tk input{width:26px; height:26px; flex:none; margin-top:2px}.tk .x{flex:1; min-width:0; overflow-wrap:anywhere}.tk .x small{display:block; color:var(--muted); font-size:13px}',
 '.tk.dn .x b{text-decoration:line-through; color:var(--muted)}',
 '.srow{display:flex; justify-content:space-between; align-items:center; width:100%; min-height:56px; padding:0 6px; background:none; border:0; border-top:1px solid var(--line); border-radius:0; box-shadow:none; font-size:16px; font-weight:700; text-align:left}.slist .srow:first-child{border-top:0}.faq{padding:8px 6px; border-top:1px dotted var(--line)}.faq summary{font-weight:700; font-size:15px; cursor:pointer}.faq p{margin:6px 0 0; font-size:14px; line-height:1.7}',
+'.plans{display:grid; gap:12px}.plan{display:grid; gap:4px; text-align:left; position:relative; padding:16px 16px 14px; min-height:0; border:2px solid var(--line); border-radius:20px; background:var(--surface); box-shadow:none; font-weight:400}.plan.on{border-color:var(--fg,#222); box-shadow:0 6px 14px rgba(0,0,0,.18); background:var(--field)}.plan .pb{position:absolute; top:-12px; right:14px; background:#d96b6b; color:#fff; font-size:13px; font-weight:700; border-radius:999px; padding:2px 14px}.plan .pn{font-size:15px; font-weight:700}.plan .pp b{font-size:26px; font-family:var(--font-display)}.plan .ps{font-size:13px; color:var(--muted)}.buy{display:block; width:100%; box-sizing:border-box; text-align:center; text-decoration:none; background:#2b2b2b; color:#fff; font-weight:700; font-size:17px; border:0; border-radius:16px; padding:16px; min-height:0}.buy[disabled]{opacity:.55}',
 '.tk.dk{padding:6px 0; gap:8px}.tk.dk .x{font-size:15px; line-height:1.4}.tk.dk details{margin:0}.tk.dk summary{font-size:12px; line-height:1.3; min-height:0; height:auto; margin:0; color:var(--muted); cursor:pointer; padding:0; width:max-content; display:list-item}.tk.dk .x b{display:inline}.tk.dk .sc{font-size:11px; padding:0 8px}.tk.dk input{width:24px; height:24px}.tk.dk small{margin-top:2px}',
 '.addtk{display:grid; gap:8px; margin-top:10px}',
 '#hkPlus details.plus{border-top:2px dotted var(--line); padding:10px 0}#hkPlus details.plus > summary{font-family:var(--font-display); font-weight:700; font-size:17px; cursor:pointer; padding:6px 0}',
@@ -735,9 +739,33 @@ var PAID = [
   ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦・家族での共有。'],
   ['wish', '希望園の並べ方', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。']
 ];
+function planHtml(){
+  var P = [
+    ['pack', '令和9年4月入園パック', '¥980', '', '1回払い・自動更新なし(' + UNTIL + 'まで)', 'おすすめ', PAYLINK],
+    ['month', '毎月プラン', '¥490', '/ 月', '毎月自動更新・いつでも解約', '', PAYLINK_M]
+  ];
+  var cur = P.filter(function(x){ return x[0] === sel; })[0];
+  var own = lsGet(UL_KEY, false) === true;
+  var h = '<div class="plans">';
+  P.forEach(function(x){
+    h += '<button type="button" class="plan' + (x[0] === sel ? ' on' : '') + '" data-plan="' + x[0] + '" aria-pressed="' + (x[0] === sel) + '">' + (x[5] ? '<span class="pb">' + x[5] + '</span>' : '') + '<span class="pn">' + x[1] + '</span><span class="pp"><b>' + x[2] + '</b> ' + x[3] + '</span><span class="ps">' + x[4] + '</span></button>';
+  });
+  h += '</div>';
+  h += '<div class="hint" style="text-align:center; margin:10px 0 6px"><a href="#" data-restore="1">購入を復元(購入コードを入れる)</a></div><div data-restorebox hidden>' + buyHtml(true) + '</div>';
+  h += '<p class="hint" style="text-align:center; margin:6px 0">' + legalLinks() + '</p>';
+  var notes = sel === 'pack'
+    ? ['お支払いは、1回だけです。自動で更新されることはありません。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', 'デジタルの機能のため、購入後の返金・キャンセルはできません。']
+    : ['有料プランは、毎月自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。', '日割りの返金はできません。'];
+  h += '<ul class="hint" style="padding-left:1.2em; margin:6px 0 12px; display:grid; gap:4px">' + notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + '</ul>';
+  if(TRIAL) h += '<button type="button" class="buy" disabled>いまは無料(お試し中)</button><p class="hint" style="text-align:center">有料になるときは、先にお知らせします。</p>';
+  else if(own) h += '<button type="button" class="buy" disabled>購入ずみ(' + esc(UNTIL) + 'まで)</button>';
+  else if(cur[6]) h += '<a class="buy" href="' + esc(cur[6]) + '" target="_blank" rel="noopener">このプランで始める</a>';
+  else h += '<button type="button" class="buy" disabled>購入の受付は、準備中です</button>';
+  return h;
+}
 function renderPaid(){
   var own = lsGet(UL_KEY, false) === true, st = TRIAL ? 'お試し中' : (own ? '使えます' : '有料');
-  var h = '<section class="panel"><h2>' + CR + ' 課金でできること</h2><p class="hint" style="margin:0">王冠のマークが付いた機能が、有料版の機能です。' + (TRIAL ? '<b>いまは、お試しで全員が無料で使えます。</b>有料になるときは、先にお知らせします。' : (own ? '<b>購入ずみです。' + esc(UNTIL) + 'まで使えます。</b>' : '')) + '</p>' + ((!TRIAL && !own) ? buyHtml() : '<p class="hint" style="margin-top:10px">' + (own ? '' : '料金の予定: ' + esc(PRICE) + '(令和9年4月入園パック・1回の支払い)<br>') + legalLinks() + '</p>') + '</section>';
+  var h = '<section class="panel"><h2>' + CR + ' 課金でできること</h2><p class="hint" style="margin:0 0 10px">王冠のマークが付いた機能が、有料版の機能です。' + (TRIAL ? '<b>いまは、お試しで全員が無料で使えます。</b>' : '') + '</p>' + planHtml() + '</section>';
   h += '<section class="panel">';
   PAID.forEach(function(x){
     h += '<div class="ev"><div class="d">' + CR + ' ' + esc(x[1]) + ' <span class="badge" style="font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px">' + st + '</span></div><div class="n">' + esc(x[2]) + '</div><button type="button" data-p="' + x[0] + '" style="width:max-content; min-height:40px; padding:0 18px; margin-top:4px">開く</button></div>';
@@ -756,6 +784,9 @@ function showPaid(){
 tbP.addEventListener('click', showPaid);
 Array.prototype.forEach.call(tabs.querySelectorAll('button'), function(b){ if(b !== tbP) b.addEventListener('click', hidePaid); });
 viewP.addEventListener('click', function(e){
+  var pl = e.target.closest && e.target.closest('[data-plan]');
+  if(pl){ sel = pl.getAttribute('data-plan'); renderPaid(); return; }
+  if(e.target.getAttribute && e.target.getAttribute('data-restore')){ e.preventDefault(); var rb = viewP.querySelector('[data-restorebox]'); rb.hidden = !rb.hidden; return; }
   var k = e.target.getAttribute && e.target.getAttribute('data-p');
   if(!k) return;
   if(k === 'sched') showSched();
