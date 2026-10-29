@@ -794,6 +794,46 @@ viewP.addEventListener('click', function(e){
   else { $('tabVisit').click(); setTimeout(function(){ var d = k === 'wish' ? $('hkD6') : null; if(d) d.open = true; var t = $(k === 'plus' ? 'hkPlus' : 'hkD6'); if(t) t.scrollIntoView(); }, 120); }
 });
 
+/* ===== パスコードロック ===== */
+var LK_KEY = 'hoikatsu-lock-v1';
+function lkGet(){ var o = lsGet(LK_KEY, null); return (o && o.salt && o.hash) ? o : null; }
+function lkHash(salt, code){ return sha256hex(salt + ':' + code); }
+function lkSalt(){ var a = new Uint8Array(12); crypto.getRandomValues(a); return Array.prototype.map.call(a, function(x){ return ('0' + x.toString(16)).slice(-2); }).join(''); }
+var lockEl = null, lastHidden = 0;
+function showLock(){
+  if(!lkGet() || lockEl) return;
+  lockEl = document.createElement('div'); lockEl.id = 'hkLock';
+  lockEl.setAttribute('style', 'position:fixed; inset:0; z-index:99999; background:var(--bg,#eef8fb); color:var(--text,inherit); display:grid; place-items:center; padding:24px');
+  lockEl.innerHTML = '<div style="width:100%; max-width:340px; text-align:center"><div style="font-size:44px">🔒</div><h2 style="margin:8px 0 4px; justify-content:center">パスコードを入れてください</h2><p class="hint" style="margin:0 0 14px">保活アプリ</p>'
+    + '<input type="password" inputmode="numeric" autocomplete="off" id="hkLkIn" aria-label="パスコード" style="width:100%; text-align:center; font-size:24px; letter-spacing:.3em">'
+    + '<button type="button" class="primary" id="hkLkGo" style="width:100%; margin-top:12px">開く</button><div class="hint" id="hkLkMsg" role="status" style="min-height:1.6em"></div>'
+    + '<details style="margin-top:14px"><summary class="hint" style="cursor:pointer">パスコードを忘れたとき</summary><p class="hint">忘れたときは、このアプリの記録をすべて消して、最初からにするしかありません(見学メモ、写真、チェックなど)。</p><button type="button" id="hkLkReset" style="width:100%">記録をすべて消して、ロックを外す</button></details></div>';
+  document.body.appendChild(lockEl);
+  var inp = lockEl.querySelector('#hkLkIn'), msg = lockEl.querySelector('#hkLkMsg'), tries = 0;
+  function tryOpen(){
+    var o = lkGet(); if(!o){ lockEl.remove(); lockEl = null; return; }
+    lkHash(o.salt, inp.value).then(function(h){
+      if(h === o.hash){ lockEl.remove(); lockEl = null; }
+      else { tries++; msg.textContent = 'パスコードが合いません。'; inp.value = ''; }
+    });
+  }
+  lockEl.querySelector('#hkLkGo').addEventListener('click', tryOpen);
+  inp.addEventListener('keydown', function(e){ if(e.key === 'Enter') tryOpen(); });
+  lockEl.querySelector('#hkLkReset').addEventListener('click', function(){
+    var b = this;
+    if(!b.getAttribute('data-ok')){ b.setAttribute('data-ok', '1'); b.textContent = 'もう一度押すと、本当に消えます'; return; }
+    try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('hoikatsu') === 0) localStorage.removeItem(k); }); }catch(e){}
+    try{ indexedDB.deleteDatabase('hoikatsu-photos'); }catch(e){}
+    setTimeout(function(){ location.reload(); }, 300);
+  });
+  setTimeout(function(){ inp.focus(); }, 50);
+}
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden) lastHidden = Date.now();
+  else if(lkGet() && lastHidden && Date.now() - lastHidden > 60000) showLock();
+});
+showLock();
+
 /* ===== 設定 ===== */
 var CONTACT = 'ponta04151207@gmail.com', APP_URL = 'https://ponta04151207-eng.github.io/hoikatsu-app/';
 var tbS = document.createElement('button');
@@ -819,6 +859,7 @@ function renderSet(){
     + row('share', 'このアプリを友達に教える')
     + row('mail', 'お問い合わせ')
     + row('code', '購入コードを入れる・課金でできること')
+    + row('lock', 'パスコードロック(' + (lkGet() ? 'オン' : 'オフ') + ')') + '<div id="hkLockBox" hidden></div>'
     + row('privacy', 'プライバシーポリシー')
     + row('terms', '利用規約')
     + row('tokusho', '特定商取引法に基づく表記')
@@ -846,7 +887,27 @@ viewS.addEventListener('click', function(e){
   }
   else if(k === 'mail') location.href = 'mailto:' + CONTACT + '?subject=' + encodeURIComponent('保活アプリについて');
   else if(k === 'code') showPaid();
+  else if(k === 'lock'){
+    var bx = $('hkLockBox'); bx.hidden = !bx.hidden; if(bx.hidden) return;
+    var on = !!lkGet();
+    bx.innerHTML = '<div style="padding:10px 6px">' + (on
+      ? '<p class="hint" style="margin:0 0 8px">ロックは、オンです。アプリを開いたときと、1分以上はなれて戻ったときに、パスコードを聞きます。</p><input type="password" inputmode="numeric" id="hkLk0" aria-label="いまのパスコード" placeholder="いまのパスコード" style="width:100%"><button type="button" id="hkLkOff" style="width:100%; margin-top:8px">ロックをオフにする</button>'
+      : '<p class="hint" style="margin:0 0 8px">4〜8けたの数字を決めてください。見学メモなどの画面を、他の人に見られないようにします。</p><input type="password" inputmode="numeric" id="hkLk1" aria-label="パスコード" placeholder="パスコード(4〜8けた)" style="width:100%"><input type="password" inputmode="numeric" id="hkLk2" aria-label="もう一度" placeholder="もう一度" style="width:100%; margin-top:8px"><button type="button" class="primary" id="hkLkOn" style="width:100%; margin-top:8px">ロックをオンにする</button><p class="hint" style="margin-top:8px"><b>忘れると、記録を消さないと開けません。</b>これは画面を隠す鍵で、データを暗号にするものではありません。</p>')
+      + '</div>';
+  }
   else window.open(k + '.html', '_blank', 'noopener');
+});
+viewS.addEventListener('click', function(e){
+  var id = e.target.id, m = $('hkSm');
+  if(id === 'hkLkOn'){
+    var a = $('hkLk1').value, b = $('hkLk2').value;
+    if(!/^[0-9]{4,8}$/.test(a)){ m.textContent = '数字を4〜8けたで入れてください。'; return; }
+    if(a !== b){ m.textContent = '2回の数字が合いません。'; return; }
+    var salt = lkSalt(); lkHash(salt, a).then(function(h){ lsSet(LK_KEY, {salt: salt, hash: h}); m.textContent = 'ロックをオンにしました。'; renderSet(); });
+  } else if(id === 'hkLkOff'){
+    var o = lkGet(); if(!o) return;
+    lkHash(o.salt, $('hkLk0').value).then(function(h){ if(h === o.hash){ try{ localStorage.removeItem(LK_KEY); }catch(e){} m.textContent = 'ロックをオフにしました。'; renderSet(); } else m.textContent = 'パスコードが合いません。'; });
+  }
 });
 
 /* 無料版のひとことを、プラスへの案内に差し替える */
