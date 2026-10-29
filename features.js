@@ -13,9 +13,9 @@ var CR = '<svg class="cr" viewBox="0 0 32 32" width="18" height="18" aria-label=
    CODE_HASHES: 購入コードの「ハッシュ」の一覧(tools/make_code.py で作ります)。コードそのものは、ここに書きません。 */
 var TRIAL = true;
 var PAYLINK = '';
-var PRICE = '980円(税込)';
+var PRICE = '490円(税込)/月';
 var PAYLINK_M = ''; /* 月ごとのプランの支払いリンク */
-var sel = 'pack';
+var sel = 'month';
 var UNTIL = '2027年4月30日';
 var CODE_HASHES = [];
 var UL_KEY = 'hoikatsu-unlock-v1';
@@ -82,8 +82,8 @@ var QUESTIONS = [
 function legalLinks(){ return '<a href="terms.html" target="_blank" rel="noopener">利用規約</a> / <a href="privacy.html" target="_blank" rel="noopener">プライバシー</a> / <a href="tokusho.html" target="_blank" rel="noopener">特定商取引法に基づく表記</a>'; }
 function buyHtml(onlyCode){
   if(onlyCode) return '<label class="field">購入コードを持っているとき</label><div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>';
-  return '<p style="margin:10px 0 4px"><b>' + CR + ' 令和9年4月入園パック ' + esc(PRICE) + '</b><br><span class="hint">1回の支払いで、' + esc(UNTIL) + 'まで、有料の機能がすべて使えます。夫婦の2人で使えます。</span></p>'
-    + (PAYLINK ? '<a class="primary" href="' + esc(PAYLINK) + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:12px; border-radius:999px; font-weight:700; margin:8px 0">購入する</a>' : '<p class="hint">購入の受付は、準備中です。</p>')
+  return '<p style="margin:10px 0 4px"><b>' + CR + ' 毎月プラン ' + esc(PRICE) + '</b><br><span class="hint">毎月自動で更新されます。いつでも解約できます。有料の機能がすべて使えます。夫婦の2人で使えます。</span></p>'
+    + (PAYLINK_M ? '<a class="primary" href="' + esc(PAYLINK_M) + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:12px; border-radius:999px; font-weight:700; margin:8px 0">購入する</a>' : '<p class="hint">購入の受付は、準備中です。</p>')
     + '<label class="field">購入コードを持っているとき</label><div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>'
     + '<p class="hint" style="margin-top:10px">' + legalLinks() + '</p>';
 }
@@ -741,7 +741,6 @@ var PAID = [
 ];
 function planHtml(){
   var P = [
-    ['pack', '令和9年4月入園パック', '¥980', '', '1回払い・自動更新なし(' + UNTIL + 'まで)', 'おすすめ', PAYLINK],
     ['month', '毎月プラン', '¥490', '/ 月', '毎月自動更新・いつでも解約', '', PAYLINK_M]
   ];
   var cur = P.filter(function(x){ return x[0] === sel; })[0];
@@ -753,24 +752,22 @@ function planHtml(){
   h += '</div>';
   h += '<div class="hint" style="text-align:center; margin:10px 0 6px"><a href="#" data-restore="1">購入を復元(購入コードを入れる)</a></div><div data-restorebox hidden>' + buyHtml(true) + '</div>';
   h += '<p class="hint" style="text-align:center; margin:6px 0">' + legalLinks() + '</p>';
-  var notes = sel === 'pack'
-    ? ['お支払いは、1回だけです。自動で更新されることはありません。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', 'デジタルの機能のため、購入後の返金・キャンセルはできません。']
-    : ['有料プランは、毎月自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。', '日割りの返金はできません。'];
+  var notes = ['有料プランは、毎月自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。', '日割りの返金はできません。'];
   h += '<ul class="hint" style="padding-left:1.2em; margin:6px 0 12px; display:grid; gap:4px">' + notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + '</ul>';
   if(TRIAL) h += '<button type="button" class="buy" disabled>いまは無料(お試し中)</button><p class="hint" style="text-align:center">有料になるときは、先にお知らせします。</p>';
-  else if(own) h += '<button type="button" class="buy" disabled>購入ずみ(' + esc(UNTIL) + 'まで)</button>';
+  else if(own) h += '<button type="button" class="buy" disabled>購入ずみ</button>';
   else if(cur[6]) h += '<a class="buy" href="' + esc(cur[6]) + '" target="_blank" rel="noopener">このプランで始める</a>';
   else h += '<button type="button" class="buy" disabled>購入の受付は、準備中です</button>';
   return h;
 }
 function renderPaid(){
   var own = lsGet(UL_KEY, false) === true, st = TRIAL ? 'お試し中' : (own ? '使えます' : '有料');
-  var h = '<section class="panel"><h2>' + CR + ' 課金でできること</h2><p class="hint" style="margin:0 0 10px">王冠のマークが付いた機能が、有料版の機能です。' + (TRIAL ? '<b>いまは、お試しで全員が無料で使えます。</b>' : '') + '</p>' + planHtml() + '</section>';
-  h += '<section class="panel">';
+  var h = '<section class="panel"><h2>' + CR + ' 課金でできること</h2><p class="hint" style="margin:0">王冠のマークが付いた機能が、有料版の機能です。' + (TRIAL ? '<b>いまは、お試しで全員が無料で使えます。</b>' : '') + '</p>';
   PAID.forEach(function(x){
     h += '<div class="ev"><div class="d">' + CR + ' ' + esc(x[1]) + ' <span class="badge" style="font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px">' + st + '</span></div><div class="n">' + esc(x[2]) + '</div><button type="button" data-p="' + x[0] + '" style="width:max-content; min-height:40px; padding:0 18px; margin-top:4px">開く</button></div>';
   });
-  h += '</section><section class="panel"><p class="hint" style="margin:0">無料のまま使えるもの: 点数シミュレーター、園を探す、園を比べる、見学メモ(3園まで)。</p></section>';
+  h += '<p class="hint" style="margin:10px 0 0">無料のまま使えるもの: 点数シミュレーター、園を探す、園を比べる、見学メモ(3園まで)。</p></section>';
+  h += '<section class="panel"><h2>' + CR + ' 料金プラン</h2>' + planHtml() + '</section>';
   viewP.innerHTML = h;
 }
 function showPaid(){
