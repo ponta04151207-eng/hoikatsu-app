@@ -142,7 +142,7 @@ css.textContent = [
 '.plans{display:grid; gap:12px}.plan{display:grid; gap:4px; text-align:left; position:relative; padding:16px 16px 14px; min-height:0; border:2px solid var(--line); border-radius:20px; background:var(--surface); box-shadow:none; font-weight:400}.plan.on{border-color:var(--fg,#222); box-shadow:0 6px 14px rgba(0,0,0,.18); background:var(--field)}.plan .pb{position:absolute; top:-12px; right:14px; background:#d96b6b; color:#fff; font-size:13px; font-weight:700; border-radius:999px; padding:2px 14px}.plan .pn{font-size:15px; font-weight:700}.plan .pp b{font-size:26px; font-family:var(--font-display)}.plan .ps{font-size:13px; color:var(--muted)}.buy{display:block; width:100%; box-sizing:border-box; text-align:center; text-decoration:none; background:#2b2b2b; color:#fff; font-weight:700; font-size:17px; border:0; border-radius:16px; padding:16px; min-height:0}.buy[disabled]{opacity:.55}',
 '.cal7{display:grid; grid-template-columns:repeat(7,1fr); gap:4px}.cal7 .wd{text-align:center; font-size:12px; font-weight:700; color:var(--muted); padding:2px 0}.cal7 .wd.su{color:var(--minus)}.cal7 .wd.sa{color:var(--accent)}',
 '.cday{position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:3px; min-height:46px; padding:5px 0 4px; border:2px solid transparent; border-radius:14px; background:var(--field); box-shadow:none; font-size:15px; font-weight:700; color:var(--fg,inherit)}',
-'.cday.out{background:none; opacity:.35}.cday.today{border-color:var(--accent)}.cday.sel{background:var(--accent); color:var(--accent-fg,#fff)}.cday .dots{display:flex; gap:3px; min-height:7px}.dt{width:8px; height:8px; border-radius:50%; display:inline-block; flex:none}',
+'.cday.out{background:none; opacity:.35}.cday.today{border-color:var(--accent)}.cday.sel{background:var(--accent); color:var(--accent-fg,#fff)}.cday .dots{display:flex; gap:1px; min-height:14px; flex-wrap:nowrap; white-space:nowrap; font-size:11px; line-height:1; font-weight:400}.cday.dl{background:#fdeceb; border-color:#e0524d}.cday.dl.sel{background:var(--accent); border-color:var(--accent)}.calform{border:2px dashed var(--line); border-radius:18px; padding:12px 14px; margin-top:14px}.calsteps{margin:6px 0; padding-left:1.4em; font-size:14px; line-height:1.7}.calpick{background:var(--accent-soft); border-radius:12px; padding:8px 12px; font-size:15px}.cleg{font-size:13px}.dt{width:8px; height:8px; border-radius:50%; display:inline-block; flex:none}',
 '.dt.k1{background:#e0524d}.dt.k2{background:#2a8fd0}.dt.k3{background:#3aa66a}.dt.k4{background:#e0a100}.dt.k5{background:#8a6fd0}.dt.k6{background:#17a2a2}.cday.sel .dt{outline:1.5px solid #fff}',
 '.calh{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}.calh b{font-size:18px}.calh button{min-height:40px; min-width:44px; padding:0 12px}',
 '.cleg{display:flex; flex-wrap:wrap; gap:4px 12px; font-size:12px; color:var(--muted); margin:8px 0}.cleg span{display:inline-flex; align-items:center; gap:4px}',
@@ -253,7 +253,7 @@ function allTasks(){
 }
 
 /* ===== 保活カレンダー(月のカレンダーで、この日は何があるかを見る) ===== */
-var KIND = {1: ['締切', '#e0524d'], 2: ['区の予定', '#2a8fd0'], 3: ['やること', '#3aa66a'], 4: ['見学', '#e0a100'], 5: ['自分の予定', '#8a6fd0'], 6: ['空き数の更新', '#17a2a2']};
+var KIND = {1: ['申込の締切', '🚩'], 2: ['区の予定', '🏛️'], 3: ['やること', '✅'], 4: ['見学', '👀'], 5: ['自分の予定', '⭐'], 6: ['空き数の更新', '🔄']};
 /* 空き数は、このアプリが、毎月1日と15日の午前10時ごろに、区のページから取り込みます(自動) */
 var NOTES = {'2027-01': '区が、令和9年4月(一次)の申込者数を公表する予定です。区は「今後公開予定」としか発表していません。1月ごろは、このアプリの目安で、区が決めた日ではありません。公表されたら、倍率を差し替えます。'};
 var calY = (new Date()).getFullYear(), calM = (new Date()).getMonth(), calSel = fmt(new Date());
@@ -274,16 +274,17 @@ function renderCal(){
   for(var d = 1; d <= dim; d++){
     var ds = calY + '-' + pad(calM + 1) + '-' + pad(d), it = dayItems(ds), kinds = {};
     it.forEach(function(x){ kinds[x.k] = 1; });
-    h += '<button type="button" class="cday' + (ds === today ? ' today' : '') + (ds === calSel ? ' sel' : '') + '" data-cd="' + ds + '" aria-label="' + (calM + 1) + '月' + d + '日 ' + it.length + '件"><span>' + d + '</span><span class="dots">' + Object.keys(kinds).slice(0, 4).map(function(k){ return '<i class="dt k' + k + '"></i>'; }).join('') + '</span></button>';
+    var ks = Object.keys(kinds).map(Number).sort();
+    h += '<button type="button" class="cday' + (ds === today ? ' today' : '') + (kinds[1] ? ' dl' : '') + (ds === calSel ? ' sel' : '') + '" data-cd="' + ds + '" aria-label="' + (calM + 1) + '月' + d + '日 ' + it.length + '件' + (kinds[1] ? '(申込の締切)' : '') + '"><span>' + d + '</span><span class="dots">' + ks.slice(0, 2).map(function(k){ return KIND[k][1]; }).join('') + (ks.length > 2 ? '+' : '') + '</span></button>';
   }
-  h += '</div><div class="cleg">' + [1, 2, 3, 4, 5, 6].map(function(k){ return '<span><i class="dt k' + k + '"></i>' + KIND[k][0] + '</span>'; }).join('') + '</div>';
+  h += '</div><div class="cleg">' + [1, 2, 3, 4, 5, 6].map(function(k){ return '<span>' + KIND[k][1] + ' ' + KIND[k][0] + '</span>'; }).join('') + '</div>';
   var nt = NOTES[calY + '-' + pad(calM + 1)];
   if(nt) h += '<p class="hint" style="margin:0 0 8px">📢 ' + esc(nt) + '</p>';
   var items = dayItems(calSel);
   h += '<h3 style="font-size:16px; margin:8px 0 4px">' + md(calSel) + (daysLeft(calSel) >= 0 ? ' <span class="sc">' + (daysLeft(calSel) === 0 ? '今日' : 'あと' + daysLeft(calSel) + '日') + '</span>' : '') + '</h3>';
   if(!items.length) h += '<p class="hint" style="margin:0">この日の予定は、ありません。</p>';
-  items.forEach(function(x){ h += '<div class="dd"><div class="t"><i class="dt k' + x.k + '" style="display:inline-block; margin-right:6px"></i>' + esc(x.t) + (x.done ? ' ✔' : '') + '</div><small>' + KIND[x.k][0] + (x.n ? ' / ' + esc(x.n) : '') + '</small></div>'; });
-  h += '<div class="addtk"><label class="field" for="hkCalT" style="margin:0">この日に、自分の予定を足す</label><input id="hkCalT" type="text" placeholder="例: ○○保育園の見学(10時)"><button type="button" class="primary" id="hkCalA">この日に足す</button></div>';
+  items.forEach(function(x){ h += '<div class="dd"><div class="t">' + KIND[x.k][1] + ' ' + esc(x.t) + (x.done ? ' ✔' : '') + '</div><small>' + KIND[x.k][0] + (x.n ? ' / ' + esc(x.n) : '') + '</small></div>'; });
+  h += '<div class="calform"><div style="font-weight:700; font-size:16px">✏️ 予定を入れる</div><ol class="calsteps"><li>上のカレンダーで、<b>日付をタップ</b>します。</li><li>下に、予定を書きます。</li><li>ボタンを押すと、その日に入ります。</li></ol><div class="calpick">選んでいる日: <b>' + md(calSel) + '</b></div><label class="field" for="hkCalT" style="margin:10px 0 4px">予定の内容</label><input id="hkCalT" type="text" placeholder="例: ○○保育園の見学(10時)"><button type="button" class="primary" id="hkCalA" style="width:100%; margin-top:8px">' + md(calSel) + 'に入れる</button></div>';
   box.innerHTML = h;
 }
 
