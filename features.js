@@ -352,8 +352,9 @@ function renderPhotos(){
   var v = curVisit(), box = $('hkPh');
   if(!v){ box.innerHTML = '<p class="hint">先に、見学した園を追加してください。</p>'; return; }
   photosOf(v.id).then(function(ps){
-    box.innerHTML = '<p class="hint" style="margin:0 0 8px">' + esc(v.name) + ' の写真(' + ps.length + '枚)。写真は、このスマホの中だけに保存され、共有コードやPDF以外では外に出ません。</p>'
+    box.innerHTML = '<p class="hint" style="margin:0 0 8px">' + esc(v.name) + ' の写真(' + ps.length + '枚)。写真は、このスマホの中だけに保存されます。夫婦で共有するときは、下の「この園の写真を送る」を使います。</p>'
       + '<label class="primary" style="display:flex; align-items:center; justify-content:center; min-height:52px; border-radius:999px; background:var(--accent); color:var(--accent-fg); font-weight:700; cursor:pointer">📷 写真を選ぶ・撮る<input id="hkFile" type="file" accept="image/*" multiple hidden></label>'
+      + (ps.length ? '<button type="button" id="hkPhSend" style="width:100%; margin-top:8px">📤 この園の写真を送る(LINEなど)</button><div class="hint" id="hkPhM" role="status"></div>' : '')
       + '<div class="ph">' + ps.map(function(p){ return '<figure data-k="' + esc(p.k) + '"><img src="' + p.d + '" alt="見学の写真"><button type="button" aria-label="写真を削除">✕</button></figure>'; }).join('') + '</div>';
     $('hkFile').addEventListener('change', function(e){
       var fs = Array.prototype.slice.call(e.target.files || []), n = fs.length;
@@ -365,6 +366,18 @@ function renderPhotos(){
           tx('readwrite', function(s){ return s.put({k: v.id + ':' + Date.now() + ':' + i, v: v.id, t: Date.now() + i, d: d}); }).then(done, done);
         });
       });
+    });
+    var sb = $('hkPhSend');
+    if(sb) sb.addEventListener('click', function(){
+      var m = $('hkPhM');
+      var files = ps.map(function(p, i){
+        var a = p.d.split(','), bin = atob(a[1]), u = new Uint8Array(bin.length);
+        for(var j = 0; j < bin.length; j++) u[j] = bin.charCodeAt(j);
+        return new File([u], (v.name || '見学') + '-' + (i + 1) + '.jpg', {type: 'image/jpeg'});
+      });
+      if(navigator.canShare && navigator.canShare({files: files}))
+        navigator.share({files: files, title: v.name + ' の写真', text: v.name + ' の見学の写真です。'}).catch(function(){});
+      else m.textContent = 'このブラウザでは、まとめて送れません。写真を長押しして、保存してから送ってください。';
     });
     Array.prototype.forEach.call(box.querySelectorAll('figure'), function(fg){
       fg.querySelector('img').addEventListener('click', function(){ fg.classList.toggle('big'); });
@@ -509,7 +522,7 @@ $('hkS4').addEventListener('click', function(){
   if(!shareData().v.length){ m.textContent = '見学した園を、先に追加してください。'; return; }
   encodeShare(shareData()).then(function(code){
     var url = SHARE_BASE + '#hk=' + code;
-    var text = '見学メモを送ります。このリンクをタップすると、保活アプリで取り込めます。(写真は入りません)';
+    var text = '見学メモを送ります。このリンクをタップすると、保活アプリで取り込めます。(写真は入りません。写真は、別に送ります)';
     if(navigator.share) navigator.share({title: '保活アプリ 見学メモ', text: text, url: url}).catch(function(){});
     else copy(text + '\n' + url, function(ok){ m.textContent = ok ? 'リンクをコピーしました。LINEなどに貼り付けて送ってください。' : 'コピーできませんでした。'; });
   });
