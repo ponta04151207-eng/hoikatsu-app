@@ -10,7 +10,8 @@ var CR = '<svg class="cr" viewBox="0 0 32 32" width="18" height="18" aria-label=
 /* ===== 有料版の設定 =====
    TRIAL = true の間は、有料の機能を全員に開けておきます(お試し)。有料を始めるときに false にします。
    PAYLINK: Stripeの「支払いリンク」のURL。空のあいだは、購入ボタンは出ません。
-   CODE_HASHES: 購入コードの「ハッシュ」の一覧(tools/make_code.py で作ります)。コードそのものは、ここに書きません。 */
+   CODE_HASHES: 購入コードの「ハッシュ」と有効期限の一覧(tools/make_code.py で作ります)。例: ['ハッシュ', '2026-11-30']
+   コードそのものは、ここに書きません。期限が過ぎると、有料の機能は閉じます。更新のコードを入れると、また開きます。 */
 var TRIAL = true;
 var PAYLINK = '';
 var PRICE = '490円(税込)/月';
@@ -19,7 +20,9 @@ var sel = 'month';
 var UNTIL = '2027年4月30日';
 var CODE_HASHES = [];
 var UL_KEY = 'hoikatsu-unlock-v1';
-var PREMIUM = TRIAL || lsGet(UL_KEY, false) === true;
+function unlockUntil(){ var o = lsGet(UL_KEY, null); return (o && typeof o === 'object' && o.until) ? o.until : null; }
+function unlockActive(){ var u = unlockUntil(); if(!u) return false; var t = new Date(); var today = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); return u >= today; }
+var PREMIUM = TRIAL || unlockActive();
 
 function lsGet(k, d){ try{ var s = localStorage.getItem(k); return s === null ? d : JSON.parse(s); }catch(e){ return d; } }
 function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -99,7 +102,12 @@ document.addEventListener('click', function(e){
   if(!code){ msg.textContent = 'コードを入れてください。'; return; }
   if(!(window.crypto && crypto.subtle)){ msg.textContent = 'この環境では確認できません。別のブラウザで開いてください。'; return; }
   sha256hex(code).then(function(h){
-    if(CODE_HASHES.indexOf(h) >= 0){ lsSet(UL_KEY, true); msg.textContent = '開きました。画面を読み直します。'; setTimeout(function(){ location.reload(); }, 600); }
+    var hit = CODE_HASHES.filter(function(x){ return x[0] === h; })[0];
+    if(hit){
+      var t = new Date(), today = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2);
+      if(hit[1] < today){ msg.textContent = 'このコードは、有効期限(' + hit[1] + ')が過ぎています。新しいコードを入れてください。'; return; }
+      lsSet(UL_KEY, {until: hit[1]}); msg.textContent = '開きました。画面を読み直します。'; setTimeout(function(){ location.reload(); }, 600);
+    }
     else msg.textContent = 'コードが合いません。購入のあとに表示された、コードを確認してください。';
   });
 });
@@ -744,7 +752,7 @@ function planHtml(){
     ['month', '毎月プラン', '¥490', '/ 月', '毎月自動更新・いつでも解約', '', PAYLINK_M]
   ];
   var cur = P.filter(function(x){ return x[0] === sel; })[0];
-  var own = lsGet(UL_KEY, false) === true;
+  var own = unlockActive(), exp = unlockUntil() && !own;
   var h = '<div class="plans">';
   P.forEach(function(x){
     h += '<button type="button" class="plan' + (x[0] === sel ? ' on' : '') + '" data-plan="' + x[0] + '" aria-pressed="' + (x[0] === sel) + '">' + (x[5] ? '<span class="pb">' + x[5] + '</span>' : '') + '<span class="pn">' + x[1] + '</span><span class="pp"><b>' + x[2] + '</b> ' + x[3] + '</span><span class="ps">' + x[4] + '</span></button>';
@@ -754,14 +762,15 @@ function planHtml(){
   h += '<p class="hint" style="text-align:center; margin:6px 0">' + legalLinks() + '</p>';
   var notes = ['有料プランは、毎月自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。', '日割りの返金はできません。'];
   h += '<ul class="hint" style="padding-left:1.2em; margin:6px 0 12px; display:grid; gap:4px">' + notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + '</ul>';
+  if(exp && !TRIAL) h += '<p class="hint" style="color:var(--minus); text-align:center"><b>有効期限(' + esc(unlockUntil()) + ')が過ぎました。</b>更新のコードを入れてください。</p>';
   if(TRIAL) h += '<button type="button" class="buy" disabled>いまは無料(お試し中)</button><p class="hint" style="text-align:center">有料になるときは、先にお知らせします。</p>';
-  else if(own) h += '<button type="button" class="buy" disabled>購入ずみ</button>';
+  else if(own) h += '<button type="button" class="buy" disabled>使えます(' + esc(unlockUntil()) + 'まで)</button><p class="hint" style="text-align:center">更新のコードは、期限の前にお知らせします。</p>';
   else if(cur[6]) h += '<a class="buy" href="' + esc(cur[6]) + '" target="_blank" rel="noopener">このプランで始める</a>';
   else h += '<button type="button" class="buy" disabled>購入の受付は、準備中です</button>';
   return h;
 }
 function renderPaid(){
-  var own = lsGet(UL_KEY, false) === true, st = TRIAL ? 'お試し中' : (own ? '使えます' : '有料');
+  var own = unlockActive(), st = TRIAL ? 'お試し中' : (own ? '使えます' : '有料');
   var h = '<section class="panel"><h2>' + CR + ' 課金でできること</h2><p class="hint" style="margin:0">王冠のマークが付いた機能が、有料版の機能です。' + (TRIAL ? '<b>いまは、お試しで全員が無料で使えます。</b>' : '') + '</p>';
   PAID.forEach(function(x){
     h += '<div class="ev"><div class="d">' + CR + ' ' + esc(x[1]) + ' <span class="badge" style="font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px">' + st + '</span></div><div class="n">' + esc(x[2]) + '</div><button type="button" data-p="' + x[0] + '" style="width:max-content; min-height:40px; padding:0 18px; margin-top:4px">開く</button></div>';
