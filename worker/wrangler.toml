@@ -1,0 +1,12 @@
+name = "hoikatsu-api"
+main = "index.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+ALLOW_ORIGIN = "https://ponta04151207-eng.github.io"
+APP_URL = "https://ponta04151207-eng.github.io/hoikatsu-app/"
+
+# KVの名前空間を作ったあと、下の id を書き換えます(worker/README.md の手順)
+[[kv_namespaces]]
+binding = "SUBS"
+id = "ここにKVのIDを入れる"

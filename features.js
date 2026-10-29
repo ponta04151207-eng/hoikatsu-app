@@ -19,7 +19,9 @@ var PAYLINK_M = ''; /* 月ごとのプランの支払いリンク */
 var sel = 'month';
 var UNTIL = '2027年4月30日';
 var CODE_HASHES = [];
+var API_URL = ''; /* 購入の確認サーバー(worker/)のアドレス。空のあいだは、手で渡すコードだけが使えます */
 var UL_KEY = 'hoikatsu-unlock-v1';
+function unlockTok(){ var o = lsGet(UL_KEY, null); return (o && typeof o === 'object' && o.tok) ? o.tok : null; }
 function unlockUntil(){ var o = lsGet(UL_KEY, null); return (o && typeof o === 'object' && o.until) ? o.until : null; }
 function unlockActive(){ var u = unlockUntil(); if(!u) return false; var t = new Date(); var today = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); return u >= today; }
 var PREMIUM = TRIAL || unlockActive();
@@ -107,6 +109,14 @@ document.addEventListener('click', function(e){
       var t = new Date(), today = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2);
       if(hit[1] < today){ msg.textContent = 'このコードは、有効期限(' + hit[1] + ')が過ぎています。新しいコードを入れてください。'; return; }
       lsSet(UL_KEY, {until: hit[1]}); msg.textContent = '開きました。画面を読み直します。'; setTimeout(function(){ location.reload(); }, 600);
+    }
+    else if(API_URL){
+      var tk = code;
+      fetch(API_URL + '/status?token=' + encodeURIComponent(tk)).then(function(r){ return r.json().then(function(j){ return [r.status, j]; }); }).then(function(a){
+        if(a[0] === 200 && a[1].active){ lsSet(UL_KEY, {until: a[1].until, tok: tk}); msg.textContent = '開きました。画面を読み直します。'; setTimeout(function(){ location.reload(); }, 600); }
+        else if(a[0] === 200) msg.textContent = 'このコードの有効期限が過ぎています。';
+        else msg.textContent = 'コードが合いません。購入のあとに表示された、コードを確認してください。';
+      }).catch(function(){ msg.textContent = '通信できませんでした。電波のよいところで、もう一度どうぞ。'; });
     }
     else msg.textContent = 'コードが合いません。購入のあとに表示された、コードを確認してください。';
   });
@@ -760,11 +770,14 @@ function planHtml(){
   h += '</div>';
   h += '<div class="hint" style="text-align:center; margin:10px 0 6px"><a href="#" data-restore="1">購入を復元(購入コードを入れる)</a></div><div data-restorebox hidden>' + buyHtml(true) + '</div>';
   h += '<p class="hint" style="text-align:center; margin:6px 0">' + legalLinks() + '</p>';
-  var notes = ['有料プランは、毎月自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。', '日割りの返金はできません。'];
+  var notes = ['有料プランは、毎月自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', (API_URL ? '解約は、このページの「解約・支払い方法の変更」からできます。次の更新から、請求されなくなります。' : '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。'), '日割りの返金はできません。'];
   h += '<ul class="hint" style="padding-left:1.2em; margin:6px 0 12px; display:grid; gap:4px">' + notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + '</ul>';
+  if(API_URL && unlockTok()){
+    h += '<div class="hint" style="margin:10px 0"><b>あなたの購入コード</b>(別の端末や、夫婦で使うときに入れます)<br><span style="font-size:18px; letter-spacing:.08em; font-weight:700; user-select:all">' + esc(unlockTok().replace(/(.{4})/g, '$1-').replace(/-$/, '')) + '</span></div><button type="button" data-portal="1" style="width:100%; margin-bottom:10px">解約・支払い方法の変更</button><div class="hint" data-pm role="status"></div>';
+  }
   if(exp && !TRIAL) h += '<p class="hint" style="color:var(--minus); text-align:center"><b>有効期限(' + esc(unlockUntil()) + ')が過ぎました。</b>更新のコードを入れてください。</p>';
   if(TRIAL) h += '<button type="button" class="buy" disabled>いまは無料(お試し中)</button><p class="hint" style="text-align:center">有料になるときは、先にお知らせします。</p>';
-  else if(own) h += '<button type="button" class="buy" disabled>使えます(' + esc(unlockUntil()) + 'まで)</button><p class="hint" style="text-align:center">更新のコードは、期限の前にお知らせします。</p>';
+  else if(own) h += '<button type="button" class="buy" disabled>使えます(' + esc(unlockUntil()) + 'まで)</button><p class="hint" style="text-align:center">' + (API_URL ? '毎月、自動で更新されます。' : '更新のコードは、期限の前にお知らせします。') + '</p>';
   else if(cur[6]) h += '<a class="buy" href="' + esc(cur[6]) + '" target="_blank" rel="noopener">このプランで始める</a>';
   else h += '<button type="button" class="buy" disabled>購入の受付は、準備中です</button>';
   return h;
@@ -790,6 +803,11 @@ function showPaid(){
 tbP.addEventListener('click', showPaid);
 Array.prototype.forEach.call(tabs.querySelectorAll('button'), function(b){ if(b !== tbP) b.addEventListener('click', hidePaid); });
 viewP.addEventListener('click', function(e){
+  if(e.target.getAttribute && e.target.getAttribute('data-portal')){
+    var pm = viewP.querySelector('[data-pm]'); pm.textContent = '開いています…';
+    fetch(API_URL + '/portal?token=' + encodeURIComponent(unlockTok())).then(function(r){ return r.json(); }).then(function(j){ if(j.url){ pm.textContent = ''; window.open(j.url, '_blank', 'noopener'); } else pm.textContent = '開けませんでした。お問い合わせのメールでご連絡ください。'; }).catch(function(){ pm.textContent = '通信できませんでした。'; });
+    return;
+  }
   var pl = e.target.closest && e.target.closest('[data-plan]');
   if(pl){ sel = pl.getAttribute('data-plan'); renderPaid(); return; }
   if(e.target.getAttribute && e.target.getAttribute('data-restore')){ e.preventDefault(); var rb = viewP.querySelector('[data-restorebox]'); rb.hidden = !rb.hidden; return; }
@@ -915,6 +933,28 @@ viewS.addEventListener('click', function(e){
     lkHash(o.salt, $('hkLk0').value).then(function(h){ if(h === o.hash){ try{ localStorage.removeItem(LK_KEY); }catch(e){} m.textContent = 'ロックをオフにしました。'; renderSet(); } else m.textContent = 'パスコードが合いません。'; });
   }
 });
+
+/* ===== 購入の確認サーバーとのやりとり(API_URLが入っているときだけ) ===== */
+if(API_URL){
+  var q = location.search.match(/[?&]paid=(cs_[A-Za-z0-9_]+)/);
+  if(q){
+    fetch(API_URL + '/claim?session=' + encodeURIComponent(q[1])).then(function(r){ return r.json(); }).then(function(j){
+      if(!j.token) throw 0;
+      return fetch(API_URL + '/status?token=' + j.token).then(function(r){ return r.json(); }).then(function(st){ lsSet(UL_KEY, {until: st.until, tok: j.token}); });
+    }).then(function(){ try{ sessionStorage.setItem('hk-show-paid', '1'); }catch(e){} location.replace(location.pathname); })
+    .catch(function(){ history.replaceState(null, '', location.pathname); alert_('購入の確認ができませんでした。時間をおいて、もう一度開いてください。それでもだめなときは、設定のお問い合わせへ。'); });
+  } else if(unlockTok()){
+    fetch(API_URL + '/status?token=' + unlockTok()).then(function(r){ return r.json(); }).then(function(st){
+      if(st && st.until !== undefined){
+        var was = PREMIUM, o = lsGet(UL_KEY, {}); o.until = st.active ? st.until : (st.until || o.until);
+        lsSet(UL_KEY, o);
+        if(!TRIAL && was !== unlockActive()){ location.reload(); }
+      }
+    }).catch(function(){});
+  }
+  try{ if(sessionStorage.getItem('hk-show-paid') === '1'){ sessionStorage.removeItem('hk-show-paid'); setTimeout(showPaid, 50); } }catch(e){}
+}
+function alert_(t){ var b = document.createElement('div'); b.className = 'hkb on'; b.innerHTML = '<span class="t">' + esc(t) + '</span>'; tabs.parentNode.insertBefore(b, tabs); }
 
 /* 無料版のひとことを、プラスへの案内に差し替える */
 var hint = $('vCmpHint');
