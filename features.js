@@ -346,6 +346,12 @@ view.addEventListener('click', function(e){
   }
 });
 renderBanner();
+(function(){
+  var lead = document.querySelector('.lead'); if(!lead || document.getElementById('hkUpd')) return;
+  var n = document.createElement('p'); n.id = 'hkUpd'; n.className = 'hint'; n.style.margin = '6px 0 0';
+  n.textContent = '🔄 毎月、新しい情報に更新しています(空き数の最終更新: ' + lastUpd() + ')';
+  lead.parentNode.insertBefore(n, lead.nextSibling);
+})();
 
 /* ===== 見学メモ プラス ===== */
 var vSec = $('vList').closest('section');
@@ -912,7 +918,7 @@ function planHtml(){
 }
 function renderPaid(){
   var own = unlockActive(), st = TRIAL ? 'お試し中' : (own ? '使えます' : '有料');
-  var h = '<section class="panel"><h2>' + CR + ' 課金でできること</h2><p class="hint" style="margin:0">王冠のマークが付いた機能が、有料版の機能です。' + (TRIAL ? '<b>いまは、お試しで全員が無料で使えます。</b>' : '') + '</p>';
+  var h = '<section class="panel"><h2>' + CR + ' 課金でできること</h2><p class="hint" style="margin:0">王冠のマークが付いた機能が、有料版の機能です。毎月、区の最新の情報に更新しています。' + (TRIAL ? '<b>いまは、お試しで全員が無料で使えます。</b>' : '') + '</p>';
   PAID.forEach(function(x){
     h += '<div class="ev"><div class="d">' + CR + ' ' + esc(x[1]) + ' <span class="badge" style="font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px">' + st + '</span></div><div class="n">' + esc(x[2]) + '</div><button type="button" data-p="' + x[0] + '" style="width:max-content; min-height:40px; padding:0 18px; margin-top:4px">開く</button></div>';
   });
@@ -996,11 +1002,12 @@ $('tabFind').style.gridColumn = 'span 4'; $('tabCmp').style.gridColumn = 'span 4
 $('tabAbout').style.gridColumn = 'span 6'; tbS.style.gridColumn = 'span 6';
 var viewS = document.createElement('div'); viewS.id = 'viewSet'; viewS.hidden = true;
 view.parentNode.insertBefore(viewS, view);
+function lastUpd(){ return (window.SHISUU_NOW && window.SHISUU_NOW.checkedOn) || '―'; }
 var FAQ = [
   ['入力した内容は、どこに保存されますか?', 'お使いのスマホのブラウザの中だけです。運営者のサーバーには送られません。ブラウザのデータを消したり、端末を変えたりすると、消えます。大切な記録は、PDFなどで控えてください。'],
   ['夫婦で見学メモを共有できますか?', '「見学メモ プラス」の「夫婦・家族で共有する」で、「LINEなどで送る」を押します。届いたリンクを相手がタップして、「取り込む」を押すだけです。写真は共有されません。'],
   ['表示される指数や倍率は、正しいですか?', '区が公表した資料をもとにした目安です。実際の指数、日程、必要書類は、区の資料で決まります。申込みの前に、必ず区の資料で確認してください。'],
-  ['空き数は、いつ更新されますか?', '毎月1日と15日の朝に、区のページから自動で更新します。区の更新が古いときは、赤い印が出ます。'],
+  ['情報は、新しいですか? いつ更新されますか?', '毎月、新しい情報に更新しています。園の空き数は、毎月1日と15日の朝に、区のページから自動で取り込みます。日程や必要書類などは、区が発表したときに、見直して直します。区の更新が古いときは、赤い印が出ます。それぞれの画面に、出典と確認日を載せています。'],
   ['有料の機能は、どうなりますか?', 'いまは、お試しで全員が無料です。有料になるときは、先にお知らせします。料金の予定は、「課金でできること」で見られます。'],
   ['ほかの区でも使えますか?', 'いまは、世田谷区だけです。ほかの区は、あとで対応する予定です。']
 ];
@@ -1015,7 +1022,7 @@ function renderSet(){
     + row('privacy', 'プライバシーポリシー')
     + row('terms', '利用規約')
     + row('tokusho', '特定商取引法に基づく表記')
-    + '</div><div id="hkSm" class="hint" role="status"></div><p class="hint" style="margin-top:14px">運営: ハリケア / お問い合わせ: ' + esc(CONTACT) + '</p></section>';
+    + '</div><div id="hkSm" class="hint" role="status"></div><p class="hint" style="margin-top:14px">🔄 毎月、新しい情報に更新しています(空き数: 毎月1日・15日 / 最後の更新: ' + esc(lastUpd()) + ')。</p><p class="hint">運営: ハリケア / お問い合わせ: ' + esc(CONTACT) + '</p></section>';
   viewS.innerHTML = h;
 }
 function showSet(){
