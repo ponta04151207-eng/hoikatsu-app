@@ -888,7 +888,7 @@ function hidePaid(){ viewP.hidden = true; tbP.setAttribute('aria-selected', 'fal
 var PAID = [
   ['sched', 'スケジュール', '区の申込みの日程と、やることリスト。締切が近づくと、画面の上にお知らせが出ます。カレンダーにも入れられます。'],
   ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
-  ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦・家族での共有。'],
+  ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。'],
   ['wish', '希望園の並べ方', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。']
 ];
 function planHtml(){
@@ -1005,7 +1005,7 @@ view.parentNode.insertBefore(viewS, view);
 function lastUpd(){ return (window.SHISUU_NOW && window.SHISUU_NOW.checkedOn) || '―'; }
 var FAQ = [
   ['入力した内容は、どこに保存されますか?', 'お使いのスマホのブラウザの中だけです。運営者のサーバーには送られません。ブラウザのデータを消したり、端末を変えたりすると、消えます。大切な記録は、PDFなどで控えてください。'],
-  ['夫婦で見学メモを共有できますか?', '「見学メモ プラス」の「夫婦・家族で共有する」で、「LINEなどで送る」を押します。届いたリンクを相手がタップして、「取り込む」を押すだけです。写真は共有されません。'],
+  ['夫婦でメモをそろえられますか?', '「見学メモ プラス」の「夫婦で同期する」で、部屋を作り、LINEで相手に送ります。相手がリンクをタップして参加すると、2人の見学メモ・質問・希望園・書類・予定のチェックが自動でそろいます。写真は同期されません。同期をオンにすると内容がサーバーに置かれます(くわしくはプライバシーの案内)。使わないなら、LINEなどで1回だけ送る方法もあります。'],
   ['表示される指数や倍率は、正しいですか?', '区が公表した資料をもとにした目安です。実際の指数、日程、必要書類は、区の資料で決まります。申込みの前に、必ず区の資料で確認してください。'],
   ['情報は、新しいですか? いつ更新されますか?', '毎月、新しい情報に更新しています。園の空き数は、毎月1日と15日の朝に、区のページから自動で取り込みます。日程や必要書類などは、区が発表したときに、見直して直します。区の更新が古いときは、赤い印が出ます。それぞれの画面に、出典と確認日を載せています。'],
   ['有料の機能は、どうなりますか?', 'いまは、お試しで全員が無料です。有料になるときは、先にお知らせします。料金の予定は、「課金でできること」で見られます。'],
@@ -1205,6 +1205,159 @@ var azTimer = null;
 viewAz.addEventListener('input', function(e){
   if(e.target.id === 'hkAzQ'){ azF.q = e.target.value; azShown = 20; clearTimeout(azTimer); azTimer = setTimeout(function(){ azKeep = true; renderAz(); azKeep = false; }, 250); }
 });
+
+/* ===== 夫婦の同期(部屋のコードで、2人の見学メモなどを自動でそろえる) ===== */
+var SY_KEY = 'hoikatsu-sync-v1';
+var sy = lsGet(SY_KEY, {code: '', last: 0, off: 0, snap: {}});
+function sySave(){ lsSet(SY_KEY, sy); }
+var syDefD = JSON.stringify({a: 'work', b: 'work', opts: {}, done: {}, way: 'mail'});
+function syLocal(){
+  var m = {};
+  vis().filter(function(v){ return !v.ex; }).forEach(function(v){ m['v:' + v.id] = v; });
+  Object.keys(qd.a || {}).forEach(function(id){ m['qa:' + id] = qd.a[id]; });
+  (qd.custom || []).forEach(function(c){ m['qc:' + c.id] = c; });
+  Object.keys(sched.done || {}).forEach(function(k){ m['sd:' + k] = sched.done[k]; });
+  (sched.custom || []).forEach(function(c){ m['sc:' + c.id] = c; });
+  if(JSON.stringify(wish) !== '[]' || sy.snap.w) m.w = wish;
+  if(JSON.stringify(dd) !== syDefD || sy.snap.d) m.d = dd;
+  return m;
+}
+function syCopy(t, done){ if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ done(true); }, function(){ done(false); }); else done(false); }
+function syNow(){ return Date.now() + (sy.off || 0); }
+function syOut(local){
+  var out = {}, now = syNow();
+  Object.keys(local).forEach(function(k){
+    var h = JSON.stringify(local[k]), sn = sy.snap[k];
+    out[k] = {t: (sn && !sn.x && sn.h === h) ? sn.t : now, d: local[k]};
+  });
+  Object.keys(sy.snap).forEach(function(k){
+    if(out[k]) return;
+    var sn = sy.snap[k];
+    out[k] = sn.x ? {t: sn.t, x: 1} : {t: now, x: 1};
+  });
+  return out;
+}
+function syUpsert(arr, o){ for(var i = 0; i < arr.length; i++) if(arr[i].id === o.id){ arr[i] = o; return; } arr.push(o); }
+function syApply(items, out){
+  var changed = false, list = vis().filter(function(v){ return !v.ex; }), vch = false;
+  Object.keys(items).forEach(function(k){
+    var it = items[k], mine = out[k];
+    if(mine && it.t <= mine.t) return;
+    changed = true;
+    var i = k.indexOf(':'), ty = i < 0 ? k : k.slice(0, i), id = i < 0 ? '' : k.slice(i + 1);
+    if(ty === 'v'){ vch = true; list = list.filter(function(v){ return String(v.id) !== id; }); if(!it.x) list.push(it.d); }
+    else if(ty === 'qa'){ if(it.x) delete qd.a[id]; else qd.a[id] = it.d; }
+    else if(ty === 'qc'){ qd.custom = (qd.custom || []).filter(function(c){ return String(c.id) !== id; }); if(!it.x) qd.custom.push(it.d); }
+    else if(ty === 'sd'){ if(it.x) delete sched.done[id]; else sched.done[id] = it.d; }
+    else if(ty === 'sc'){ sched.custom = (sched.custom || []).filter(function(c){ return String(c.id) !== id; }); if(!it.x) sched.custom.push(it.d); }
+    else if(ty === 'w'){ if(!it.x) wish = it.d; }
+    else if(ty === 'd'){ if(!it.x) dd = it.d; }
+  });
+  if(changed){ if(vch) HK.setVisits(list); lsSet(Q_KEY, qd); lsSet(S_KEY, sched); lsSet(W_KEY, wish); lsSet(D_KEY, dd); }
+  return changed;
+}
+var syBusy = false, syMsg = '';
+function syRender(){
+  var b = $('hkSy'); if(!b) return;
+  if(!API_URL){ b.innerHTML = '<p class="hint" style="margin:0">夫婦の自動同期は、準備中です。いまは、下の「1回だけ送る」を使ってください。</p>'; return; }
+  var h = '';
+  if(!sy.code){
+    h = '<p class="hint" style="margin:0 0 8px">2人のスマホで、見学メモ・質問・希望園・書類・予定のチェックが、自動でそろいます。片方の「部屋」を作って、もう片方がコードで参加します。<br><b>保存について</b>: 同期をつけると、これらの内容が運営者のサーバーに、暗号なしで置かれます(部屋のコードを知る人だけが読み書きできます)。写真は同期されません。最後に使ってから180日で消えます。</p>'
+      + '<button type="button" class="primary" data-sy="new" style="width:100%; margin-bottom:8px">夫婦の同期を始める(部屋を作る)</button>'
+      + '<label class="field" for="hkSyIn">相手から、部屋のコードを受け取ったとき</label><input id="hkSyIn" placeholder="12文字のコード" autocomplete="off" autocapitalize="characters" style="width:100%"><button type="button" data-sy="join" style="width:100%; margin-top:8px">この部屋に参加する</button>';
+  } else {
+    var c = sy.code.replace(/(.{4})/g, '$1 ').trim();
+    h = '<p style="margin:0 0 6px"><b>✅ 同期中</b> <span class="hint">' + (sy.last ? '最後の同期: ' + new Date(sy.last).toLocaleTimeString('ja-JP', {hour: '2-digit', minute: '2-digit'}) : 'これから同期します') + '</span></p>'
+      + '<div class="hint" style="margin:0 0 8px">部屋のコード(あいことば。他の人には教えないでください)<br><span style="font-size:18px; font-weight:700; letter-spacing:.08em; user-select:all">' + esc(c) + '</span></div>'
+      + '<button type="button" class="primary" data-sy="send" style="width:100%; margin-bottom:8px">LINEなどで相手に送る(タップで参加)</button>'
+      + '<button type="button" data-sy="now" style="width:100%; margin-bottom:8px">今すぐ同期する</button>'
+      + '<button type="button" data-sy="stop" style="width:100%; margin-bottom:8px">このスマホの同期をやめる</button>'
+      + '<button type="button" data-sy="del" style="width:100%">サーバーの記録を消す(2人とも同期が止まります)</button>';
+  }
+  h += '<p class="hint" role="status" id="hkSyM" style="margin:8px 0 0">' + esc(syMsg) + '</p>';
+  b.innerHTML = h;
+}
+function syMsgSet(t){ syMsg = t; var m = $('hkSyM'); if(m) m.textContent = t; }
+function syCall(path, body){
+  return fetch(API_URL + path, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(body)})
+    .then(function(r){ return r.json().then(function(j){ return {st: r.status, j: j}; }); });
+}
+function syRun(manual){
+  if(!API_URL || !sy.code || syBusy) return Promise.resolve();
+  syBusy = true;
+  var out = syOut(syLocal());
+  return syCall('/room/sync', {code: sy.code, items: out}).then(function(a){
+    if(a.st === 404){ sy.code = ''; sy.snap = {}; sySave(); syMsg = 'この部屋は、もうありません。新しく作るか、コードで参加してください。'; syRender(); return; }
+    if(a.st !== 200 || !a.j.items) throw new Error('x');
+    if(a.j.now) sy.off = a.j.now - Date.now();
+    var ch = syApply(a.j.items, out);
+    var snap = {};
+    Object.keys(a.j.items).forEach(function(k){ var it = a.j.items[k]; snap[k] = it.x ? {t: it.t, x: 1} : {t: it.t, h: JSON.stringify(it.d)}; });
+    sy.snap = snap; sy.last = Date.now(); sySave();
+    if(ch){
+      syMsg = '相手の更新を取り込みました。';
+      var ae = document.activeElement;
+      if(!(ae && /INPUT|TEXTAREA|SELECT/.test(ae.tagName))){ var sel = tabs.querySelector('[aria-selected="true"]'); if(sel) sel.click(); }
+    } else if(manual) syMsg = '同期しました。';
+    syRender();
+  }).catch(function(e){ if(manual) syMsgSet('通信できませんでした。あとでもう一度、試してください。'); })
+    .then(function(){ syBusy = false; });
+}
+function syJoin(code, manual){
+  code = String(code || '').toUpperCase().replace(/[^A-Z2-9]/g, '');
+  if(!/^[A-HJ-NP-Z2-9]{12}$/.test(code)){ syMsgSet('コードは、12文字です。もう一度、確かめてください。'); return; }
+  sy = {code: code, last: 0, off: 0, snap: {}}; sySave(); syMsg = '参加しました。見学メモなどを、まぜています…'; syRender();
+  syRun(true).then(function(){ if(sy.code) { syMsg = '参加しました。2人のメモが、そろいました。'; syRender(); } });
+}
+(function(){
+  var box = $('hkSh'); if(!box) return;
+  var old = document.createElement('details'); old.className = 'faq';
+  old.innerHTML = '<summary>同期を使わず、1回だけ送る</summary>';
+  while(box.firstChild) old.appendChild(box.firstChild);
+  var sd = document.createElement('div'); sd.id = 'hkSy';
+  box.appendChild(sd); box.appendChild(old);
+  var sm = $('hkD5').querySelector('summary'); if(sm) sm.textContent = '👪 夫婦で同期する';
+  syRender();
+  sd.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('[data-sy]') : null; if(!b) return;
+    var k = b.getAttribute('data-sy');
+    if(k === 'new'){
+      syMsgSet('部屋を作っています…');
+      syCall('/room/new', {}).then(function(a){ if(!a.j.code) throw new Error('x'); sy = {code: a.j.code, last: 0, off: 0, snap: {}}; sySave(); syMsg = '部屋ができました。下のボタンで、相手にコードを送ってください。'; syRender(); return syRun(false); })
+        .catch(function(){ syMsgSet('部屋を作れませんでした。あとでもう一度、試してください。'); });
+    }
+    else if(k === 'join') syJoin($('hkSyIn').value, true);
+    else if(k === 'now') syRun(true);
+    else if(k === 'send'){
+      var url = SHARE_BASE + '#room=' + sy.code, text = '保活アプリの「夫婦で同期」に招待します。このリンクをタップして、参加を押してください。(部屋のコード: ' + sy.code + ')';
+      if(navigator.share) navigator.share({title: '保活アプリ 夫婦で同期', text: text, url: url}).catch(function(){});
+      else syCopy(text + '\n' + url, function(ok){ syMsgSet(ok ? 'リンクをコピーしました。LINEなどに貼り付けて送ってください。' : 'コピーできませんでした。'); });
+    }
+    else if(k === 'stop'){ if(confirm('このスマホの同期をやめますか?(メモは消えません。相手の分も、そのままです)')){ sy = {code: '', last: 0, off: 0, snap: {}}; sySave(); syMsg = '同期をやめました。'; syRender(); } }
+    else if(k === 'del'){
+      if(confirm('サーバーの記録を消します。2人とも、同期が止まります。(それぞれのスマホの中のメモは、消えません)')){
+        syCall('/room/delete', {code: sy.code}).then(function(){ sy = {code: '', last: 0, off: 0, snap: {}}; sySave(); syMsg = 'サーバーの記録を消しました。'; syRender(); }).catch(function(){ syMsgSet('消せませんでした。通信を確かめてください。'); });
+      }
+    }
+  });
+  /* 自動で同期する: 開いたとき、20秒ごと、変更の少しあと */
+  var syT = null;
+  function later(){ if(!sy.code) return; clearTimeout(syT); syT = setTimeout(function(){ syRun(false); }, 4000); }
+  ['input', 'change', 'click'].forEach(function(ev){ document.addEventListener(ev, function(e){ if(e.target && e.target.closest && e.target.closest('#hkSy')) return; later(); }, true); });
+  setInterval(function(){ if(!document.hidden) syRun(false); }, 20000);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) syRun(false); });
+  if(sy.code) syRun(false);
+  /* 招待リンク */
+  var m = location.hash.match(/^#room=([A-Za-z2-9]{12})$/);
+  if(m && API_URL && !sy.code){
+    var bn = document.createElement('div'); bn.className = 'hkb on'; bn.style.flexWrap = 'wrap';
+    bn.innerHTML = '<span class="t">👪 夫婦の同期に招待されました。参加すると、2人の見学メモなどが自動でそろいます(内容は運営者のサーバーに置かれます。写真は同期されません)。</span><button type="button" class="primary" id="hkRoY">参加する</button><button type="button" id="hkRoN">やめる</button>';
+    tabs.parentNode.insertBefore(bn, tabs);
+    function clr(){ history.replaceState(null, '', location.pathname + location.search); }
+    $('hkRoY').addEventListener('click', function(){ clr(); bn.remove(); syJoin(m[1], true); });
+    $('hkRoN').addEventListener('click', function(){ clr(); bn.remove(); });
+  }
+})();
 
 /* 無料版のひとことを、プラスへの案内に差し替える */
 var hint = $('vCmpHint');

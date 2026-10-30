@@ -113,6 +113,59 @@ async function onPortal(url, env) {
   return json(env, { url: r.url });
 }
 
+
+/* ===== 夫婦の同期(部屋) =====
+   部屋のコード(12文字)が、あいことば。コードを知っている人だけが、読み書きできる。
+   サーバーは、項目ごとに「新しい更新時刻のほうが勝つ」でまぜて、まぜた結果を返す。 */
+const ROOM_TTL = 60 * 60 * 24 * 180; /* 最後に使ってから180日で消える */
+const ROOM_MAX = 900000; /* 1部屋 約0.9MBまで */
+export function mergeItems(a, b) {
+  const out = Object.assign({}, a);
+  Object.keys(b || {}).forEach(k => {
+    const x = b[k];
+    if (!x || typeof x.t !== 'number' || k.length > 120) return;
+    const y = out[k];
+    if (!y || x.t > y.t) out[k] = x.x ? { t: x.t, x: 1 } : { t: x.t, d: x.d };
+  });
+  return out;
+}
+function newRoomCode() {
+  const a = new Uint8Array(12); crypto.getRandomValues(a);
+  const alpha = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let t = '';
+  for (let i = 0; i < 12; i++) t += alpha[a[i] % 32];
+  return t;
+}
+const ROOM_RE = /^[A-HJ-NP-Z2-9]{12}$/;
+async function onRoom(req, url, env) {
+  if (url.pathname === '/room/new' && req.method === 'POST') {
+    const code = newRoomCode();
+    await env.SUBS.put('room:' + code, JSON.stringify({}), { expirationTtl: ROOM_TTL });
+    return json(env, { code });
+  }
+  if (url.pathname === '/room/sync' && req.method === 'POST') {
+    const text = await req.text();
+    if (text.length > ROOM_MAX) return json(env, { error: 'big' }, 413);
+    let body; try { body = JSON.parse(text); } catch (e) { return json(env, { error: 'bad' }, 400); }
+    const code = String(body.code || '').toUpperCase();
+    if (!ROOM_RE.test(code)) return json(env, { error: 'code' }, 400);
+    const cur = await env.SUBS.get('room:' + code);
+    if (cur === null) return json(env, { error: 'none' }, 404);
+    const merged = mergeItems(JSON.parse(cur), body.items || {});
+    const out = JSON.stringify(merged);
+    if (out.length > ROOM_MAX) return json(env, { error: 'big' }, 413);
+    await env.SUBS.put('room:' + code, out, { expirationTtl: ROOM_TTL });
+    return json(env, { items: merged, now: Date.now() });
+  }
+  if (url.pathname === '/room/delete' && req.method === 'POST') {
+    let body; try { body = await req.json(); } catch (e) { return json(env, { error: 'bad' }, 400); }
+    const code = String(body.code || '').toUpperCase();
+    if (!ROOM_RE.test(code)) return json(env, { error: 'code' }, 400);
+    await env.SUBS.delete('room:' + code);
+    return json(env, { ok: true });
+  }
+  return null;
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
@@ -122,6 +175,7 @@ export default {
       if (url.pathname === '/claim') return await onClaim(url, env);
       if (url.pathname === '/status') return await onStatus(url, env);
       if (url.pathname === '/portal') return await onPortal(url, env);
+      if (url.pathname.indexOf('/room/') === 0) { const r = await onRoom(req, url, env); if (r) return r; }
       return json(env, { ok: true, name: 'hoikatsu-api' });
     } catch (e) { return json(env, { error: 'server' }, 500); }
   }
