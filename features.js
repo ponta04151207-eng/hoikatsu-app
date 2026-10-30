@@ -1115,6 +1115,97 @@ function decorateFind(){
   Array.prototype.forEach.call(document.querySelectorAll('.tabs button'), function(b){ b.addEventListener('click', function(){ setTimeout(function(){ Array.prototype.forEach.call(fl.querySelectorAll('.fcard[data-img]'), function(c){ var im = c.querySelector('.fimg'); if(im) im.remove(); c.removeAttribute('data-img'); }); decorateFind(); }, 80); }); });
 })();
 
+/* ===== 預け先を探す(病児・病後児保育 / 認可外保育施設) ===== */
+var AZ = window.AZUKE || null;
+var tbAz = document.createElement('button');
+tbAz.type = 'button'; tbAz.id = 'tabAzuke'; tbAz.className = 'hero'; tbAz.setAttribute('role', 'tab'); tbAz.setAttribute('aria-selected', 'false');
+tbAz.style.gridColumn = 'span 6';
+tbAz.innerHTML = '<span class="ti">🍼</span><span>預け先を探す</span>';
+tabs.insertBefore(tbAz, $('tabAbout'));
+$('tabAbout').style.gridColumn = 'span 3'; tbS.style.gridColumn = 'span 3';
+var viewAz = document.createElement('div'); viewAz.id = 'viewAzuke'; viewAz.hidden = true;
+view.parentNode.insertBefore(viewAz, view);
+var azMode = 'byoji', azShown = 20, azF = {q: '', cat: '', night: false, all24: false, sort: 'name'}, azB = {area: '', sat: false};
+function endMin(h){ if(/^0:00〜0:00$/.test(h)) return 1440; var m = h.match(/〜(翌)?(\d{1,2}):(\d{2})/); if(!m) return 0; var e = (+m[2]) * 60 + (+m[3]); if(m[1]) e += 1440; return e; }
+function mapA(name, addr){ return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('世田谷区' + addr + ' ' + name); }
+function telA(t){ return '<a href="tel:' + esc(t.replace(/[^0-9]/g, '')) + '">' + esc(t) + '</a>'; }
+function azCard(o){
+  return '<article class="fcard"><div class="fh"><span class="fn">' + esc(o.name) + '</span>' + (o.chip ? '<span class="area">' + esc(o.chip) + '</span>' : '') + '</div>'
+    + '<div class="n" style="font-size:14px; line-height:1.7">' + o.lines.map(function(l){ return '<div>' + l + '</div>'; }).join('') + '</div>'
+    + '<div style="margin-top:6px"><a href="' + mapA(o.name, o.addr) + '" target="_blank" rel="noopener" style="font-weight:700; color:var(--accent); text-decoration:none">🗺️ 地図を見る</a></div></article>';
+}
+function renderAz(){
+  if(!AZ){ viewAz.innerHTML = '<section class="panel"><h2>🍼 預け先を探す</h2><p class="hint">データを読み込めませんでした。</p></section>'; return; }
+  var h = '<section class="panel"><h2>🍼 預け先を探す</h2><p class="hint" style="margin:0 0 8px">認可保育園とは別に、病児・病後児保育と、認可外保育施設を探せます。区の公表資料をもとにしています。</p>'
+    + '<div style="display:flex; gap:8px"><button type="button" data-azm="byoji" class="' + (azMode === 'byoji' ? 'primary' : '') + '" style="flex:1">🤒 病児・病後児</button><button type="button" data-azm="ninkagai" class="' + (azMode === 'ninkagai' ? 'primary' : '') + '" style="flex:1">🏠 認可外</button></div></section>';
+  if(azMode === 'byoji'){
+    var d = AZ.byoji, rows = d.rows.map(function(r){ return {name: r[0], kind: r[1], area: r[2], addr: r[3], tel: r[4], cap: r[5], hours: r[6], pay: r[7]}; })
+      .filter(function(r){ return (!azB.area || r.area === azB.area) && (!azB.sat || r.hours.indexOf('土') >= 0); });
+    h += '<section class="panel"><h2>病児・病後児保育(' + rows.length + '施設)</h2>'
+      + '<div class="hint" style="margin:0 0 8px"><b>使える人</b>: 世田谷区に住んでいて、保育認定(2号・3号)を受けて、区の指定の保育施設に通っている、生後5か月から就学前のお子さん。<br><b>料金</b>: 1人1日2,000円(生活保護世帯などは免除。申請が必要)。</div>'
+      + '<details class="faq"><summary>使い方の流れ(区の案内から)</summary><p>① 区(保育課)に、利用の登録をします(電子申請か、郵送・持参)。② 7けたの登録番号が届きます(予約に必要。卒園まで有効)。③ 前日か当日に、施設に予約します(満員のときはキャンセル待ち)。④ 初日の前日か当日に、施設が指定する病院で受診します。⑤ 利用票などを出して、入室します。原則、18時までにお迎えです。同じ病気で続けて使えるのは、原則7日間までです。</p></details>'
+      + '<details class="faq"><summary>使えないとき・持ち物</summary><p>新型コロナ、麻しん(はしか)、結核のとき、点滴などの処置が必要な重い症状のとき、1歳を過ぎてMR(麻しん風しん)ワクチンを受けていないときは、使えません。持ち物は、乳幼児医療証、母子健康手帳、お薬手帳、処方薬(1回分ずつ記名)、着替え3組以上、紙おむつ7枚以上など。すべてに名前を書きます。くわしくは、区の案内で確認してください。</p></details>'
+      + '<div style="display:flex; gap:8px; margin:10px 0"><select id="hkAzArea" aria-label="地域" style="flex:1"><option value="">全地域</option>' + ['世田谷', '北沢', '玉川', '砧', '烏山'].map(function(a){ return '<option' + (azB.area === a ? ' selected' : '') + '>' + a + '</option>'; }).join('') + '</select><label style="display:flex; align-items:center; gap:6px; flex:1; font-size:14px"><input type="checkbox" id="hkAzSat"' + (azB.sat ? ' checked' : '') + ' style="width:22px; height:22px">土曜もやっている</label></div>';
+    rows.forEach(function(r){ h += azCard({name: r.name, chip: r.area + ' / ' + r.kind, addr: r.addr, lines: ['📍 ' + esc(r.addr), '📞 ' + telA(r.tel), '👶 定員 ' + esc(r.cap) + '名(1日)', '🕗 ' + esc(r.hours), '💴 支払い: ' + esc(r.pay)]}); });
+    if(!rows.length) h += '<p class="hint">条件に合う施設はありません。</p>';
+    h += '<p class="hint">出典: <a href="' + d.url + '" target="_blank" rel="noopener">' + esc(d.src) + '</a>(確認日 ' + esc(d.checked) + ')。時間や定員は変わることがあります。電話で確認してください。区の登録制度の対象は、区の資料にある施設です。</p></section>';
+  } else {
+    var n = AZ.ninkagai, all = n.rows.map(function(r){ return {no: r[0], name: r[1], cat: r[2], addr: r[3], tel: r[4], cap: r[5], hours: r[6], op: r[7], end: endMin(r[6])}; });
+    var q = azF.q.trim().toLowerCase();
+    var rows2 = all.filter(function(r){
+      return (!azF.cat || r.cat === azF.cat) && (!azF.night || r.end >= 1200) && (!azF.all24 || r.end >= 1440)
+        && (!q || (r.name + ' ' + r.addr + ' ' + r.op).toLowerCase().indexOf(q) >= 0);
+    });
+    if(azF.sort === 'cap') rows2.sort(function(a, b){ return (parseInt(b.cap, 10) || 0) - (parseInt(a.cap, 10) || 0); });
+    else if(azF.sort === 'late') rows2.sort(function(a, b){ return b.end - a.end; });
+    else rows2.sort(function(a, b){ return a.no - b.no; });
+    h += '<section class="panel"><h2>認可外保育施設(' + rows2.length + '/' + all.length + '件)</h2>'
+      + '<p class="hint" style="margin:0 0 8px">区に届け出ている認可外保育施設です。区は、ベビーホテル、企業主導型などに分けています。認可保育園と違い、区を通さず、施設と直接、契約します。利用するときの注意や、施設ごとの立入調査の結果は、区のページで見られます。</p>'
+      + '<input id="hkAzQ" type="search" placeholder="名前・町名で探す(例: 経堂、インター)" value="' + esc(azF.q) + '" style="width:100%">'
+      + '<div style="display:flex; gap:8px; margin:8px 0"><select id="hkAzCat" aria-label="分類" style="flex:1"><option value="">全部の分類</option>' + ['ベビーホテル', '企業主導型', 'その他', 'ほか'].map(function(c){ return '<option value="' + c + '"' + (azF.cat === c ? ' selected' : '') + '>' + (c === 'ほか' ? 'ほか(院内・事業所内など)' : c) + '</option>'; }).join('') + '</select><select id="hkAzSort" aria-label="並び順" style="flex:1"><option value="name"' + (azF.sort === 'name' ? ' selected' : '') + '>区の一覧の順</option><option value="cap"' + (azF.sort === 'cap' ? ' selected' : '') + '>定員が多い順</option><option value="late"' + (azF.sort === 'late' ? ' selected' : '') + '>遅くまでの順</option></select></div>'
+      + '<div style="display:flex; gap:14px; flex-wrap:wrap; font-size:14px; margin-bottom:8px"><label style="display:flex; align-items:center; gap:6px"><input type="checkbox" id="hkAzNight"' + (azF.night ? ' checked' : '') + ' style="width:22px; height:22px">20時以降まで</label><label style="display:flex; align-items:center; gap:6px"><input type="checkbox" id="hkAzAll"' + (azF.all24 ? ' checked' : '') + ' style="width:22px; height:22px">24時間・夜通し</label></div>';
+    rows2.slice(0, azShown).forEach(function(r){
+      var lines = ['📍 ' + esc(r.addr), '📞 ' + telA(r.tel), '👶 定員 ' + esc(r.cap) + (/^\d/.test(r.cap) ? '名' : ''), '🕗 ' + esc(r.hours), '🏢 ' + esc(r.op)];
+      if(r.name.indexOf('病児') >= 0) lines.push('ℹ️ 区の「病児・病後児保育」(登録制)とは別の、認可外の施設です。');
+      h += azCard({name: r.name, chip: r.cat === 'ほか' ? '区の一覧で確認' : r.cat, addr: r.addr, lines: lines});
+    });
+    if(!rows2.length) h += '<p class="hint">条件に合う施設はありません。</p>';
+    if(rows2.length > azShown) h += '<button type="button" id="hkAzMore" style="width:100%; margin-top:8px">さらに表示する</button>';
+    h += '<p class="hint">出典: <a href="' + n.url + '" target="_blank" rel="noopener">' + esc(n.src) + '</a>(確認日 ' + esc(n.checked) + ')。一覧に載っていることは、おすすめや品質の保証ではありません。見学して、区のページの立入調査の結果なども見てください。 <a href="https://www.city.setagaya.lg.jp/01044/15853.html" target="_blank" rel="noopener">立入調査の結果(区)</a> / <a href="https://www.city.setagaya.lg.jp/02243/10744.html" target="_blank" rel="noopener">ここdeサーチ(区)</a></p></section>';
+  }
+  viewAz.innerHTML = h;
+  var q1 = $('hkAzQ'); if(q1 && document.activeElement !== q1 && azKeep) { q1.focus(); q1.setSelectionRange(q1.value.length, q1.value.length); }
+}
+var azKeep = false;
+function showAz(){
+  ['viewIndex', 'viewVisit', 'viewAbout'].forEach(function(id){ $(id).hidden = true; });
+  view.hidden = true; viewD.hidden = true; viewP.hidden = true; viewS.hidden = true; viewAz.hidden = false;
+  TABIDS.forEach(function(id){ $(id).setAttribute('aria-selected', 'false'); }); [tbD, tbP, tbS].forEach(function(b){ b.setAttribute('aria-selected', 'false'); });
+  tbAz.setAttribute('aria-selected', 'true');
+  document.querySelector('.bar').hidden = true;
+  azKeep = false; renderAz(); window.scrollTo(0, 0);
+}
+tbAz.addEventListener('click', showAz);
+Array.prototype.forEach.call(tabs.querySelectorAll('button'), function(b){ if(b !== tbAz) b.addEventListener('click', function(){ viewAz.hidden = true; tbAz.setAttribute('aria-selected', 'false'); }); });
+viewAz.addEventListener('click', function(e){
+  var t = e.target, m = t.getAttribute && t.getAttribute('data-azm');
+  if(m){ azMode = m; azShown = 20; azKeep = false; renderAz(); }
+  else if(t.id === 'hkAzMore'){ azShown += 20; var y = window.scrollY; renderAz(); window.scrollTo(0, y); }
+});
+viewAz.addEventListener('change', function(e){
+  var t = e.target;
+  if(t.id === 'hkAzArea'){ azB.area = t.value; renderAz(); }
+  else if(t.id === 'hkAzSat'){ azB.sat = t.checked; renderAz(); }
+  else if(t.id === 'hkAzCat'){ azF.cat = t.value; azShown = 20; renderAz(); }
+  else if(t.id === 'hkAzSort'){ azF.sort = t.value; renderAz(); }
+  else if(t.id === 'hkAzNight'){ azF.night = t.checked; azShown = 20; renderAz(); }
+  else if(t.id === 'hkAzAll'){ azF.all24 = t.checked; azShown = 20; renderAz(); }
+});
+var azTimer = null;
+viewAz.addEventListener('input', function(e){
+  if(e.target.id === 'hkAzQ'){ azF.q = e.target.value; azShown = 20; clearTimeout(azTimer); azTimer = setTimeout(function(){ azKeep = true; renderAz(); azKeep = false; }, 250); }
+});
+
 /* 無料版のひとことを、プラスへの案内に差し替える */
 var hint = $('vCmpHint');
 if(hint){
