@@ -177,6 +177,12 @@ css.textContent = [
 '.cal7{gap:2px}.cday{min-height:30px; line-height:1.15; padding:3px 0 2px; border-radius:8px; font-size:13px}.cday .dots{min-height:10px; font-size:9px}.cal7 .wd{font-size:10px}',
 '.calh{margin-bottom:2px}.calh b{font-size:15px}.calh button{min-height:30px; min-width:36px; font-size:12px}',
 '.cleg{font-size:10px; gap:1px 7px; margin:4px 0}',
+'#viewSched .tk{align-items:center; padding:5px 0; gap:7px}#viewSched .tk input{width:17px; height:17px; margin:0; flex:none}#viewSched .tk .x b{font-size:14px; line-height:1.3; font-weight:800; color:var(--accent)}#viewSched .tk.dn .x b{color:var(--muted)}#viewSched .tk .x small{font-size:11px}#viewSched .tk .x .sc{font-size:10px; padding:0 6px}#viewSched .tk .mini{flex:none; margin:0 0 0 auto; min-height:22px; height:22px; padding:0 9px; font-size:11px; border-width:1px; border-radius:999px; box-shadow:none}',
+'.cday{min-height:26px !important; font-size:12px !important; padding:2px 0 1px !important; border-radius:7px !important}.cday .dots{min-height:9px !important; font-size:8px !important}.cal7{gap:2px !important}.cal7 .wd{font-size:10px}',
+'.calh button{min-height:28px !important; min-width:34px !important}.calh b{font-size:14px !important}',
+'#hkCal h3{font-size:13px !important; margin:4px 0 2px !important}.cleg{font-size:10px !important}',
+'.calform{padding:6px 9px !important; margin-top:6px !important}.calsteps{font-size:11px !important}.calpick{font-size:12px !important; padding:3px 9px !important}.calform input[type=text]{min-height:36px !important; font-size:14px !important}.calform .primary{min-height:38px !important; font-size:14px !important}',
+
 '.cday{min-height:38px; padding:3px 0 2px; gap:0; border-radius:10px; font-size:14px; border-width:1.5px}.cday .dots{min-height:12px; font-size:10px}',
 '.calh{margin-bottom:4px}.calh b{font-size:16px}.calh button{min-height:34px; min-width:40px; padding:0 10px; font-size:13px}',
 '.cleg{gap:2px 9px; font-size:11px; margin:6px 0}.cleg span{gap:2px}',
@@ -351,7 +357,7 @@ function renderSched(){
   ts.forEach(function(t){
     var dn = !!sched.done[t.id], k = t.due ? daysLeft(t.due) : null;
     h += '<div class="tk' + (dn ? ' dn' : '') + '"><input type="checkbox" data-t="' + esc(t.id) + '"' + (dn ? ' checked' : '') + ' aria-label="' + esc(t.title) + '"><div class="x"><b>' + esc(t.title) + '</b><small>' + (t.due ? '目安 ' + md(t.due) + ' ' + (dn ? '' : chip(k)) : '日付は決まっていません') + '</small>'
-      + (t.own ? '<button type="button" class="mini" data-del="' + esc(t.id) + '">削除</button>' : '') + '</div></div>';
+      + '</div>' + (t.own ? '<button type="button" class="mini" data-del="' + esc(t.id) + '">削除</button>' : '') + '</div>';
   });
   h += '<div class="addtk"><label class="field" for="hkNt" style="margin:0">自分のやることを足す</label><input id="hkNt" type="text" placeholder="例: 祖父母に送迎をお願いする"><label class="field" for="hkNd" style="margin:0">日付(なくても大丈夫です)</label><input id="hkNd" type="date"><button type="button" class="primary" id="hkNa">追加する</button></div></section>';
   view.innerHTML = h;
