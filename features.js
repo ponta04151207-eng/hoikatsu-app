@@ -135,8 +135,12 @@ css.textContent = [
 'header{padding:8px 10px 10px; margin-bottom:10px}',
 'header svg.hero{height:100px; margin-bottom:8px}',
 'header .tag{font-size:11px; padding:1px 8px}',
-'header h1{font-size:20px; margin-top:6px; margin-bottom:2px}',
-'header h1 .sub{font-size:12px; font-weight:700}',
+'header h1{font-size:28px; line-height:1.25; text-align:center; color:var(--accent); letter-spacing:.06em; margin:8px 0 2px}',
+'header h1 .sub{font-size:13px; font-weight:700; letter-spacing:0; color:var(--muted); margin-top:2px}',
+'header .tag{display:block; width:max-content; max-width:100%; margin:0 auto}',
+'header p.lead{text-align:center}',
+'#hkUpd{text-align:center}',
+'.tabs button{white-space:nowrap}',
 'header p.lead{font-size:12px; line-height:1.5}',
 '#hkUpd{font-size:11.5px; line-height:1.4; margin:4px 6px 0}',
 '.hkb{display:none; align-items:center; gap:10px; margin:0 0 14px; padding:12px 14px; border-radius:20px; background:var(--note); color:var(--note-fg); font-weight:700; font-size:15px; line-height:1.5}',
@@ -754,7 +758,7 @@ function monthsBack(s, n){ var d = ymd(s); d.setMonth(d.getMonth() - n); return 
 var tbD = document.createElement('button');
 tbD.type = 'button'; tbD.id = 'tabDocs'; tbD.className = 'hero'; tbD.setAttribute('role', 'tab'); tbD.setAttribute('aria-selected', 'false');
 tbD.style.gridColumn = 'span 6';
-tbD.innerHTML = '<span class="ti">📋</span><span>' + CR + ' 提出前チェックと書類リスト</span>';
+tbD.innerHTML = '<span class="ti">📋</span><span>' + CR + ' 提出前チェック</span>';
 tabs.insertBefore(tbD, $('tabFind'));
 var viewD = document.createElement('div'); viewD.id = 'viewDocs'; viewD.hidden = true;
 view.parentNode.insertBefore(viewD, view);
