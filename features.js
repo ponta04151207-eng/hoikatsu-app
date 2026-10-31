@@ -1180,17 +1180,19 @@ function azCard(o){
 }
 
 var GEO_KEY = 'hoikatsu-geo-v1', azGeo = lsGet(GEO_KEY, {}), azO = null, azAddrText = '', azSt = '', azBusy = false;
-function azStSet(t){ azSt = t; var e = $('hkAzSt'); if(e) e.textContent = t; }
+var ADDRS = window.SHISUU_ADDR ? window.SHISUU_ADDR.rows : [], addrMap = {};
+ADDRS.forEach(function(r){ addrMap[r[0] + '|' + r[1]] = r; });
+function azStSet(t){ azSt = t; Array.prototype.forEach.call(document.querySelectorAll('.azst'), function(e){ e.textContent = t; }); }
 function azHav(a, b){ var R = 6371, rad = Math.PI / 180, dl = (b[0] - a[0]) * rad, dn = (b[1] - a[1]) * rad, x = Math.sin(dl / 2) * Math.sin(dl / 2) + Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dn / 2) * Math.sin(dn / 2); return 2 * R * Math.asin(Math.sqrt(x)); }
 function azDist(addr){ var g = azGeo[addr]; return (azO && g) ? azHav(azO.p, g) : null; }
 function azByDist(a, b){ return (a.dist === null ? 1e9 : a.dist) - (b.dist === null ? 1e9 : b.dist); }
-function azDLine(d){ if(d === null || d === undefined) return azO ? ['📏 位置を調べられませんでした'] : []; var t = d < 1 ? '約' + Math.round(d * 10) * 100 + 'm' : '約' + d.toFixed(1) + 'km'; return ['📏 <b>直線で' + t + '</b>(徒歩の目安 約' + Math.max(1, Math.round(d * 1.25 * 1000 / 80)) + '分)']; }
+function azFmt(d){ var t = d < 0.1 ? '100m以内' : d < 1 ? '約' + Math.round(d * 10) * 100 + 'm' : '約' + d.toFixed(1) + 'km'; return '直線で' + t + '(徒歩の目安 約' + Math.max(1, Math.round(d * 1.25 * 1000 / 80)) + '分)'; }
+function azDLine(d){ if(d === null || d === undefined) return azO ? ['📏 位置を調べられませんでした'] : []; return ['📏 <b>' + azFmt(d) + '</b>']; }
 function azNearBox(){
-  var h = '<div style="margin-top:10px"><div style="display:flex; gap:6px"><input id="hkAzAddr" type="search" placeholder="住所(例: 桜新町1-1-1)" value="' + esc(azAddrText) + '" autocomplete="street-address" style="flex:1; min-width:0"><button type="button" class="primary" data-aznear="go" style="min-height:44px; padding:0 12px; font-size:14px; white-space:nowrap; border-radius:14px">近い順</button></div>'
+  return '<div class="aznear" style="margin-top:10px"><div style="display:flex; gap:6px"><input class="azaddr" type="search" placeholder="住所(例: 桜新町1-1-1)" value="' + esc(azAddrText) + '" autocomplete="street-address" style="flex:1; min-width:0; min-height:44px"><button type="button" class="primary" data-aznear="go" style="min-height:44px; padding:0 12px; font-size:14px; white-space:nowrap; border-radius:14px">近い順</button></div>'
     + '<div style="display:flex; gap:6px; margin-top:6px"><button type="button" data-aznear="gps" style="flex:1; min-height:40px; padding:0 8px; font-size:14px; white-space:nowrap; border-radius:14px">📍 いまいる場所から</button>' + (azO ? '<button type="button" data-aznear="off" style="min-height:40px; padding:0 12px; font-size:14px; white-space:nowrap; border-radius:14px">解除</button>' : '') + '</div>'
-    + '<div id="hkAzSt" class="hint" role="status" style="margin:6px 0 0">' + esc(azSt || (azO ? '' : '住所を入れると、近い順に並びます。')) + '</div>'
+    + '<div class="hint azst" role="status" style="margin:6px 0 0">' + esc(azSt || (azO ? '' : '住所を入れると、近い順に並びます。')) + '</div>'
     + '<div class="hint" style="font-size:11.5px; margin:4px 0 0">入力した住所は、場所を調べるために、国土地理院の地図検索に送られます。保存はしません。距離は、直線の目安です。</div></div>';
-  return h;
 }
 function azNorm(t){
   t = t.trim().replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/[−－‐―]/g, '-').replace(/\s+/g, '');
@@ -1203,11 +1205,15 @@ function gsi(q){
     var f = a && a[0]; if(!f || !f.geometry || !f.geometry.coordinates) return null; var c = f.geometry.coordinates; return [c[1], c[0]];
   });
 }
+function azAllAddrs(){
+  var list = [];
+  if(AZ){ AZ.byoji.rows.forEach(function(r){ list.push(r[3]); }); AZ.ninkagai.rows.forEach(function(r){ list.push(r[3]); }); }
+  ADDRS.forEach(function(r){ list.push(r[2]); });
+  return list;
+}
 function azGeoAll(done){
   var list = [], seen = {};
-  AZ.byoji.rows.forEach(function(r){ list.push(r[3]); });
-  AZ.ninkagai.rows.forEach(function(r){ list.push(r[3]); });
-  list = list.filter(function(a){ if(seen[a] || azGeo[a] !== undefined) return false; seen[a] = 1; return true; });
+  azAllAddrs().forEach(function(a){ if(a && !seen[a] && azGeo[a] === undefined){ seen[a] = 1; list.push(a); } });
   var total = list.length, i = 0, fin = 0, errs = 0, stop = false;
   if(!total){ done(true); return; }
   function next(){
@@ -1219,22 +1225,41 @@ function azGeoAll(done){
   }
   for(var k = 0; k < 5; k++) next();
 }
+/* 認可保育園(園を探す)から使う */
+window.HKNEAR = {
+  dist: function(f){ var r = addrMap[f[0] + '|' + f[1]]; return r ? azDist(r[2]) : null; },
+  line: function(f){ var d = window.HKNEAR.dist(f), r = addrMap[f[0] + '|' + f[1]]; if(!azO) return r ? '<div class="n" style="margin:4px 0 0; font-size:13px">📍 ' + esc(r[2]) + '</div>' : ''; return '<div class="n" style="margin:4px 0 0; font-size:13px">' + (r ? '📍 ' + esc(r[2]) + ' ・ ' : '') + (d === null ? '📏 位置を調べられませんでした' : '📏 <b>' + azFmt(d) + '</b>') + '</div>'; }
+};
+var fnBox = null;
+function fnRender(){ if(fnBox) fnBox.innerHTML = azNearBox(); }
+(function(){
+  var intro = $('fIntro'); if(!intro) return;
+  fnBox = document.createElement('div'); fnBox.id = 'hkFnear'; intro.parentNode.insertBefore(fnBox, intro.nextSibling);
+  fnRender();
+  var opt = $('fSort').querySelector('option[value="near"]');
+})();
+function azRefreshAll(){
+  fnRender();
+  if(!viewAz.hidden) renderAz();
+  var o = $('fSort') && $('fSort').querySelector('option[value="near"]'); if(o) o.textContent = azO ? '近い順' : '近い順(住所を入れてください)';
+  if(HK.renderFind) HK.renderFind();
+}
 function azApply(label, p){
-  azO = {label: label, p: p}; azF.sort = 'near'; azShown = 20;
+  azO = {label: label, p: p}; azF.sort = 'near'; azShown = 20; if(HK.setSort) HK.setSort('near');
   azStSet('施設の場所を調べています…');
   azGeoAll(function(ok){
     azBusy = false;
     azSt = ok ? '「' + label + '」から近い順に並べています。' : '場所を調べられませんでした。電波のよいところで、もう一度どうぞ。';
-    renderAz();
+    azRefreshAll();
   });
 }
-viewAz.addEventListener('input', function(e){ if(e.target.id === 'hkAzAddr') azAddrText = e.target.value; });
-viewAz.addEventListener('click', function(e){
+function azNearInput(e){ if(e.target.classList && e.target.classList.contains('azaddr')){ azAddrText = e.target.value; Array.prototype.forEach.call(document.querySelectorAll('.azaddr'), function(x){ if(x !== e.target) x.value = azAddrText; }); } }
+function azNearClick(e){
   var b = e.target.closest ? e.target.closest('[data-aznear]') : null; if(!b || azBusy) return;
-  var k = b.getAttribute('data-aznear');
-  if(k === 'off'){ azO = null; azSt = ''; if(azF.sort === 'near') azF.sort = 'name'; renderAz(); }
+  var k = b.getAttribute('data-aznear'), box = b.closest('.aznear');
+  if(k === 'off'){ azO = null; azSt = ''; if(azF.sort === 'near') azF.sort = 'name'; if(HK.setSort) HK.setSort('r2asc'); azRefreshAll(); }
   else if(k === 'go'){
-    var t = ($('hkAzAddr').value || '').trim(); azAddrText = t;
+    var t = ((box.querySelector('.azaddr') || {}).value || '').trim(); azAddrText = t;
     if(!t){ azStSet('住所を入れてください。'); return; }
     azBusy = true; azStSet('住所を調べています…');
     gsi(azNorm(t)).then(function(g){
@@ -1247,7 +1272,9 @@ viewAz.addEventListener('click', function(e){
     azBusy = true; azStSet('現在地を調べています…(許可の画面が出たら「許可」を押してください)');
     navigator.geolocation.getCurrentPosition(function(pos){ azApply('いまいる場所', [pos.coords.latitude, pos.coords.longitude]); }, function(){ azBusy = false; azStSet('現在地を取れませんでした。住所を入れてください。'); }, {timeout: 12000, maximumAge: 60000});
   }
-});
+}
+viewAz.addEventListener('input', azNearInput); viewAz.addEventListener('click', azNearClick);
+if(fnBox){ fnBox.addEventListener('input', azNearInput); fnBox.addEventListener('click', azNearClick); }
 function renderAz(){
   if(!AZ){ viewAz.innerHTML = '<section class="panel"><h2>🍼 預け先を探す</h2><p class="hint">データを読み込めませんでした。</p></section>'; return; }
   var h = '<section class="panel"><h2>🍼 預け先を探す</h2><p class="hint" style="margin:0 0 8px">認可保育園とは別に、病児・病後児保育と、認可外保育施設を探せます。区の公表資料をもとにしています。</p>'

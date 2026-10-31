@@ -85,6 +85,20 @@ def parse(html, region):
     upd = '%s年%d月%d日' % (m_upd.group(1), int(m_upd.group(2)), int(m_upd.group(3))) if m_upd else ''
     return rows, (m_asof.group(1) if m_asof else None), upd
 
+def parse_addr(html):
+    """認可保育園の表から、園名・所在地・電話番号を取る。形が違うときは空を返す(空き数の更新は止めない)。"""
+    t = Tables(); t.feed(html)
+    for tb in t.tables:
+        for i, r in enumerate(tb):
+            if '所在地' in r and any('電話' in x for x in r):
+                ai = r.index('所在地'); ti = next(j for j, x in enumerate(r) if '電話' in x)
+                out = []
+                for q in tb[i + 1:]:
+                    if len(q) > max(ai, ti) and q[0] and q[0] != '合計' and q[ai]:
+                        out.append((q[0], re.split(r'\s+', q[ai])[0], q[ti]))
+                return out
+    return []
+
 def key(n):
     n = unicodedata.normalize('NFKC', n)
     n = re.sub(r'\(.*?\)|（.*?）', '', n)
@@ -99,10 +113,20 @@ def main():
     names = {}
     for m in re.finditer(r'^\s*(\[".*\])[,]?$', vb, re.M):
         r = json.loads(m.group(1)); names.setdefault(r[0], {})[key(r[1])] = r[1]
-    out, meta, warn = [], {}, []
+    out, meta, warn, addr_rows = [], {}, [], []
+    allnames = {}
+    for m in re.finditer(r'^\s*(\[".*\])[,]?$', vb, re.M):
+        r = json.loads(m.group(1)); allnames.setdefault(r[0], {}).setdefault(key(r[1]), []).append(r[1])
     for region, url in PAGES.items():
         html = (html_dir / (region + '.html')).read_text(encoding='utf-8') if html_dir else fetch(url)
         rows, asof, upd = parse(html, region)
+        try:
+            for nm0, ad, tel in parse_addr(html):
+                if '送迎枠' in nm0 or '医療的ケア' in nm0: continue
+                for nm1 in allnames.get(region, {}).get(key(EXPLICIT.get((region, nm0), nm0)), []):
+                    if not any(x[0] == region and x[1] == nm1 for x in addr_rows): addr_rows.append([region, nm1, ad, tel])
+        except Exception as ex:
+            print('警告 所在地を取れませんでした:', region, ex)
         if not asof: raise SystemExit('%s: 対象日の記載が見つかりません' % region)
         meta[region] = {'asOf': asof, 'updated': upd, 'url': url}
         for name, ages, tot, ext in rows:
@@ -116,6 +140,16 @@ def main():
     js = ("/* now.js */\nwindow.SHISUU_NOW = {\n  checkedOn: '%d年%d月%d日',\n  regions: %s,\n  rows: [\n" % (today.year, today.month, today.day, json.dumps(meta, ensure_ascii=False))
           + ",\n".join("    " + json.dumps(r, ensure_ascii=False, separators=(',', ':')) for r in out) + "\n  ]\n};")
     new = re.sub(r'/\*NOW-START\*/.*?/\*NOW-END\*/', lambda m: '/*NOW-START*/\n' + js + '\n/*NOW-END*/', page, count=1, flags=re.S)
+    if addr_rows and '/*ADDR-START*/' in new:
+        old = {}
+        m0 = re.search(r'/\*ADDR-START\*/(.*?)/\*ADDR-END\*/', new, re.S)
+        for r0 in re.findall(r'^\s*(\[".*\])[,]?$', m0.group(1), re.M): 
+            r1 = json.loads(r0); old[(r1[0], r1[1])] = r1
+        for r1 in addr_rows: old[(r1[0], r1[1])] = r1   # 取れた園は新しい値に、取れなかった園(新設の仮称など)は前の値を残す
+        ajs = ("/* 世田谷区 認可保育園の所在地・電話番号。出典: 区の「認可保育園(空き数)」5地域のページ。update_now.py が毎月1日・15日に自動で作り直す。 */\nwindow.SHISUU_ADDR = {\n  checkedOn: '%d年%d月%d日',\n  rows: [\n" % (today.year, today.month, today.day)
+               + ",\n".join("    " + json.dumps(r, ensure_ascii=False, separators=(',', ':')) for r in old.values()) + "\n  ]\n};")
+        new = re.sub(r'/\*ADDR-START\*/.*?/\*ADDR-END\*/', lambda m: '/*ADDR-START*/\n' + ajs + '\n/*ADDR-END*/', new, count=1, flags=re.S)
+        print('所在地を更新しました(%d園)' % len(old))
     APP.write_text(new, encoding='utf-8')
     print('%s の空き数を更新しました(%d園)' % (APP.name, len(out)))
 
