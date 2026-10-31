@@ -1152,38 +1152,111 @@ function azCard(o){
     + '<div class="n" style="font-size:14px; line-height:1.7">' + o.lines.map(function(l){ return '<div>' + l + '</div>'; }).join('') + '</div>'
     + '<div style="margin-top:6px"><a href="' + mapA(o.name, o.addr) + '" target="_blank" rel="noopener" style="font-weight:700; color:var(--accent); text-decoration:none">🗺️ 地図を見る</a></div></article>';
 }
+
+var GEO_KEY = 'hoikatsu-geo-v1', azGeo = lsGet(GEO_KEY, {}), azO = null, azAddrText = '', azSt = '', azBusy = false;
+function azStSet(t){ azSt = t; var e = $('hkAzSt'); if(e) e.textContent = t; }
+function azHav(a, b){ var R = 6371, rad = Math.PI / 180, dl = (b[0] - a[0]) * rad, dn = (b[1] - a[1]) * rad, x = Math.sin(dl / 2) * Math.sin(dl / 2) + Math.cos(a[0] * rad) * Math.cos(b[0] * rad) * Math.sin(dn / 2) * Math.sin(dn / 2); return 2 * R * Math.asin(Math.sqrt(x)); }
+function azDist(addr){ var g = azGeo[addr]; return (azO && g) ? azHav(azO.p, g) : null; }
+function azByDist(a, b){ return (a.dist === null ? 1e9 : a.dist) - (b.dist === null ? 1e9 : b.dist); }
+function azDLine(d){ if(d === null || d === undefined) return azO ? ['📏 位置を調べられませんでした'] : []; var t = d < 1 ? '約' + Math.round(d * 10) * 100 + 'm' : '約' + d.toFixed(1) + 'km'; return ['📏 <b>直線で' + t + '</b>(徒歩の目安 約' + Math.max(1, Math.round(d * 1.25 * 1000 / 80)) + '分)']; }
+function azNearBox(){
+  var h = '<div style="margin-top:10px"><div style="display:flex; gap:6px"><input id="hkAzAddr" type="search" placeholder="住所(例: 桜新町1-1-1)" value="' + esc(azAddrText) + '" autocomplete="street-address" style="flex:1; min-width:0"><button type="button" class="primary" data-aznear="go" style="min-height:44px; padding:0 12px; font-size:14px; white-space:nowrap; border-radius:14px">近い順</button></div>'
+    + '<div style="display:flex; gap:6px; margin-top:6px"><button type="button" data-aznear="gps" style="flex:1; min-height:40px; padding:0 8px; font-size:14px; white-space:nowrap; border-radius:14px">📍 いまいる場所から</button>' + (azO ? '<button type="button" data-aznear="off" style="min-height:40px; padding:0 12px; font-size:14px; white-space:nowrap; border-radius:14px">解除</button>' : '') + '</div>'
+    + '<div id="hkAzSt" class="hint" role="status" style="margin:6px 0 0">' + esc(azSt || (azO ? '' : '住所を入れると、近い順に並びます。')) + '</div>'
+    + '<div class="hint" style="font-size:11.5px; margin:4px 0 0">入力した住所は、場所を調べるために、国土地理院の地図検索に送られます。保存はしません。距離は、直線の目安です。</div></div>';
+  return h;
+}
+function azNorm(t){
+  t = t.trim().replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/[−－‐―]/g, '-').replace(/\s+/g, '');
+  if(!/[区市]/.test(t)) t = '世田谷区' + t;
+  if(t.indexOf('東京都') !== 0) t = '東京都' + t;
+  return t;
+}
+function gsi(q){
+  return fetch('https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + encodeURIComponent(q)).then(function(r){ if(!r.ok) throw new Error('x'); return r.json(); }).then(function(a){
+    var f = a && a[0]; if(!f || !f.geometry || !f.geometry.coordinates) return null; var c = f.geometry.coordinates; return [c[1], c[0]];
+  });
+}
+function azGeoAll(done){
+  var list = [], seen = {};
+  AZ.byoji.rows.forEach(function(r){ list.push(r[3]); });
+  AZ.ninkagai.rows.forEach(function(r){ list.push(r[3]); });
+  list = list.filter(function(a){ if(seen[a] || azGeo[a] !== undefined) return false; seen[a] = 1; return true; });
+  var total = list.length, i = 0, fin = 0, errs = 0, stop = false;
+  if(!total){ done(true); return; }
+  function next(){
+    if(stop) return;
+    if(i >= total){ if(fin >= total){ lsSet(GEO_KEY, azGeo); done(true); } return; }
+    var a = list[i++];
+    gsi('東京都世田谷区' + a.split(/\s+/)[0]).then(function(g){ azGeo[a] = g || 0; }, function(){ errs++; if(errs >= 4 && !stop){ stop = true; lsSet(GEO_KEY, azGeo); done(false); } })
+      .then(function(){ fin++; if(!stop){ azStSet('施設の場所を調べています…(' + fin + '/' + total + ')。1回だけで、次からは早くなります。'); next(); } });
+  }
+  for(var k = 0; k < 5; k++) next();
+}
+function azApply(label, p){
+  azO = {label: label, p: p}; azF.sort = 'near'; azShown = 20;
+  azStSet('施設の場所を調べています…');
+  azGeoAll(function(ok){
+    azBusy = false;
+    azSt = ok ? '「' + label + '」から近い順に並べています。' : '場所を調べられませんでした。電波のよいところで、もう一度どうぞ。';
+    renderAz();
+  });
+}
+viewAz.addEventListener('input', function(e){ if(e.target.id === 'hkAzAddr') azAddrText = e.target.value; });
+viewAz.addEventListener('click', function(e){
+  var b = e.target.closest ? e.target.closest('[data-aznear]') : null; if(!b || azBusy) return;
+  var k = b.getAttribute('data-aznear');
+  if(k === 'off'){ azO = null; azSt = ''; if(azF.sort === 'near') azF.sort = 'name'; renderAz(); }
+  else if(k === 'go'){
+    var t = ($('hkAzAddr').value || '').trim(); azAddrText = t;
+    if(!t){ azStSet('住所を入れてください。'); return; }
+    azBusy = true; azStSet('住所を調べています…');
+    gsi(azNorm(t)).then(function(g){
+      if(!g){ azBusy = false; azStSet('この住所が見つかりませんでした。町名と番地(例: 桜新町1-1-1)で入れてみてください。'); return; }
+      azApply(t, g);
+    }).catch(function(){ azBusy = false; azStSet('通信できませんでした。電波のよいところで、もう一度どうぞ。'); });
+  }
+  else if(k === 'gps'){
+    if(!navigator.geolocation){ azStSet('このスマホでは、現在地を使えません。住所を入れてください。'); return; }
+    azBusy = true; azStSet('現在地を調べています…(許可の画面が出たら「許可」を押してください)');
+    navigator.geolocation.getCurrentPosition(function(pos){ azApply('いまいる場所', [pos.coords.latitude, pos.coords.longitude]); }, function(){ azBusy = false; azStSet('現在地を取れませんでした。住所を入れてください。'); }, {timeout: 12000, maximumAge: 60000});
+  }
+});
 function renderAz(){
   if(!AZ){ viewAz.innerHTML = '<section class="panel"><h2>🍼 預け先を探す</h2><p class="hint">データを読み込めませんでした。</p></section>'; return; }
   var h = '<section class="panel"><h2>🍼 預け先を探す</h2><p class="hint" style="margin:0 0 8px">認可保育園とは別に、病児・病後児保育と、認可外保育施設を探せます。区の公表資料をもとにしています。</p>'
-    + '<div style="display:flex; gap:8px"><button type="button" data-azm="byoji" class="' + (azMode === 'byoji' ? 'primary' : '') + '" style="flex:1">🤒 病児・病後児</button><button type="button" data-azm="ninkagai" class="' + (azMode === 'ninkagai' ? 'primary' : '') + '" style="flex:1">🏠 認可外</button></div></section>';
+    + '<div style="display:flex; gap:6px"><button type="button" data-azm="byoji" class="' + (azMode === 'byoji' ? 'primary' : '') + '" style="flex:1; min-height:40px; padding:0 8px; font-size:14px; white-space:nowrap; border-radius:14px">🤒 病児・病後児</button><button type="button" data-azm="ninkagai" class="' + (azMode === 'ninkagai' ? 'primary' : '') + '" style="flex:1; min-height:40px; padding:0 8px; font-size:14px; white-space:nowrap; border-radius:14px">🏠 認可外</button></div>' + azNearBox() + '</section>';
   if(azMode === 'byoji'){
     var d = AZ.byoji, rows = d.rows.map(function(r){ return {name: r[0], kind: r[1], area: r[2], addr: r[3], tel: r[4], cap: r[5], hours: r[6], pay: r[7]}; })
       .filter(function(r){ return (!azB.area || r.area === azB.area) && (!azB.sat || r.hours.indexOf('土') >= 0); });
+    rows.forEach(function(r){ r.dist = azDist(r.addr); });
+    if(azO) rows.sort(azByDist);
     h += '<section class="panel"><h2>病児・病後児保育(' + rows.length + '施設)</h2>'
       + '<div class="hint" style="margin:0 0 8px"><b>使える人</b>: 世田谷区に住んでいて、保育認定(2号・3号)を受けて、区の指定の保育施設に通っている、生後5か月から就学前のお子さん。<br><b>料金</b>: 1人1日2,000円(生活保護世帯などは免除。申請が必要)。</div>'
       + '<details class="faq"><summary>使い方の流れ(区の案内から)</summary><p>① 区(保育課)に、利用の登録をします(電子申請か、郵送・持参)。② 7けたの登録番号が届きます(予約に必要。卒園まで有効)。③ 前日か当日に、施設に予約します(満員のときはキャンセル待ち)。④ 初日の前日か当日に、施設が指定する病院で受診します。⑤ 利用票などを出して、入室します。原則、18時までにお迎えです。同じ病気で続けて使えるのは、原則7日間までです。</p></details>'
       + '<details class="faq"><summary>使えないとき・持ち物</summary><p>新型コロナ、麻しん(はしか)、結核のとき、点滴などの処置が必要な重い症状のとき、1歳を過ぎてMR(麻しん風しん)ワクチンを受けていないときは、使えません。持ち物は、乳幼児医療証、母子健康手帳、お薬手帳、処方薬(1回分ずつ記名)、着替え3組以上、紙おむつ7枚以上など。すべてに名前を書きます。くわしくは、区の案内で確認してください。</p></details>'
       + '<div style="display:flex; gap:8px; margin:10px 0"><select id="hkAzArea" aria-label="地域" style="flex:1"><option value="">全地域</option>' + ['世田谷', '北沢', '玉川', '砧', '烏山'].map(function(a){ return '<option' + (azB.area === a ? ' selected' : '') + '>' + a + '</option>'; }).join('') + '</select><label style="display:flex; align-items:center; gap:6px; flex:1; font-size:14px"><input type="checkbox" id="hkAzSat"' + (azB.sat ? ' checked' : '') + ' style="width:22px; height:22px">土曜もやっている</label></div>';
-    rows.forEach(function(r){ h += azCard({name: r.name, chip: r.area + ' / ' + r.kind, addr: r.addr, lines: ['📍 ' + esc(r.addr), '📞 ' + telA(r.tel), '👶 定員 ' + esc(r.cap) + '名(1日)', '🕗 ' + esc(r.hours), '💴 支払い: ' + esc(r.pay)]}); });
+    rows.forEach(function(r){ h += azCard({name: r.name, chip: r.area + ' / ' + r.kind, addr: r.addr, lines: [].concat(azDLine(r.dist), ['📍 ' + esc(r.addr), '📞 ' + telA(r.tel), '👶 定員 ' + esc(r.cap) + '名(1日)', '🕗 ' + esc(r.hours), '💴 支払い: ' + esc(r.pay)])}); });
     if(!rows.length) h += '<p class="hint">条件に合う施設はありません。</p>';
     h += '<p class="hint">出典: <a href="' + d.url + '" target="_blank" rel="noopener">' + esc(d.src) + '</a>(確認日 ' + esc(d.checked) + ')。時間や定員は変わることがあります。電話で確認してください。区の登録制度の対象は、区の資料にある施設です。</p></section>';
   } else {
-    var n = AZ.ninkagai, all = n.rows.map(function(r){ return {no: r[0], name: r[1], cat: r[2], addr: r[3], tel: r[4], cap: r[5], hours: r[6], op: r[7], end: endMin(r[6])}; });
+    var n = AZ.ninkagai, all = n.rows.map(function(r){ return {no: r[0], name: r[1], cat: r[2], addr: r[3], tel: r[4], cap: r[5], hours: r[6], op: r[7], end: endMin(r[6]), dist: azDist(r[3])}; });
     var q = azF.q.trim().toLowerCase();
     var rows2 = all.filter(function(r){
       return (!azF.cat || r.cat === azF.cat) && (!azF.night || r.end >= 1200) && (!azF.all24 || r.end >= 1440)
         && (!q || (r.name + ' ' + r.addr + ' ' + r.op).toLowerCase().indexOf(q) >= 0);
     });
     if(azF.sort === 'cap') rows2.sort(function(a, b){ return (parseInt(b.cap, 10) || 0) - (parseInt(a.cap, 10) || 0); });
+    else if(azF.sort === 'near' && azO) rows2.sort(azByDist);
     else if(azF.sort === 'late') rows2.sort(function(a, b){ return b.end - a.end; });
     else rows2.sort(function(a, b){ return a.no - b.no; });
     h += '<section class="panel"><h2>認可外保育施設(' + rows2.length + '/' + all.length + '件)</h2>'
       + '<p class="hint" style="margin:0 0 8px">区に届け出ている認可外保育施設です。区は、ベビーホテル、企業主導型などに分けています。認可保育園と違い、区を通さず、施設と直接、契約します。利用するときの注意や、施設ごとの立入調査の結果は、区のページで見られます。</p>'
       + '<input id="hkAzQ" type="search" placeholder="名前・町名で探す(例: 経堂、インター)" value="' + esc(azF.q) + '" style="width:100%">'
-      + '<div style="display:flex; gap:8px; margin:8px 0"><select id="hkAzCat" aria-label="分類" style="flex:1"><option value="">全部の分類</option>' + ['ベビーホテル', '企業主導型', 'その他', 'ほか'].map(function(c){ return '<option value="' + c + '"' + (azF.cat === c ? ' selected' : '') + '>' + (c === 'ほか' ? 'ほか(院内・事業所内など)' : c) + '</option>'; }).join('') + '</select><select id="hkAzSort" aria-label="並び順" style="flex:1"><option value="name"' + (azF.sort === 'name' ? ' selected' : '') + '>区の一覧の順</option><option value="cap"' + (azF.sort === 'cap' ? ' selected' : '') + '>定員が多い順</option><option value="late"' + (azF.sort === 'late' ? ' selected' : '') + '>遅くまでの順</option></select></div>'
+      + '<div style="display:flex; gap:8px; margin:8px 0"><select id="hkAzCat" aria-label="分類" style="flex:1"><option value="">全部の分類</option>' + ['ベビーホテル', '企業主導型', 'その他', 'ほか'].map(function(c){ return '<option value="' + c + '"' + (azF.cat === c ? ' selected' : '') + '>' + (c === 'ほか' ? 'ほか(院内・事業所内など)' : c) + '</option>'; }).join('') + '</select><select id="hkAzSort" aria-label="並び順" style="flex:1"><option value="name"' + (azF.sort === 'name' ? ' selected' : '') + '>区の一覧の順</option><option value="cap"' + (azF.sort === 'cap' ? ' selected' : '') + '>定員が多い順</option><option value="near"' + (azF.sort === 'near' ? ' selected' : '') + '>' + (azO ? '近い順' : '近い順(住所を入れてください)') + '</option><option value="late"' + (azF.sort === 'late' ? ' selected' : '') + '>遅くまでの順</option></select></div>'
       + '<div style="display:flex; gap:14px; flex-wrap:wrap; font-size:14px; margin-bottom:8px"><label style="display:flex; align-items:center; gap:6px"><input type="checkbox" id="hkAzNight"' + (azF.night ? ' checked' : '') + ' style="width:22px; height:22px">20時以降まで</label><label style="display:flex; align-items:center; gap:6px"><input type="checkbox" id="hkAzAll"' + (azF.all24 ? ' checked' : '') + ' style="width:22px; height:22px">24時間・夜通し</label></div>';
     rows2.slice(0, azShown).forEach(function(r){
-      var lines = ['📍 ' + esc(r.addr), '📞 ' + telA(r.tel), '👶 定員 ' + esc(r.cap) + (/^\d/.test(r.cap) ? '名' : ''), '🕗 ' + esc(r.hours), '🏢 ' + esc(r.op)];
+      var lines = azDLine(r.dist).concat(['📍 ' + esc(r.addr), '📞 ' + telA(r.tel), '👶 定員 ' + esc(r.cap) + (/^\d/.test(r.cap) ? '名' : ''), '🕗 ' + esc(r.hours), '🏢 ' + esc(r.op)]);
       if(r.name.indexOf('病児') >= 0) lines.push('ℹ️ 区の「病児・病後児保育」(登録制)とは別の、認可外の施設です。');
       h += azCard({name: r.name, chip: r.cat === 'ほか' ? '区の一覧で確認' : r.cat, addr: r.addr, lines: lines});
     });
