@@ -934,7 +934,7 @@ var PAID = [
   ['sched', 'スケジュール', '区の申込みの日程と、やることリスト。締切が近づくと、画面の上にお知らせが出ます。カレンダーにも入れられます。'],
   ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
   ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。'],
-  ['dist', '園ごとの指数の分布', '「園を探す」の各園に、その地域の0〜5歳児クラスごとの入園者の指数の分布と、あなたの予想指数の位置が出ます。'],
+  ['dist', '園ごとの指数の分布', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i style="flex:5"></i><i style="flex:5"></i><i style="flex:50"></i><i style="flex:10"></i><i class="me" style="flex:10"></i><i style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b>(低い区分 70%・同じ 10%・高い 20%)</div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。</small></details>'],
   ['wish', '希望園の並べ方', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。']
 ];
 function planHtml(){
@@ -966,7 +966,7 @@ function renderPaid(){
   var own = unlockActive(), st = TRIAL ? 'お試し中' : (own ? '使えます' : '有料');
   var h = '<section class="panel"><h2>' + CR + ' 課金でできること</h2><p class="hint" style="margin:0">王冠のマークが付いた機能が、有料版の機能です。毎月、区の最新の情報に更新しています。' + (TRIAL ? '<b>いまは、お試しで全員が無料で使えます。</b>' : '') + '</p>';
   PAID.forEach(function(x){
-    h += '<div class="ev"><div class="d">' + CR + ' ' + esc(x[1]) + ' <span class="badge" style="font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px">' + st + '</span></div><div class="n">' + esc(x[2]) + '</div><button type="button" data-p="' + x[0] + '" style="width:max-content; min-height:40px; padding:0 18px; margin-top:4px">開く</button></div>';
+    h += '<div class="ev"><div class="d">' + CR + ' ' + esc(x[1]) + ' <span class="badge" style="font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px">' + st + '</span></div><div class="n">' + esc(x[2]) + '</div>' + (x[3] || '') + '<button type="button" data-p="' + x[0] + '" style="width:max-content; min-height:40px; padding:0 18px; margin-top:4px">開く</button></div>';
   });
   h += '<p class="hint" style="margin:10px 0 0">無料のまま使えるもの: 点数シミュレーター、園を探す、園を比べる、見学メモ(3園まで)。</p></section>';
   h += '<section class="panel"><h2>' + CR + ' 料金プラン</h2>' + planHtml() + '</section>';
