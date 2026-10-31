@@ -46,6 +46,22 @@ header .hero{display:block; width:100%; height:auto; margin-bottom:12px}
 header .tag, header h1, header .lead{margin-left:6px; margin-right:6px}
 header .tag{display:inline-block; font-size:12px; line-height:1.5; font-weight:700; color:var(--accent); background:var(--accent-soft); border-radius:12px; padding:2px 10px; margin:0}
 h1{font-family:var(--font-display); font-size:22px; line-height:1.4; margin-top:8px; margin-bottom:4px; text-wrap:balance}
+.feat{margin:16px 6px 0; padding:10px 12px; background:var(--field); border-radius:16px}
+.feat .fh2{margin:0 0 6px; font-size:13px; font-weight:700; color:var(--accent); text-align:center}
+.feat ul{list-style:none; margin:0; padding:0; display:grid; gap:2px}
+.feat li{display:flex; gap:8px; align-items:flex-start; padding:5px 0; border-top:1px dotted var(--line)}
+.feat li:first-child{border-top:0}
+.feat .fi{flex:none; width:24px; text-align:center; font-size:17px; line-height:1.3}
+.feat .ft{font-size:13px; line-height:1.4; min-width:0}
+.feat .ft b{font-size:13px}
+.feat .ft small{display:block; font-size:11px; color:var(--muted); font-weight:500; line-height:1.4}
+.feat .fcr{font-size:11px; margin-left:4px}
+details.leadd{margin:8px 6px 0; text-align:center}
+details.leadd summary{cursor:pointer; list-style:none; font-size:10.5px; color:var(--muted); line-height:1.5}
+details.leadd summary::-webkit-details-marker{display:none}
+details.leadd .lt{margin-left:4px; font-size:9px}
+details.leadd[open] .lt{display:inline-block; transform:rotate(180deg)}
+details.leadd p.lead{font-size:10.5px!important; margin:2px 0 0!important}
 header p.lead{margin-top:0; margin-bottom:0; color:var(--muted); font-size:12px; line-height:1.6}
 .steps{display:flex; gap:8px; margin:0 0 14px; padding:0; list-style:none; counter-reset:s}
 .steps li{flex:1; font-size:13px; text-align:center; padding:6px 4px; border-radius:999px; background:var(--surface); color:var(--muted); border:2px solid transparent; white-space:nowrap}
@@ -301,7 +317,8 @@ img{max-width:100%}
 </svg>
     <p class="tag" id="tag">世田谷区・認可保育園</p>
     <h1>保活アプリ<span class="sub">点数シミュレーター・園の比較・見学メモ</span></h1>
-    <p class="lead">点数シミュレーターは、2〜3分で入力できます。表示は目安で、実際の指数は区の「保育のごあんない」と提出書類で決まります。</p>
+    <div class="feat"><p class="fh2">このアプリでできること</p><ul><li><span class="fi">🧮</span><span class="ft"><b>点数シミュレーター</b><small>保護者の状況から、予想の指数がわかります。</small></span></li><li><span class="fi">📅</span><span class="ft"><b>スケジュール</b><span class="fcr" aria-label="有料版">👑</span><small>区の申込みの日程と、やることリスト。</small></span></li><li><span class="fi">📋</span><span class="ft"><b>提出前チェック</b><span class="fcr" aria-label="有料版">👑</span><small>必要書類と、出す前の最終チェック。</small></span></li><li><span class="fi">🔍</span><span class="ft"><b>園を探す</b><small>昨年の倍率と、地域ごとの指数の分布。住所から近い順にも。</small></span></li><li><span class="fi">⚖️</span><span class="ft"><b>園を比べる</b><small>見学した園を、並べて比べられます。</small></span></li><li><span class="fi">📝</span><span class="ft"><b>見学メモ</b><small>見学した園の様子を記録。写真・夫婦の同期も。</small></span></li><li><span class="fi">🍼</span><span class="ft"><b>預け先を探す</b><small>病児保育と認可外保育施設を探せます。</small></span></li><li><span class="fi">👑</span><span class="ft"><b>課金でできること</b><small>有料版の機能と、料金プランの案内。</small></span></li></ul></div>
+    <details class="leadd"><summary>点数シミュレーターは、2〜3分で入力できます。<span class="lt">▼</span></summary><p class="lead">表示は目安で、実際の指数は区の「保育のごあんない」と提出書類で決まります。</p></details>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="機能">
@@ -2595,6 +2612,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=55"></script>
+<script src="features.js?v=56"></script>
 </body>
 </html>
