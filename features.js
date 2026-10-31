@@ -133,8 +133,9 @@ css.textContent = [
 '.sc{display:inline-block; font-size:13px; font-weight:700; border-radius:999px; padding:1px 10px; background:var(--field); color:var(--muted); white-space:nowrap}',
 '.sc.soon{background:var(--note); color:var(--note-fg)}.sc.hot{background:var(--pop-soft); color:var(--minus)}.sc.past{opacity:.6}',
 '.nx{background:var(--accent-soft); border-radius:20px; padding:14px 16px; margin-top:8px}.nx .big{font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--accent)}',
-'.ev{display:grid; gap:4px; padding:12px 0; border-top:2px dotted var(--line)}.ev:first-child{border-top:0}',
-'.ev.pastev{opacity:.55}.ev .d{font-family:var(--font-display); font-weight:700; font-size:16px}.ev .n{font-size:13px; color:var(--muted); line-height:1.6}',
+'.ev{display:grid; gap:1px; padding:8px 0; border-top:1px dotted var(--line); cursor:pointer}.ev:first-child{border-top:0}.ev b{font-size:15px; line-height:1.35}',
+'.ev.has .n{display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden}.ev.has.open .n{-webkit-line-clamp:unset; display:block}.ev.has b::after{content:" ▾"; color:var(--muted); font-size:12px}.ev.has.open b::after{content:" ▴"}',
+'.ev.pastev{opacity:.55}.ev .d{font-family:var(--font-display); font-weight:700; font-size:14px}.ev .n{font-size:12px; color:var(--muted); line-height:1.5}',
 '.ev a.cal, a.btnlike{display:inline-block; font-size:14px; font-weight:700; color:var(--accent); text-decoration:none; border:2px solid var(--line); border-radius:999px; padding:6px 14px; margin-top:4px; width:max-content}',
 '.tk{display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-top:2px dotted var(--line)}.tk:first-child{border-top:0}',
 '.tk input{width:26px; height:26px; flex:none; margin-top:2px}.tk .x{flex:1; min-width:0; overflow-wrap:anywhere}.tk .x small{display:block; color:var(--muted); font-size:13px}',
@@ -304,7 +305,7 @@ function renderSched(){
   h += '<section class="panel"><h2>区の日程</h2>';
   EVENTS.forEach(function(ev){
     var k = daysLeft(ev.date);
-    h += '<div class="ev' + (k < 0 ? ' pastev' : '') + '"><div class="d">' + md(ev.date) + ' ' + chip(k) + '</div><div><b>' + esc(ev.title) + '</b></div>'
+    h += '<div class="ev' + (k < 0 ? ' pastev' : '') + (ev.note ? ' has' : '') + '"><div class="d">' + md(ev.date) + ' ' + chip(k) + '</div><div><b>' + esc(ev.title) + '</b></div>'
       + (ev.note ? '<div class="n">' + esc(ev.note) + '</div>' : '')
       + '</div>';
   });
@@ -323,6 +324,7 @@ function renderSched(){
   h += '<div class="addtk"><label class="field" for="hkNt" style="margin:0">自分のやることを足す</label><input id="hkNt" type="text" placeholder="例: 祖父母に送迎をお願いする"><label class="field" for="hkNd" style="margin:0">日付(なくても大丈夫です)</label><input id="hkNd" type="date"><button type="button" class="primary" id="hkNa">追加する</button></div></section>';
   view.innerHTML = h;
   renderCal();
+  Array.prototype.forEach.call(view.querySelectorAll('.ev.has'), function(e){ e.addEventListener('click', function(){ e.classList.toggle('open'); }); });
   $('hkIcs').addEventListener('click', function(){ download('hoikatsu-schedule.ics', icsText(), 'text/calendar'); });
   Array.prototype.forEach.call(view.querySelectorAll('input[data-t]'), function(c){
     c.addEventListener('change', function(){ if(c.checked) sched.done[c.dataset.t] = true; else delete sched.done[c.dataset.t]; sSave(); renderSched(); });
