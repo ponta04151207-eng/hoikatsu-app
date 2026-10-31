@@ -170,6 +170,13 @@ css.textContent = [
 '.fimg{display:flex; gap:10px; align-items:center; margin:6px 0}.fimg .fpic{flex:none; line-height:0}.fimg .ftx{display:grid; gap:2px; min-width:0}.fimg .fcap{color:var(--muted); font-size:11px}.fimg a{font-size:14px; font-weight:700; color:var(--accent); text-decoration:none}',
 '.tk.dk{padding:6px 0; gap:8px}.tk.dk .x{font-size:15px; line-height:1.4}.tk.dk details{margin:0}.tk.dk summary{font-size:12px; line-height:1.3; min-height:0; height:auto; margin:0; color:var(--muted); cursor:pointer; padding:0; width:max-content; display:list-item}.tk.dk .x b{display:inline}.tk.dk .sc{font-size:11px; padding:0 8px}.tk.dk input{width:24px; height:24px}.tk.dk small{margin-top:2px}',
 '.addtk{display:grid; gap:8px; margin-top:10px}',
+'.cal7{gap:3px}.cal7 .wd{font-size:11px; padding:0}',
+'.cday{min-height:38px; padding:3px 0 2px; gap:0; border-radius:10px; font-size:14px; border-width:1.5px}.cday .dots{min-height:12px; font-size:10px}',
+'.calh{margin-bottom:4px}.calh b{font-size:16px}.calh button{min-height:34px; min-width:40px; padding:0 10px; font-size:13px}',
+'.cleg{gap:2px 9px; font-size:11px; margin:6px 0}.cleg span{gap:2px}',
+'#hkCal h3{font-size:14px; margin:6px 0 2px}.dd{padding:5px 0}.dd .t{font-size:14px}.dd small{font-size:12px}',
+'.calform{padding:8px 10px; margin-top:8px; border-radius:14px}.calform > div:first-child{font-size:14px !important}.calsteps{margin:3px 0; padding-left:1.2em; font-size:12px; line-height:1.5}.calpick{padding:4px 10px; font-size:13px; border-radius:10px}.calform .field{font-size:12px; margin:6px 0 2px !important}.calform input[type=text]{min-height:40px; font-size:15px}.calform .primary{min-height:42px; font-size:15px; margin-top:6px !important}',
+
 '#hkPlus details.plus{border-top:2px dotted var(--line); padding:10px 0}#hkPlus details.plus > summary{font-family:var(--font-display); font-weight:700; font-size:17px; cursor:pointer; padding:6px 0}',
 '#hkPlus .badge{font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px}',
 '.ph{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}.ph figure{margin:0; position:relative}.ph img{width:96px; height:96px; object-fit:cover; border-radius:14px; display:block}',
@@ -306,7 +313,7 @@ function renderCal(){
   h += '<h3 style="font-size:16px; margin:8px 0 4px">' + md(calSel) + (daysLeft(calSel) >= 0 ? ' <span class="sc">' + (daysLeft(calSel) === 0 ? '今日' : 'あと' + daysLeft(calSel) + '日') + '</span>' : '') + '</h3>';
   if(!items.length) h += '<p class="hint" style="margin:0">この日の予定は、ありません。</p>';
   items.forEach(function(x){ h += '<div class="dd"><div class="t">' + KIND[x.k][1] + ' ' + esc(x.t) + (x.done ? ' ✔' : '') + '</div><small>' + KIND[x.k][0] + (x.n ? ' / ' + esc(x.n) : '') + '</small></div>'; });
-  h += '<div class="calform"><div style="font-weight:700; font-size:16px">✏️ 予定を入れる</div><ol class="calsteps"><li>上のカレンダーで、<b>日付をタップ</b>します。</li><li>下に、予定を書きます。</li><li>ボタンを押すと、その日に入ります。</li></ol><div class="calpick">選んでいる日: <b>' + md(calSel) + '</b></div><label class="field" for="hkCalT" style="margin:10px 0 4px">予定の内容</label><input id="hkCalT" type="text" placeholder="例: ○○保育園の見学(10時)"><button type="button" class="primary" id="hkCalA" style="width:100%; margin-top:8px">' + md(calSel) + 'に入れる</button></div>';
+  h += '<div class="calform"><div style="font-weight:700; font-size:16px">✏️ 予定を入れる</div><div class="calsteps" style="list-style:none; padding-left:0">① 上で<b>日付をタップ</b> → ② 予定を書く → ③ ボタンを押す</div><div class="calpick">選んでいる日: <b>' + md(calSel) + '</b></div><label class="field" for="hkCalT" style="margin:10px 0 4px">予定の内容</label><input id="hkCalT" type="text" placeholder="例: ○○保育園の見学(10時)"><button type="button" class="primary" id="hkCalA" style="width:100%; margin-top:8px">' + md(calSel) + 'に入れる</button></div>';
   box.innerHTML = h;
 }
 
