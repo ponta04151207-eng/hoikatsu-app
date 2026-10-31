@@ -127,6 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+'.hint{font-size:11px!important; line-height:1.6!important}.notice{font-size:12px!important; line-height:1.65!important}.ev .n{font-size:12px!important; line-height:1.55!important}.azc .azl{font-size:13px!important}',
 '.azc{background:var(--surface); border:2px solid var(--line); border-left:7px solid var(--accent); border-radius:16px; padding:12px 12px 12px 14px; margin-top:10px; box-shadow:var(--shadow)}',
 '.azc .azn{font-family:var(--font-display); font-size:20px; font-weight:700; line-height:1.35; color:var(--accent); overflow-wrap:anywhere}',
 '.azc .azl{font-size:14px; line-height:1.75; color:var(--fg)}',
@@ -1533,4 +1534,36 @@ if(hint){
     if(hint.textContent.indexOf('準備中') >= 0 && PREMIUM) hint.textContent = '無料では3園まで比べられます。4園以上は、上の「見学メモ プラス」の「すべての園を並べて比べる」で見られます。';
   }).observe(hint, {childList: true, characterData: true, subtree: true});
 }
+
+/* ===== 説明文は「。」のあとで改行 ===== */
+(function(){
+  var SEL = '.hint, .notice, .ev .n, .dbx, #dSummary, #notices li, .azc .azl';
+  var busy = false;
+  function fix(root){
+    if(busy || !root || root.nodeType !== 1) return;
+    busy = true;
+    try{
+      var list = root.matches && root.matches(SEL) ? [root] : [];
+      list = list.concat([].slice.call(root.querySelectorAll(SEL)));
+      list.forEach(function(el){
+        var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), n, arr = [];
+        while((n = w.nextNode())) arr.push(n);
+        arr.forEach(function(t){
+          var p = t.parentNode; if(!p || /^(SCRIPT|STYLE|TEXTAREA|OPTION|A|BUTTON)$/.test(p.nodeName)) return;
+          var s = t.nodeValue; if(s.indexOf('。') < 0 || /^\s*。?\s*$/.test(s)) return;
+          var parts = s.split(/(?<=。)(?=[^\s。」)）])/);
+          if(parts.length < 2) return;
+          var fr = document.createDocumentFragment();
+          parts.forEach(function(x, i){ if(i) fr.appendChild(document.createElement('br')); fr.appendChild(document.createTextNode(x)); });
+          p.replaceChild(fr, t);
+        });
+      });
+    }catch(e){}
+    busy = false;
+  }
+  fix(document.body);
+  new MutationObserver(function(ms){
+    ms.forEach(function(m){ [].slice.call(m.addedNodes).forEach(function(n){ if(n.nodeType === 1) fix(n); else if(n.parentNode && n.parentNode.nodeType === 1) fix(n.parentNode); }); });
+  }).observe(document.body, {childList: true, subtree: true, characterData: false});
+})();
 })();
