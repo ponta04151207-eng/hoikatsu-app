@@ -1167,7 +1167,7 @@ var AZ = window.AZUKE || null;
 var tbAz = document.createElement('button');
 tbAz.type = 'button'; tbAz.id = 'tabAzuke'; tbAz.className = 'hero'; tbAz.setAttribute('role', 'tab'); tbAz.setAttribute('aria-selected', 'false');
 tbAz.style.gridColumn = 'span 6';
-tbAz.innerHTML = '<span class="ti">🍼</span><span>預け先を探す</span>';
+tbAz.innerHTML = '<span class="ti">🍼</span><span>預け先を探す<small style="display:block; font-size:11px; font-weight:500; line-height:1.2">(病児・認可外)</small></span>';
 tabs.insertBefore(tbAz, $('tabAbout'));
 $('tabAbout').style.gridColumn = 'span 3'; tbS.style.gridColumn = 'span 3';
 var viewAz = document.createElement('div'); viewAz.id = 'viewAzuke'; viewAz.hidden = true;
