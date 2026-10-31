@@ -263,7 +263,7 @@ table.ftbl, table.vtbl{border-collapse:collapse; width:100%; font-size:13px}
 button.mini{min-height:36px; min-width:36px; padding:0 8px; font-size:13px; border-width:2px}
 .ftbl button.mini{background:var(--accent-soft); border-color:transparent; color:var(--accent); font-size:16px}
 .cmp th, .cmp td{padding:4px 5px}
-table.cmp{font-size:12.5px; min-width:0}.cmp thead th{font-size:12.5px; line-height:1.3; word-break:keep-all; overflow-wrap:anywhere}.cmp th:first-child, .cmp td:first-child{min-width:0; width:34%; font-size:12px; line-height:1.4; font-weight:700}.cmp .s{font-size:15px}.cmp td{font-size:12.5px}
+table.cmp{font-size:12.5px; min-width:0}.cmp thead th{font-size:12.5px; line-height:1.3; word-break:keep-all; overflow-wrap:anywhere}.cmp th:first-child, .cmp td:first-child{min-width:0; width:34%; font-size:12px; line-height:1.4; font-weight:700}.cmp .s{font-size:15px}.cmp th[scope=row] small{display:block; font-size:10.5px; font-weight:500; color:var(--muted); line-height:1.3}.cmp th[scope=row]{white-space:nowrap}.cmp td{font-size:12.5px}
 .cmp .s{font-size:15px}
 [hidden]{display:none!important}
 body{margin:0}
@@ -1961,21 +1961,26 @@ window.SHISUU_DIST.r8 = {
       : '「比べる」にチェックを入れた園が並びます(最大3園)。';
     var sel = all.slice(0, 3);
     if(sel.length < 2){ $('vCmp').innerHTML = '<p class="hint">2園以上にチェックを入れると、比較表が出ます。</p>'; return; }
-    function row(label, fn){ return '<tr><th scope="row">' + esc(label) + '</th>' + sel.map(function(v){ return '<td>' + fn(v) + '</td>'; }).join('') + '</tr>'; }
+    function lab2(l, sub){
+      if(sub) return esc(l) + '<br><small>' + esc(sub) + '</small>';
+      var k = l.indexOf('('); if(k < 0) k = l.indexOf('・');
+      return k > 0 ? esc(l.slice(0, k)) + '<br><small>' + esc(l.charAt(k) === '・' ? l.slice(k + 1) : l.slice(k)) + '</small>' : esc(l);
+    }
+    function row(label, fn, sub){ return '<tr><th scope="row">' + lab2(label, sub) + '</th>' + sel.map(function(v){ return '<td>' + fn(v) + '</td>'; }).join('') + '</tr>'; }
     function num(fn){ return function(v){ var s = sv(v); var x = s ? fn(s) : null; return x === null || x === undefined ? '―' : x; }; }
     var h = '<table class="cmp"><thead><tr><th scope="col">項目</th>'
       + sel.map(function(v){ return '<th scope="col">' + esc(v.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
     h += row('評価(◯Aさん △Bさん)', function(v){ return '<b>◯' + (v.ra || '―') + '</b> <b>△' + (v.rb || '―') + '</b>'; });
     h += row((overlay ? VAC.short + 'の' : '昨年の') + '入園可能数(' + cls + '歳児)', num(function(s){ return s.vac === null ? null : s.vac + '人'; }));
-    h += row('第1希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r1 === null ? null : times(s.r1)); }));
-    h += row('全希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r2 === null ? null : times(s.r2)); }));
+    h += row('第1希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r1 === null ? null : times(s.r1)); }), '(第1希望の人数÷可能数)');
+    h += row('全希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r2 === null ? null : times(s.r2)); }), '(全希望の人数÷可能数)');
     V_ITEMS.forEach(function(it){
       h += row(it.l, function(v){
         var s = v.st[it.id] || 'q';
         return '<span class="s ' + s + '" role="img" aria-label="' + V_STATUS[s].t + '">' + V_STATUS[s].s + '</span>';
       });
     });
-    h += row('聞き忘れの数', function(v){ return counts(v).q + ' 項目'; });
+    h += row('聞き忘れの数', function(v){ return counts(v).q + ' 項目'; }, '(？をつけた項目)');
     $('vCmp').innerHTML = h + '</tbody></table><p class="hint">○ 良い / △ 気になる / ？ 聞き忘れ / ― 数字なし' + (overlay ? '。倍率は、昨年の申込数を今年の入園可能数で割った数字です。' : '') + '</p>';
   }
 
@@ -2590,6 +2595,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=54"></script>
+<script src="features.js?v=55"></script>
 </body>
 </html>
