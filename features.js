@@ -25,6 +25,7 @@ function unlockTok(){ var o = lsGet(UL_KEY, null); return (o && typeof o === 'ob
 function unlockUntil(){ var o = lsGet(UL_KEY, null); return (o && typeof o === 'object' && o.until) ? o.until : null; }
 function unlockActive(){ var u = unlockUntil(); if(!u) return false; var t = new Date(); var today = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); return u >= today; }
 var PREMIUM = TRIAL || unlockActive();
+window.HK_PREMIUM = PREMIUM; if(window.HK && HK.renderFind){ try{ HK.renderFind(); }catch(e){} }
 
 function lsGet(k, d){ try{ var s = localStorage.getItem(k); return s === null ? d : JSON.parse(s); }catch(e){ return d; } }
 function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -933,6 +934,7 @@ var PAID = [
   ['sched', 'スケジュール', '区の申込みの日程と、やることリスト。締切が近づくと、画面の上にお知らせが出ます。カレンダーにも入れられます。'],
   ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
   ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。'],
+  ['dist', '園ごとの指数の分布', '「園を探す」の各園に、その地域の0〜5歳児クラスごとの入園者の指数の分布と、あなたの予想指数の位置が出ます。'],
   ['wish', '希望園の並べ方', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。']
 ];
 function planHtml(){
@@ -993,6 +995,7 @@ viewP.addEventListener('click', function(e){
   if(!k) return;
   if(k === 'sched') showSched();
   else if(k === 'docs') showDocs();
+  else if(k === 'dist'){ $('tabFind').click(); }
   else { $('tabVisit').click(); setTimeout(function(){ var d = k === 'wish' ? $('hkD6') : null; if(d) d.open = true; var t = $(k === 'plus' ? 'hkPlus' : 'hkD6'); if(t) t.scrollIntoView(); }, 120); }
 });
 
