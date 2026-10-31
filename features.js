@@ -330,7 +330,7 @@ function renderSched(){
   });
   h += '<button type="button" id="hkIcs" style="width:100%; margin-top:12px">📥 全部まとめてカレンダーに入れる(.icsファイル)</button><p class="hint">締切には、7日前・前日・当日の朝9時のお知らせも付きます。ダウンロードしたファイルを開くと、カレンダーアプリに入ります。</p></section>';
 
-  h += '<section class="panel"><h2>日付が決まっていない区の発表</h2><ul class="about plain">' + UNDATED.map(function(u){ return '<li>' + esc(u) + '</li>'; }).join('') + '</ul><p class="hint">決まったら、このファイルの日程を直します。区のページ: <a href="' + SRC.url + '" target="_blank" rel="noopener">令和9年4月入園のページ</a></p></section>';
+  h += '<section class="panel"><h2>今後公開予定</h2><ul class="about plain">' + UNDATED.map(function(u){ return '<li>' + esc(u) + '</li>'; }).join('') + '</ul><p class="hint">決まったら、このファイルの日程を直します。区のページ: <a href="' + SRC.url + '" target="_blank" rel="noopener">令和9年4月入園のページ</a></p></section>';
 
   var ts = allTasks();
   ts.sort(function(a, b){ return (a.due || '9999').localeCompare(b.due || '9999'); });
