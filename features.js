@@ -1476,6 +1476,26 @@ function syJoin(code, manual){
   }
 })();
 
+/* ===== タブを押したとき、その画面のタイトルが、画面の一番上にくるようにする ===== */
+(function(){
+  var skip = {tabFind: 1, tabCmp: 1, tabVisit: 1}; /* この3つは、もとから、それぞれの場所へ動く */
+  function top(){
+    var ids = ['viewIndex', 'viewAbout', 'viewVisit', 'viewSched', 'viewDocs', 'viewPaid', 'viewSet', 'viewAzuke'];
+    for(var i = 0; i < ids.length; i++){
+      var el = document.getElementById(ids[i]);
+      if(el && !el.hidden){
+        var t = el.querySelector('.panel, section, h2') || el;
+        window.scrollTo(0, Math.max(0, t.getBoundingClientRect().top + window.pageYOffset - 10));
+        return;
+      }
+    }
+  }
+  Array.prototype.forEach.call(tabs.querySelectorAll('button'), function(b){
+    if(skip[b.id]) return;
+    b.addEventListener('click', function(){ setTimeout(top, 30); });
+  });
+})();
+
 /* 無料版のひとことを、プラスへの案内に差し替える */
 var hint = $('vCmpHint');
 if(hint){
