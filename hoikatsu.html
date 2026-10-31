@@ -241,7 +241,8 @@ table.ftbl, table.vtbl{border-collapse:collapse; width:100%; font-size:13px}
 .vtbl input.big{width:24px; height:24px; accent-color:var(--accent)}
 button.mini{min-height:36px; min-width:36px; padding:0 8px; font-size:13px; border-width:2px}
 .ftbl button.mini{background:var(--accent-soft); border-color:transparent; color:var(--accent); font-size:16px}
-.cmp th, .cmp td{padding:6px 6px}
+.cmp th, .cmp td{padding:4px 5px}
+table.cmp{font-size:12.5px; min-width:0}.cmp thead th{font-size:12.5px; line-height:1.3; word-break:keep-all; overflow-wrap:anywhere}.cmp th:first-child, .cmp td:first-child{min-width:0; width:34%; font-size:12px; line-height:1.4; font-weight:700}.cmp .s{font-size:15px}.cmp td{font-size:12.5px}
 .cmp .s{font-size:15px}
 [hidden]{display:none!important}
 body{margin:0}
@@ -437,9 +438,9 @@ img{max-width:100%}
       <h3 class="grp" style="margin-top:18px">確認した項目</h3>
       <p class="hint" style="margin:0 0 6px"><b>○</b> 良い　<b>△</b> 気になる　<b>？</b> 聞き忘れ。聞けなかった項目は「？」のままにすると、次の見学や問い合わせで確認できます。</p>
       <div id="vItems"></div>
-      <label class="field" for="v-ra">保護者Aの評価</label>
+      <label class="field" for="v-ra">保護者Aの評価(◯)</label>
       <select id="v-ra"></select>
-      <label class="field" for="v-rb">保護者Bの評価</label>
+      <label class="field" for="v-rb">保護者Bの評価(△)</label>
       <select id="v-rb"></select>
       <label class="field" for="v-memo">メモ</label>
       <textarea id="v-memo"></textarea>
@@ -1918,7 +1919,7 @@ window.SHISUU_DIST.r8 = {
         var btns = askDel === v.id
           ? '<button type="button" class="mini" data-act="delok" data-id="'+v.id+'" style="color:var(--minus)">削除する</button><button type="button" class="mini" data-act="delno" data-id="'+v.id+'">やめる</button>'
           : '<button type="button" class="mini" data-act="edit" data-id="'+v.id+'">編集</button><button type="button" class="mini" data-act="del" data-id="'+v.id+'">削除</button>';
-        var meta = esc(v.area) + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + ' ・ A' + (v.ra || '―') + ' B' + (v.rb || '―');
+        var meta = esc(v.area) + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + ' ・ ◯' + (v.ra || '―') + ' △' + (v.rb || '―');
         return '<tr><th scope="row"><span class="fn">' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</span><small>' + meta + '</small>'
           + (v.memo ? '<small class="memo1">' + esc(v.memo) + '</small>' : '') + '<span class="vb">' + btns + '</span></th>'
           + '<td class="cnt"><span class="g">○' + c.g + '</span> <span class="w">△' + c.w + '</span> <span class="q">？' + c.q + '</span></td>'
@@ -1942,7 +1943,7 @@ window.SHISUU_DIST.r8 = {
     function num(fn){ return function(v){ var s = sv(v); var x = s ? fn(s) : null; return x === null || x === undefined ? '―' : x; }; }
     var h = '<table class="cmp"><thead><tr><th scope="col">項目</th>'
       + sel.map(function(v){ return '<th scope="col">' + esc(v.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
-    h += row('評価 A / B', function(v){ return (v.ra || '―') + ' / ' + (v.rb || '―'); });
+    h += row('評価(◯Aさん △Bさん)', function(v){ return '<b>◯' + (v.ra || '―') + '</b> <b>△' + (v.rb || '―') + '</b>'; });
     h += row((overlay ? VAC.short + 'の' : '昨年の') + '入園可能数(' + cls + '歳児)', num(function(s){ return s.vac === null ? null : s.vac + '人'; }));
     h += row('第1希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r1 === null ? null : times(s.r1)); }));
     h += row('全希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r2 === null ? null : times(s.r2)); }));
@@ -2231,6 +2232,6 @@ window.SHISUU_DIST.r8 = {
 </script>
 
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=42"></script>
+<script src="features.js?v=44"></script>
 </body>
 </html>

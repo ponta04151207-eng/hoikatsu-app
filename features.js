@@ -530,7 +530,7 @@ function renderAll(){
   function row(label, fn){ return '<tr><th scope="row">' + esc(label) + '</th>' + vs.map(function(v){ return '<td>' + fn(v) + '</td>'; }).join('') + '</tr>'; }
   var h = '<p class="hint" style="margin:0">園の数に上限はありません(無料版は3園まで)。横にスライドして見られます。</p><div class="tblwrap"><table class="cmp"><thead><tr><th scope="col">項目</th>' + vs.map(function(v){ return '<th scope="col">' + esc(v.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
   h += row('地域・見学日', function(v){ return esc(v.area) + (v.date ? '<br>' + esc(v.date.slice(5).replace('-', '/')) : ''); });
-  h += row('評価 A / B', function(v){ return (v.ra || '―') + ' / ' + (v.rb || '―'); });
+  h += row('評価(◯Aさん △Bさん)', function(v){ return '<b>◯' + (v.ra || '―') + '</b> <b>△' + (v.rb || '―') + '</b>'; });
   h += row('入園可能数', function(v){ var s = vst(v); return s && s.vac !== null ? s.vac + '人' : '―'; });
   h += row('第1希望の倍率', function(v){ var s = vst(v); return s && s.r1 !== null ? HK.times(s.r1) : '―'; });
   h += row('全希望の倍率', function(v){ var s = vst(v); return s && s.r2 !== null ? '<b>' + HK.times(s.r2) + '</b>' : '―'; });
