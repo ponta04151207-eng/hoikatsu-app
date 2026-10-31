@@ -181,6 +181,10 @@ css.textContent = [
 '.cday{min-height:26px !important; font-size:12px !important; padding:2px 0 1px !important; border-radius:7px !important}.cday .dots{min-height:9px !important; font-size:8px !important}.cal7{gap:2px !important}.cal7 .wd{font-size:10px}',
 '.calh button{min-height:28px !important; min-width:34px !important}.calh b{font-size:14px !important}',
 '#hkCal h3{font-size:13px !important; margin:4px 0 2px !important}.cleg{font-size:10px !important}',
+'#hkCal .calh, #hkCal .cal7, #hkCal .cleg{max-width:290px; margin-left:auto; margin-right:auto}',
+'.cday{min-height:22px !important; font-size:11px !important; padding:1px 0 0 !important; border-radius:6px !important; border-width:1px !important}.cday .dots{min-height:8px !important; font-size:7px !important}.cal7{gap:1px !important}.cal7 .wd{font-size:9px !important}',
+'.calh{margin-bottom:0 !important}.calh button{min-height:24px !important; min-width:30px !important; font-size:11px !important}.calh b{font-size:13px !important}',
+'.cleg{font-size:9px !important; gap:0 6px !important; margin:3px auto !important}',
 '.calform{padding:6px 9px !important; margin-top:6px !important}.calsteps{font-size:11px !important}.calpick{font-size:12px !important; padding:3px 9px !important}.calform input[type=text]{min-height:36px !important; font-size:14px !important}.calform .primary{min-height:38px !important; font-size:14px !important}',
 
 '.cday{min-height:38px; padding:3px 0 2px; gap:0; border-radius:10px; font-size:14px; border-width:1.5px}.cday .dots{min-height:12px; font-size:10px}',
