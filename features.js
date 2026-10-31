@@ -294,7 +294,7 @@ function renderSched(){
   var nx = nextDeadline(), h = '';
   h += '<section class="panel"><h2>' + CR + ' スケジュール</h2><p class="hint" style="margin:0">令和9年4月入園(認可保育園)の、区の日程です。出典: <a href="' + SRC.url + '" target="_blank" rel="noopener">' + esc(SRC.name) + '</a>(確認日 ' + esc(SRC.checked) + ')。日程は変わることがあるので、区のページも確認してください。</p>';
   if(nx){
-    h += '<div class="nx"><div style="font-size:14px; font-weight:700; color:var(--muted)">次の締切</div><div class="big">あと' + daysLeft(nx.date) + '日</div><div><b>' + esc(nx.title) + '</b></div><div style="font-size:14px">' + md(nx.date) + '</div><a class="cal" style="display:inline-block; margin-top:8px; font-size:14px; font-weight:700; color:var(--accent); border:2px solid var(--line); border-radius:999px; padding:6px 14px; background:var(--surface); text-decoration:none" href="' + gcal(nx.title, nx.date, nx.note) + '" target="_blank" rel="noopener">📅 Googleカレンダーに入れる</a></div>';
+    h += '<div class="nx"><div style="font-size:14px; font-weight:700; color:var(--muted)">次の締切</div><div class="big">あと' + daysLeft(nx.date) + '日</div><div><b>' + esc(nx.title) + '</b></div><div style="font-size:14px">' + md(nx.date) + '</div></div>';
   } else {
     h += '<div class="nx"><b>令和9年4月入園の申込の締切は、すべて過ぎました。</b></div>';
   }
@@ -306,7 +306,7 @@ function renderSched(){
     var k = daysLeft(ev.date);
     h += '<div class="ev' + (k < 0 ? ' pastev' : '') + '"><div class="d">' + md(ev.date) + ' ' + chip(k) + '</div><div><b>' + esc(ev.title) + '</b></div>'
       + (ev.note ? '<div class="n">' + esc(ev.note) + '</div>' : '')
-      + (k >= 0 ? '<a class="cal" href="' + gcal(ev.title, ev.date, ev.note) + '" target="_blank" rel="noopener">📅 カレンダーに入れる</a>' : '') + '</div>';
+      + '</div>';
   });
   h += '<button type="button" id="hkIcs" style="width:100%; margin-top:12px">📥 全部まとめてカレンダーに入れる(.icsファイル)</button><p class="hint">締切には、7日前・前日・当日の朝9時のお知らせも付きます。ダウンロードしたファイルを開くと、カレンダーアプリに入ります。</p></section>';
 
