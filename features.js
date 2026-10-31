@@ -934,7 +934,7 @@ var PAID = [
   ['sched', 'スケジュール', '区の申込みの日程と、やることリスト。締切が近づくと、画面の上にお知らせが出ます。カレンダーにも入れられます。'],
   ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
   ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。'],
-  ['dist', '園ごとの指数の分布', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i style="flex:5"></i><i style="flex:5"></i><i style="flex:50"></i><i style="flex:10"></i><i class="me" style="flex:10"></i><i style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b>(低い区分 70%・同じ 10%・高い 20%)</div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。</small></details>'],
+  ['dist', '園ごとの指数の分布', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。</small></details>'],
   ['wish', '希望園の並べ方', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。']
 ];
 function planHtml(){
