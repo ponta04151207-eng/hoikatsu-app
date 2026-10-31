@@ -164,6 +164,13 @@ table.cmp{border-collapse:collapse; width:100%; min-width:340px; font-size:14px}
 .dist li{display:grid; grid-template-columns:6.8em 1fr 7.4em; gap:8px; align-items:center; padding:6px 0; font-size:14px}
 .dist .track{height:18px; background:var(--field); border-radius:999px; overflow:hidden; min-width:0}
 .dist .track i{display:block; height:100%; background:var(--muted); opacity:.45; border-radius:999px}
+.dbx{margin:8px 0 2px; padding:8px 10px; border-radius:12px; background:#fff4d6; border:1.5px solid #f0b429; font-size:13px; line-height:1.5}
+.dbx>b{display:block; font-size:13px; margin-bottom:4px}
+.dbx small{display:block; color:var(--muted); font-size:11.5px; margin-top:4px}
+.dbar{display:flex; gap:2px; height:14px; border-radius:7px; overflow:hidden}
+.dbar i{display:block; background:#d9b44a; opacity:.55; min-width:3px}
+.dbar i.me{background:#0f8a7a; opacity:1}
+.dl{display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-bottom:3px}
 .dist li.me{font-weight:700}
 .dist li.me .track i{background:var(--pop); opacity:1}
 .dist .n{text-align:right; font-variant-numeric:tabular-nums}
@@ -293,6 +300,15 @@ img{max-width:100%}
 
   <div id="viewIndex">
   <section class="panel"><h2 class="hasicon"><span class="hi" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="3" y="4" width="26" height="24" rx="5" fill="#0f8a7a"/><rect x="7" y="8" width="18" height="6" rx="2" fill="#bfe6d9"/><circle cx="10" cy="19" r="2" fill="#fff"/><circle cx="16" cy="19" r="2" fill="#fff"/><circle cx="22" cy="19" r="2" fill="#ffd36b"/><circle cx="10" cy="24" r="2" fill="#fff"/><circle cx="16" cy="24" r="2" fill="#fff"/><circle cx="22" cy="24" r="2" fill="#ff7b6b"/></svg></span>点数シミュレーター</h2><p class="hint" style="margin:0">保護者の就労状況と世帯の状況を選ぶと、区の指数表で予想指数(点数)を計算します。表示は目安です。</p></section>
+
+  <details class="panel" id="whatKnow" style="margin:0 0 10px"><summary><b>指数でわかること・わからないこと</b></summary>
+    <ul class="hint" style="margin:8px 0 0; padding-left:1.2em">
+      <li><b>わかる</b>: 自分の指数が、昨年入園した人の中で高い方か低い方か。下の「昨年入園した子の指数」と、「園を探す」の各園カードに、地域ごとの分布とあなたの位置を出します。</li>
+      <li><b>わかる</b>: 同じ指数の人が多い区分は、ほかの人と並びやすいということ。並んだ場合は、区の同点時の順位で決まります。</li>
+      <li><b>わからない</b>: 入れるかどうか。入園は、指数の高い順に、希望した園の空きへ入っていく形で決まるため、人気の園は高い指数が必要になります。指数が分布の上の方でも、希望が人気の園だけなら入れないことがあります。</li>
+      <li><b>わからない</b>: 今年の申込者数。令和9年は、申込者数や指数表が変わる可能性があります。</li>
+      <li>見方のコツ: 指数が高いほど有利です。第1希望の倍率が低めの園も混ぜて、希望を多めに書くのが基本です(希望園の数の制限は区に確認してください)。</li>
+    </ul></details>
 
   <ol class="steps" id="steps" aria-label="入力の進み具合">
     <li>1 就労状況</li>
@@ -1975,6 +1991,22 @@ window.SHISUU_DIST.r8 = {
     fRows = a;
     var shown = a.slice(0, fShown);
     $('fCount').textContent = cls + '歳児クラス ' + a.length + '園中 ' + shown.length + '園を表示';
+    var meTotal = DIST ? calc().total : 0;
+    function distBox(f){
+      if(!DIST || !DIST.data[f[0]]) return '';
+      var d = DIST.data[f[0]][cls];
+      if(!d || !d.c) return '<div class="dbx"><b>' + esc(f[0]) + 'の' + CLS_SHORT[cls] + 'の入園者の指数</b><small>入園した子が10人未満のため、区は人数を公表していません。</small></div>';
+      var me = bandOf(meTotal), lo = 0, hi = 0, i;
+      for(i = 0; i < d.c.length; i++){ if(i < me) lo += d.c[i]; else if(i > me) hi += d.c[i]; }
+      var top = 0; for(i = 1; i < d.c.length; i++) if(d.c[i] > d.c[top]) top = i;
+      var seg = d.c.map(function(v, i){ return '<i class="' + (i === me ? 'me' : '') + '" style="flex:' + Math.max(v, 1) + '" title="' + DIST.bands[i].l + ' ' + v + '人"></i>'; }).join('');
+      var pos = lo / d.n * 100 >= 60 ? '昨年の入園者の中では<b>高い方</b>' : hi / d.n * 100 >= 60 ? '昨年の入園者の中では<b>低い方</b>' : '昨年の入園者の<b>真ん中あたり</b>';
+      return '<div class="dbx"><b>' + esc(f[0]) + '地域・' + CLS_SHORT[cls] + 'の入園者の指数(昨年' + d.n + '人)</b>'
+        + '<div class="dbar">' + seg + '</div>'
+        + '<div class="dl"><span>' + DIST.bands[0].l + '</span><span>' + DIST.bands[DIST.bands.length - 1].l + '</span></div>'
+        + '<div>いちばん多いのは<b>' + DIST.bands[top].l + '</b>(' + pct(d.c[top] / d.n * 100) + ')。あなたの予想指数<b>' + meTotal + '点</b>は' + pos + '(これより低い区分 ' + pct(lo / d.n * 100) + '、同じ区分 ' + pct(d.c[me] / d.n * 100) + '、高い区分 ' + pct(hi / d.n * 100) + ')。</div>'
+        + '<small>園ごとではなく地域全体の分布です。人気の園は上の区分に偏ります。入れる目安であり、保証ではありません。</small></div>';
+    }
     function cell(n, r){ return n === null ? '―' : '<b>' + times(r) + '</b><small>' + n + '人</small>'; }
     function ageTable(f){
       var t = '<details class="ages"><summary>0〜5歳児ごとの倍率</summary><table class="agetbl"><thead><tr><th scope="col">クラス</th><th scope="col">入園可能</th><th scope="col">第1希望</th><th scope="col">全希望</th></tr></thead><tbody>';
@@ -1996,7 +2028,7 @@ window.SHISUU_DIST.r8 = {
           + st('入園可能', s.vac === null ? '―' : '<b>' + s.vac + '人</b>', last)
           + st('第1希望', (z || s.fi === null) ? '―' : '<b>' + times(s.r1) + '</b>', (z || s.fi === null) ? '' : s.fi + '人')
           + st('全希望', (z || s.all === null) ? '―' : '<b>' + times(s.r2) + '</b>', (z || s.all === null) ? '' : s.all + '人')
-          + '</div>' + (window.HKNEAR ? HKNEAR.line(x.f) : '') + nowStrip(x.f) + ageTable(x.f) + '</article>';
+          + '</div>' + distBox(x.f) + (window.HKNEAR ? HKNEAR.line(x.f) : '') + nowStrip(x.f) + ageTable(x.f) + '</article>';
       }).join('');
       $('fList').innerHTML = '<div class="fcards">' + ch + '</div>';
       $('fMore').hidden = shown.length >= a.length;
