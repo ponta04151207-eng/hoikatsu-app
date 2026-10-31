@@ -56,6 +56,14 @@ h1{font-family:var(--font-display); font-size:22px; line-height:1.4; margin-top:
 .feat .ft b{font-size:13px}
 .feat .ft small{display:block; font-size:11px; color:var(--muted); font-weight:500; line-height:1.4}
 .feat .fcr{font-size:11px; margin-left:4px}
+.feat .fpd summary{display:flex; gap:8px; align-items:flex-start; cursor:pointer; list-style:none}
+.feat .fpd summary::-webkit-details-marker{display:none}
+.feat .fpd u{text-decoration:none; color:#0f8a7a; font-weight:700; margin-left:4px}
+.feat .fpd details[open] u{display:none}
+.feat .fpl{margin:6px 0 2px 32px; padding:0; list-style:none; display:grid; gap:4px}
+.feat .fpl li{display:block; border:0; padding:0; font-size:11.5px; line-height:1.45; color:var(--muted)}
+.feat .fpl li b{display:block; font-size:12px; color:var(--fg)}
+.feat .fgo{margin-top:4px!important}
 details.leadd{margin:8px 6px 0; text-align:center}
 details.leadd summary{cursor:pointer; list-style:none; font-size:10.5px; color:var(--muted); line-height:1.5}
 details.leadd summary::-webkit-details-marker{display:none}
@@ -317,7 +325,13 @@ img{max-width:100%}
 </svg>
     <p class="tag" id="tag">世田谷区・認可保育園</p>
     <h1>保活アプリ<span class="sub">点数シミュレーター・園の比較・見学メモ</span></h1>
-    <div class="feat"><p class="fh2">このアプリでできること</p><ul><li><span class="fi">🧮</span><span class="ft"><b>点数シミュレーター</b><small>保護者の状況から、予想の指数がわかります。</small></span></li><li><span class="fi">📅</span><span class="ft"><b>スケジュール</b><span class="fcr" aria-label="有料版">👑</span><small>区の申込みの日程と、やることリスト。</small></span></li><li><span class="fi">📋</span><span class="ft"><b>提出前チェック</b><span class="fcr" aria-label="有料版">👑</span><small>必要書類と、出す前の最終チェック。</small></span></li><li><span class="fi">🔍</span><span class="ft"><b>園を探す</b><small>昨年の倍率と、地域ごとの指数の分布。住所から近い順にも。</small></span></li><li><span class="fi">⚖️</span><span class="ft"><b>園を比べる</b><small>見学した園を、並べて比べられます。</small></span></li><li><span class="fi">📝</span><span class="ft"><b>見学メモ</b><small>見学した園の様子を記録。写真・夫婦の同期も。</small></span></li><li><span class="fi">🍼</span><span class="ft"><b>預け先を探す</b><small>病児保育と認可外保育施設を探せます。</small></span></li><li><span class="fi">👑</span><span class="ft"><b>課金でできること</b><small>有料版の機能と、料金プランの案内。</small></span></li></ul></div>
+    <div class="feat"><p class="fh2">このアプリでできること</p><ul><li><span class="fi">🧮</span><span class="ft"><b>点数シミュレーター</b><small>保護者の状況から、予想の指数がわかります。</small></span></li><li><span class="fi">📅</span><span class="ft"><b>スケジュール</b><span class="fcr" aria-label="有料版">👑</span><small>区の申込みの日程と、やることリスト。</small></span></li><li><span class="fi">📋</span><span class="ft"><b>提出前チェック</b><span class="fcr" aria-label="有料版">👑</span><small>必要書類と、出す前の最終チェック。</small></span></li><li><span class="fi">🔍</span><span class="ft"><b>園を探す</b><small>昨年の倍率と、地域ごとの指数の分布。住所から近い順にも。</small></span></li><li><span class="fi">⚖️</span><span class="ft"><b>園を比べる</b><small>見学した園を、並べて比べられます。</small></span></li><li><span class="fi">📝</span><span class="ft"><b>見学メモ</b><small>見学した園の様子を記録。写真・夫婦の同期も。</small></span></li><li><span class="fi">🍼</span><span class="ft"><b>預け先を探す</b><small>病児保育と認可外保育施設を探せます。</small></span></li><li class="fpd"><details><summary><span class="fi">👑</span><span class="ft"><b>課金でできること</b><small>有料版の機能と、料金プランの案内。<u>タップで内容を見る ▼</u></small></span></summary>
+<ul class="fpl"><li><b>スケジュール</b>区の申込みの日程と、やることリスト。締切が近づくとお知らせ。</li>
+<li><b>提出前チェックと書類リスト</b>必要書類の一覧、出す前の最終チェック、勤務先への依頼文。</li>
+<li><b>見学メモ プラス</b>写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。</li>
+<li><b>園ごとの指数の分布</b>各園に、地域の0〜5歳児の指数の分布と、あなたの位置。</li>
+<li><b>希望園の並べ方</b>第10希望までのリストを作って並べ替え。</li>
+<li class="fgo"><button type="button" id="featPaidGo" class="mini">料金プランを見る</button></li></ul></details></li></ul></div>
     <details class="leadd"><summary>点数シミュレーターは、2〜3分で入力できます。<span class="lt">▼</span></summary><p class="lead">表示は目安で、実際の指数は区の「保育のごあんない」と提出書類で決まります。</p></details>
   </header>
 
@@ -2259,6 +2273,7 @@ window.SHISUU_DIST.r8 = {
   $('tabAbout').addEventListener('click', function(){ tab('about'); });
   $('aboutGo').addEventListener('click', function(){ tab('index'); });
   $('toVisit').addEventListener('click', function(){ tab('visit'); });
+  var fpg = document.getElementById('featPaidGo'); if(fpg) fpg.addEventListener('click', function(){ var t = document.getElementById('tabPaid'); if(t) t.click(); });
   buildItems();
   buildDist();
   (function(){
@@ -2612,6 +2627,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=56"></script>
+<script src="features.js?v=57"></script>
 </body>
 </html>
