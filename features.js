@@ -126,6 +126,9 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+'.azc{background:var(--surface); border:2px solid var(--line); border-left:7px solid var(--accent); border-radius:16px; padding:12px 12px 12px 14px; margin-top:10px; box-shadow:var(--shadow)}',
+'.azc .azn{font-family:var(--font-display); font-size:20px; font-weight:700; line-height:1.35; color:var(--accent); overflow-wrap:anywhere}',
+'.azc .azl{font-size:14px; line-height:1.75; color:var(--fg)}',
 '.tabs{gap:6px; margin-bottom:12px}',
 '.tabs button{min-height:54px; padding:4px 2px; gap:1px; border-radius:16px; font-size:12px; box-shadow:0 2px 0 rgba(0,0,0,.06)}',
 '.tabs button .ti{font-size:20px}',
@@ -1148,9 +1151,9 @@ function endMin(h){ if(/^0:00〜0:00$/.test(h)) return 1440; var m = h.match(/�
 function mapA(name, addr){ return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('世田谷区' + addr + ' ' + name); }
 function telA(t){ return '<a href="tel:' + esc(t.replace(/[^0-9]/g, '')) + '">' + esc(t) + '</a>'; }
 function azCard(o){
-  return '<article class="fcard"><div class="fh"><span class="fn">' + esc(o.name) + '</span>' + (o.chip ? '<span class="area">' + esc(o.chip) + '</span>' : '') + '</div>'
-    + '<div class="n" style="font-size:14px; line-height:1.7">' + o.lines.map(function(l){ return '<div>' + l + '</div>'; }).join('') + '</div>'
-    + '<div style="margin-top:6px"><a href="' + mapA(o.name, o.addr) + '" target="_blank" rel="noopener" style="font-weight:700; color:var(--accent); text-decoration:none">🗺️ 地図を見る</a></div></article>';
+  return '<article class="azc"><div class="azn">' + esc(o.name) + '</div>' + (o.chip ? '<div style="margin:4px 0 6px"><span class="area" style="font-size:12px; padding:1px 9px">' + esc(o.chip) + '</span></div>' : '')
+    + '<div class="azl">' + o.lines.map(function(l){ return '<div>' + l + '</div>'; }).join('') + '</div>'
+    + '<div style="margin-top:8px"><a class="btnlike" href="' + mapA(o.name, o.addr) + '" target="_blank" rel="noopener" style="margin:0; padding:5px 14px">🗺️ 地図を見る</a></div></article>';
 }
 
 var GEO_KEY = 'hoikatsu-geo-v1', azGeo = lsGet(GEO_KEY, {}), azO = null, azAddrText = '', azSt = '', azBusy = false;
