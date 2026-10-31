@@ -126,8 +126,19 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
-'.tabs button.hero{grid-column:span 6; flex-direction:column; gap:4px; font-size:15px; min-height:76px; padding:10px 4px}',
-'.tabs button.hero .ti{font-size:24px; line-height:1.1}',
+'.tabs{gap:6px; margin-bottom:12px}',
+'.tabs button{min-height:54px; padding:4px 2px; gap:1px; border-radius:16px; font-size:12px; box-shadow:0 2px 0 rgba(0,0,0,.06)}',
+'.tabs button .ti{font-size:20px}',
+'.tabs button.hero{grid-column:span 6; flex-direction:row; gap:6px; font-size:12.5px; font-weight:700; line-height:1.2; min-height:50px; padding:4px 4px}',
+'.tabs button.hero .ti{font-size:22px; line-height:1; flex:none}',
+'.tabs button[aria-selected="true"]{box-shadow:0 2px 0 rgba(0,0,0,.12)}',
+'header{padding:8px 10px 10px; margin-bottom:10px}',
+'header svg.hero{height:100px; margin-bottom:8px}',
+'header .tag{font-size:11px; padding:1px 8px}',
+'header h1{font-size:20px; margin-top:6px; margin-bottom:2px}',
+'header h1 .sub{font-size:12px; font-weight:700}',
+'header p.lead{font-size:12px; line-height:1.5}',
+'#hkUpd{font-size:11.5px; line-height:1.4; margin:4px 6px 0}',
 '.hkb{display:none; align-items:center; gap:10px; margin:0 0 14px; padding:12px 14px; border-radius:20px; background:var(--note); color:var(--note-fg); font-weight:700; font-size:15px; line-height:1.5}',
 '.hkb.on{display:flex}.hkb span.t{flex:1}.hkb button{min-height:40px; padding:0 14px; font-size:14px; flex:none}',
 '.sc{display:inline-block; font-size:13px; font-weight:700; border-radius:999px; padding:1px 10px; background:var(--field); color:var(--muted); white-space:nowrap}',
@@ -205,6 +216,7 @@ function download(name, text, type){
 
 /* ===== タブ・画面・お知らせ ===== */
 var tabs = document.querySelector('.tabs');
+var hsv = document.querySelector('header svg.hero'); if(hsv) hsv.setAttribute('preserveAspectRatio', 'xMidYMid slice');
 var tb = document.createElement('button');
 tb.type = 'button'; tb.id = 'tabSched'; tb.className = 'hero'; tb.setAttribute('role', 'tab'); tb.setAttribute('aria-selected', 'false');
 tb.innerHTML = '<span class="ti">📅</span><span>' + CR + ' スケジュール</span>';
