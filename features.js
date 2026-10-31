@@ -19,7 +19,7 @@ var PAYLINK_M = ''; /* 月ごとのプランの支払いリンク */
 var sel = 'month';
 var UNTIL = '2027年4月30日';
 var CODE_HASHES = [];
-var API_URL = ''; /* 購入の確認サーバー(worker/)のアドレス。空のあいだは、手で渡すコードだけが使えます */
+var API_URL = 'https://hoikatsu-api.ponta04151207.workers.dev'; /* 購入の確認サーバー(worker/)のアドレス。空のあいだは、手で渡すコードだけが使えます */
 var UL_KEY = 'hoikatsu-unlock-v1';
 function unlockTok(){ var o = lsGet(UL_KEY, null); return (o && typeof o === 'object' && o.tok) ? o.tok : null; }
 function unlockUntil(){ var o = lsGet(UL_KEY, null); return (o && typeof o === 'object' && o.until) ? o.until : null; }
