@@ -339,7 +339,7 @@ img{max-width:100%}
     <button type="button" role="tab" class="hero" id="tabIndex" aria-selected="true"><span class="ti">🧮</span><span>点数シミュレーター</span></button>
     <button type="button" role="tab" id="tabFind" aria-selected="false"><span class="ti">🔍</span><span>園を探す</span></button>
     <button type="button" role="tab" id="tabCmp" aria-selected="false"><span class="ti">⚖️</span><span>園を比べる</span></button>
-    <button type="button" role="tab" id="tabVisit" aria-selected="false"><span class="ti">📝</span><span>見学した園を<br>追加する</span></button>
+    <button type="button" role="tab" id="tabVisit" aria-selected="false"><span class="ti">📝</span><span>見学メモ</span></button>
     <button type="button" role="tab" id="tabAbout" aria-selected="false"><span class="ti">💡</span><span>できること</span></button>
   </nav>
 
@@ -468,14 +468,14 @@ img{max-width:100%}
 
   <div id="viewVisit" hidden>
     <section class="panel" id="secMemo">
-      <h2>見学した園を追加する</h2>
-      <p class="hint" style="margin:2px 0 8px; color:#b4532a; font-weight:700">※ここに追加すると、下の「見学した園」に追加されます。</p>
+      <h2>見学メモ</h2>
       <p class="hint" style="margin:0 0 10px">見学した園の記録をためて、昨年の倍率と並べて園を比べます。記録はこのブラウザにだけ保存され、他の人には見えません(試作版)。</p>
       <p class="notice" style="margin:0 0 4px">予想指数 <b id="vScore">0</b> 点(「点数シミュレーター」タブの入力が反映されます)</p>
       <label class="field" for="vCls">申込むクラス(令和9年4月時点)</label>
       <select id="vCls"></select>
       <p class="hint">クラスは生年月日で決まります。区の令和9年度クラス編成表で確認してください。倍率はこのクラスの数字で出ます。</p>
       <button class="primary" id="vAdd" type="button" style="width:100%; margin-top:12px">見学を追加する</button>
+      <p class="hint" style="margin:8px 4px 0; text-align:center; color:#b4532a; font-weight:700; font-size:11.5px!important">※ここに追加すると、下の「見学した園」に追加されます。</p>
     </section>
 
     <section class="panel" id="vForm" hidden aria-labelledby="h-vf">
@@ -2628,6 +2628,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=61"></script>
+<script src="features.js?v=62"></script>
 </body>
 </html>
