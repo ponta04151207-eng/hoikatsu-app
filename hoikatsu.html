@@ -294,7 +294,13 @@ table.ftbl, table.vtbl{border-collapse:collapse; width:100%; font-size:13px}
 button.mini{min-height:36px; min-width:36px; padding:0 8px; font-size:13px; border-width:2px}
 .ftbl button.mini{background:var(--accent-soft); border-color:transparent; color:var(--accent); font-size:16px}
 .cmp th, .cmp td{padding:4px 5px}
-table.cmp{font-size:12.5px; min-width:0}.cmp thead th{font-size:12.5px; line-height:1.3; word-break:keep-all; overflow-wrap:anywhere}.cmp th:first-child, .cmp td:first-child{min-width:0; width:34%; font-size:12px; line-height:1.4; font-weight:700}.cmp .s{font-size:15px}.cmp th[scope=row] small{display:block; font-size:10.5px; font-weight:500; color:var(--muted); line-height:1.3}.cmp th[scope=row]{white-space:nowrap}.cmp td{font-size:12.5px}
+table.cmp{font-size:12.5px; min-width:0}.cmp thead th{font-size:12.5px; line-height:1.3; word-break:keep-all; overflow-wrap:anywhere}.cmp th:first-child, .cmp td:first-child{min-width:0; width:34%; font-size:12px; line-height:1.4; font-weight:700}.cmpadd{margin:10px 0 8px; padding:10px 12px; background:var(--field); border-radius:14px}
+.cmpadd input{min-height:44px; width:100%}
+.cmpres{display:grid; gap:6px; margin-top:6px}
+.cmpres button{display:flex; justify-content:space-between; align-items:center; gap:8px; width:100%; min-height:44px; padding:6px 12px; text-align:left; font-size:14px; font-weight:700}
+.cmpres button small{font-weight:500; color:var(--muted); font-size:11.5px; flex:none}
+.cmp th[scope=row]{white-space:normal!important; text-align:left}
+.cmp .s{font-size:15px}.cmp th[scope=row] small{display:block; font-size:10.5px; font-weight:500; color:var(--muted); line-height:1.3}.cmp th[scope=row]{white-space:nowrap}.cmp td{font-size:12.5px}
 .cmp .s{font-size:15px}
 [hidden]{display:none!important}
 body{margin:0}
@@ -517,6 +523,12 @@ img{max-width:100%}
     <section class="panel" id="secCmp">
       <h2>園を比べる</h2>
       <p class="hint" id="vCmpHint" style="margin:0"></p>
+      <div class="cmpadd">
+        <label class="field" for="cmpQ">比べる園を追加(園の名前で検索)</label>
+        <input type="search" id="cmpQ" placeholder="例: 三宿、わらべうた" autocomplete="off">
+        <div id="cmpRes" class="cmpres"></div>
+        <p class="hint" id="cmpMsg" style="margin:4px 0 0" aria-live="polite"></p>
+      </div>
       <div class="tblwrap" id="vCmp"></div>
     </section>
 
@@ -2209,6 +2221,31 @@ window.SHISUU_DIST.r8 = {
     var t = e.target; if(t.getAttribute('data-act') !== 'cmp') return;
     vFind(t.getAttribute('data-id')).cmp = t.checked; vSave(); renderVisit();
   });
+  /* 園を比べる: 園の名前で検索して、比べる園に追加 */
+  function foldK(s){ return String(s || '').normalize('NFKC').toLowerCase().replace(/[\s　()（）・]/g, '').replace(/[\u3041-\u3096]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) + 96); }); }
+  function cmpSearch(){
+    var q = foldK($('cmpQ').value), box = $('cmpRes'); $('cmpMsg').textContent = '';
+    if(!q || !FAC){ box.innerHTML = ''; return; }
+    var hit = facRows.filter(function(f){ return foldK(f[1]).indexOf(q) >= 0; }).slice(0, 8);
+    box.innerHTML = hit.length ? hit.map(function(f){ return '<button type="button" data-cmpadd="' + esc(f[0] + '|' + f[1]) + '"><span>' + esc(f[1]) + '</span><small>' + esc(f[0]) + ' ・ ＋比べる</small></button>'; }).join('')
+      : '<p class="hint" style="margin:0">一致する園がありません。「園を探す」で名前を確認してください。</p>';
+  }
+  $('cmpQ').addEventListener('input', cmpSearch);
+  $('cmpRes').addEventListener('click', function(e){
+    var b = e.target.closest('[data-cmpadd]'); if(!b) return;
+    var key = b.getAttribute('data-cmpadd'), f = facRows.filter(function(r){ return r[0] + '|' + r[1] === key; })[0]; if(!f) return;
+    var v = visits.filter(function(x){ return x.fac === key || (x.name === f[1] && x.area === f[0]); })[0];
+    var sel = visits.filter(function(x){ return x.cmp; });
+    if(!(v && v.cmp) && sel.length >= 3){
+      var ex = sel.filter(function(x){ return x.ex; })[0];
+      if(ex) ex.cmp = false;
+      else { $('cmpMsg').textContent = '比べられるのは3園までです。「見学した園」の「比べる」のチェックを1つ外してから、追加してください。'; return; }
+    }
+    if(v) v.cmp = true;
+    else visits.push({id:'v' + Date.now(), name:f[1], area:f[0], fac:key, date:'', st:pack(''), memo:'', ex:false, cmp:true});
+    vSave(); $('cmpQ').value = ''; $('cmpRes').innerHTML = ''; renderVisit();
+    $('cmpMsg').textContent = f[1] + 'を、比べる園に追加しました。' + (v ? '' : '(「見学した園」にも入りました。○△？は、あとから記録できます)');
+  });
   $('vSort').addEventListener('change', function(e){ vSort = e.target.value; renderVisit(); });
   function setCls(c){
     cls = c;
@@ -2639,6 +2676,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=69"></script>
+<script src="features.js?v=70"></script>
 </body>
 </html>
