@@ -474,7 +474,7 @@ img{max-width:100%}
       <label class="field" for="vCls">申込むクラス(令和9年4月時点)</label>
       <select id="vCls"></select>
       <p class="hint">クラスは生年月日で決まります。区の令和9年度クラス編成表で確認してください。倍率はこのクラスの数字で出ます。</p>
-      <button class="primary" id="vAdd" type="button" style="width:100%; margin-top:12px">見学を追加する</button>
+      <button class="primary" id="vAdd" type="button" style="width:100%; margin-top:12px">見学した園を追加する</button>
       <p class="hint" style="margin:8px 4px 0; text-align:center; color:#b4532a; font-weight:700; font-size:11.5px!important">※ここに追加すると、下の「見学した園」に追加されます。</p>
     </section>
 
@@ -1964,7 +1964,7 @@ window.SHISUU_DIST.r8 = {
     var nSel = visits.filter(function(v){return v.cmp}).length;
     $('vCount').textContent = '(' + visits.length + '園)';
     if(!visits.length){
-      $('vList').innerHTML = '<p class="hint" style="margin:0">まだ記録がありません。「見学を追加する」か、下の「園を探す」から、最初の1園を入力してください。</p>';
+      $('vList').innerHTML = '<p class="hint" style="margin:0">まだ記録がありません。「見学した園を追加する」か、下の「園を探す」から、最初の1園を入力してください。</p>';
     } else {
       var h = '<div class="tblwrap"><table class="vtbl"><thead><tr><th scope="col">園</th><th scope="col">○△？</th><th scope="col">全希望</th><th scope="col">比べる</th></tr></thead><tbody>';
       h += sortedVisits().map(function(v){
@@ -2628,6 +2628,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=62"></script>
+<script src="features.js?v=63"></script>
 </body>
 </html>
