@@ -127,6 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+'#hkPlus details.plus{padding:0; margin:0!important; border-top:1px dotted var(--line)}#hkPlus details.plus > summary{font-size:14.5px!important; min-height:0!important; height:auto!important; padding:9px 2px!important; margin:0!important; line-height:1.3; display:flex; align-items:center; gap:6px; list-style:none}#hkPlus details.plus > summary::-webkit-details-marker{display:none}#hkPlus details.plus > summary::after{content:"▼"; margin-left:auto; font-size:10px; color:var(--muted)}#hkPlus details.plus[open] > summary::after{content:"▲"}#hkPlus details.plus[open]{padding-bottom:8px}#hkPlus h2{font-size:18px}#hkPlus .hint{margin:0 0 4px}#hkPlus select{min-height:42px; font-size:15px}',
 '.hint{font-size:11px!important; line-height:1.6!important}.notice{font-size:12px!important; line-height:1.65!important}.ev .n{font-size:12px!important; line-height:1.55!important}.azc .azl{font-size:13px!important}',
 '.azc{background:var(--surface); border:2px solid var(--line); border-left:7px solid var(--accent); border-radius:16px; padding:12px 12px 12px 14px; margin-top:10px; box-shadow:var(--shadow)}',
 '.azc .azn{font-family:var(--font-display); font-size:20px; font-weight:700; line-height:1.35; color:var(--accent); overflow-wrap:anywhere}',
