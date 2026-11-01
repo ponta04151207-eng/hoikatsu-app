@@ -526,6 +526,7 @@ img{max-width:100%}
       <div class="cmpadd">
         <label class="field" for="cmpQ">比べる園を追加(園の名前で検索)</label>
         <input type="search" id="cmpQ" placeholder="例: 三宿、わらべうた" autocomplete="off">
+        <p class="hint" style="margin:6px 0 0; color:#b4532a; font-weight:700">※追加すると、下の表に入り、「見学した園」にも入ります。<br>○△？は、あとから記録できます。<br>比べられるのは3園までです。</p>
         <div id="cmpRes" class="cmpres"></div>
         <p class="hint" id="cmpMsg" style="margin:4px 0 0" aria-live="polite"></p>
       </div>
@@ -2244,7 +2245,7 @@ window.SHISUU_DIST.r8 = {
     if(v) v.cmp = true;
     else visits.push({id:'v' + Date.now(), name:f[1], area:f[0], fac:key, date:'', st:pack(''), memo:'', ex:false, cmp:true});
     vSave(); $('cmpQ').value = ''; $('cmpRes').innerHTML = ''; renderVisit();
-    $('cmpMsg').textContent = f[1] + 'を、比べる園に追加しました。' + (v ? '' : '(「見学した園」にも入りました。○△？は、あとから記録できます)');
+    $('cmpMsg').textContent = f[1] + 'を、比べる園に追加しました。';
   });
   $('vSort').addEventListener('change', function(e){ vSort = e.target.value; renderVisit(); });
   function setCls(c){
@@ -2676,6 +2677,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=70"></script>
+<script src="features.js?v=71"></script>
 </body>
 </html>
