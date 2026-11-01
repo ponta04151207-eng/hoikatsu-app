@@ -174,6 +174,11 @@ table.cmp{border-collapse:collapse; width:100%; min-width:340px; font-size:14px}
 .cmp th, .cmp td{border-top:2px dotted var(--line); padding:10px 8px; text-align:center; vertical-align:top; font-weight:500}
 .cmp thead th{font-weight:700; border-top:0}
 .cmp th:first-child, .cmp td:first-child{text-align:left; min-width:9em}
+.gb{display:inline-block; min-width:1.6em; text-align:center; font-weight:800; border-radius:8px; padding:0 8px; color:#fff; background:#9aa7ae}
+.gb.a{background:#0f9d76}.gb.b{background:#e0a21b}.gb.c{background:#e56b4f}.gb.n{background:#9aa7ae}
+.gb.big{font-size:24px; line-height:1.4; padding:0 14px; border-radius:12px}
+.gradebox{display:flex; align-items:center; gap:10px; margin:14px 0 4px; padding:10px 12px; background:var(--field); border-radius:14px}
+.gradebox .gl{font-size:12.5px; font-weight:700}.gradebox .gd{font-size:11.5px; color:var(--muted); line-height:1.5}
 .cmp .s{font-size:18px; font-weight:700}
 .cmp .s.g{color:var(--plus)} .cmp .s.w{color:var(--minus)} .cmp .s.q{color:var(--muted)}
 .err{color:var(--minus); font-size:14px; margin:6px 0 0; font-weight:700}
@@ -491,10 +496,7 @@ img{max-width:100%}
       <h3 class="grp" style="margin-top:18px">確認した項目</h3>
       <p class="hint" style="margin:0 0 6px"><b>○</b> 良い　<b>△</b> 気になる　<b>？</b> 聞き忘れ。聞けなかった項目は「？」のままにすると、次の見学や問い合わせで確認できます。</p>
       <div id="vItems"></div>
-      <label class="field" for="v-ra">保護者Aの評価(◯)</label>
-      <select id="v-ra"></select>
-      <label class="field" for="v-rb">保護者Bの評価(△)</label>
-      <select id="v-rb"></select>
+      <div id="vGrade" class="gradebox" aria-live="polite"></div>
       <label class="field" for="v-memo">メモ</label>
       <textarea id="v-memo"></textarea>
       <p class="err" id="vErr" hidden></p>
@@ -1950,7 +1952,15 @@ window.SHISUU_DIST.r8 = {
 
   function counts(v){ var c = {g:0, w:0, q:0}; V_ITEMS.forEach(function(it){ c[v.st[it.id] || 'q']++; }); return c; }
   function rk(v){ var s = sv(v); return (s && s.r2 !== null) ? s.r2 : 1e9; }
-  function avg(v){ var n = (v.ra ? 1 : 0) + (v.rb ? 1 : 0); return n ? ((v.ra || 0) + (v.rb || 0)) / n : 0; }
+  /* 総合評価: ○と△の数から自動で出す。確認できた項目(○+△)が3つ未満のときは出さない。A=○が8割以上 B=5割以上 C=それ未満 */
+  function grade(v){
+    var c = counts(v), n = c.g + c.w;
+    if(n < 3) return {l:'―', k:'n', s:0, c:c, n:n};
+    var p = c.g / n, l = p >= 0.8 ? 'A' : p >= 0.5 ? 'B' : 'C';
+    return {l:l, k:l.toLowerCase(), s:(l === 'A' ? 3 : l === 'B' ? 2 : 1) + p / 10, c:c, n:n, p:p};
+  }
+  function gbadge(v){ var g = grade(v); return '<span class="gb ' + g.k + '">' + g.l + '</span>'; }
+  function avg(v){ return grade(v).s; }
   function sortedVisits(){
     var a = visits.slice();
     if(vSort === 'date') a.sort(function(x, y){ return (y.date || '').localeCompare(x.date || ''); });
@@ -1973,7 +1983,7 @@ window.SHISUU_DIST.r8 = {
         var btns = askDel === v.id
           ? '<button type="button" class="mini" data-act="delok" data-id="'+v.id+'" style="color:var(--minus)">削除する</button><button type="button" class="mini" data-act="delno" data-id="'+v.id+'">やめる</button>'
           : '<button type="button" class="mini" data-act="edit" data-id="'+v.id+'">編集</button><button type="button" class="mini" data-act="del" data-id="'+v.id+'">削除</button>';
-        var meta = esc(v.area) + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + ' ・ ◯' + (v.ra || '―') + ' △' + (v.rb || '―');
+        var meta = esc(v.area) + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + ' ・ 総合評価 ' + gbadge(v);
         return '<tr><th scope="row"><span class="fn">' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</span><small>' + meta + '</small>'
           + (v.memo ? '<small class="memo1">' + esc(v.memo) + '</small>' : '') + '<span class="vb">' + btns + '</span></th>'
           + '<td class="cnt"><span class="g">○' + c.g + '</span> <span class="w">△' + c.w + '</span> <span class="q">？' + c.q + '</span></td>'
@@ -2002,7 +2012,7 @@ window.SHISUU_DIST.r8 = {
     function num(fn){ return function(v){ var s = sv(v); var x = s ? fn(s) : null; return x === null || x === undefined ? '―' : x; }; }
     var h = '<table class="cmp"><thead><tr><th scope="col">項目</th>'
       + sel.map(function(v){ return '<th scope="col">' + esc(v.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
-    h += row('評価(◯Aさん △Bさん)', function(v){ return '<b>◯' + (v.ra || '―') + '</b> <b>△' + (v.rb || '―') + '</b>'; });
+    h += row('総合評価', function(v){ var g = grade(v); return gbadge(v) + '<small style="display:block; font-size:10.5px; color:var(--muted)">○' + g.c.g + ' △' + g.c.w + ' ？' + g.c.q + '</small>'; }, '(○△から自動)');
     h += row((overlay ? VAC.short + 'の' : '昨年の') + '入園可能数(' + cls + '歳児)', num(function(s){ return s.vac === null ? null : s.vac + '人'; }));
     h += row('第1希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r1 === null ? null : times(s.r1)); }), '(第1希望の人数÷可能数)');
     h += row('全希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r2 === null ? null : times(s.r2)); }), '(全希望の人数÷可能数)');
@@ -2113,7 +2123,6 @@ window.SHISUU_DIST.r8 = {
       return '<div class="item" role="group" aria-label="'+esc(it.l)+'"><span class="il">'+esc(it.l)+'</span><div class="seg">'+seg+'</div></div>';
     }).join('');
     var rs = '<option value="0">未評価</option>' + [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+' / 5</option>'; }).join('');
-    $('v-ra').innerHTML = rs; $('v-rb').innerHTML = rs;
     $('v-area').innerHTML = V_AREAS.map(function(a){ return '<option value="'+a+'">'+a+'</option>'; }).join('');
     $('fRegion').innerHTML = '<option value="">すべて</option>' + V_AREAS.map(function(a){ return '<option value="'+a+'">'+a+'</option>'; }).join('');
     $('vCls').innerHTML = CLASSES.map(function(c, i){ return '<option value="'+i+'">'+esc(c)+'</option>'; }).join('');
@@ -2146,16 +2155,22 @@ window.SHISUU_DIST.r8 = {
     el.textContent = f ? '区の一覧にある園です。昨年の倍率が表示されます。' : '区の一覧に同じ名前の園がありません。倍率は表示されません(候補から選ぶと表示されます)。';
   }
 
+  function showGrade(){
+    var st = {}; V_ITEMS.forEach(function(it){ var r = document.querySelector('input[name="st-' + it.id + '"]:checked'); st[it.id] = r ? r.value : 'q'; });
+    var g = grade({st: st}), el = $('vGrade'); if(!el) return;
+    el.innerHTML = '<span class="gl">総合評価(自動)</span><span class="gb big ' + g.k + '">' + g.l + '</span><span class="gd">○' + g.c.g + ' △' + g.c.w + ' ？' + g.c.q + (g.l === '―' ? '<br>○か△を3項目以上つけると出ます' : '<br>' + {A:'○が8割以上', B:'○が5割以上', C:'○が5割未満'}[g.l] + '(？は数えません)') + '</span>';
+  }
+  document.addEventListener('change', function(e){ if(e.target && e.target.name && e.target.name.indexOf('st-') === 0) showGrade(); });
   function openForm(id, pre){
     editing = id || null;
     var v = id ? vFind(id) : {name:(pre && pre.name) || '', area:(pre && pre.area) || V_AREAS[0], date:today(), st:pack(''), ra:0, rb:0, memo:''};
     $('v-area').value = v.area; fillNames();
     $('v-name').value = v.name; $('v-date').value = v.date || '';
-    $('v-ra').value = v.ra || 0; $('v-rb').value = v.rb || 0; $('v-memo').value = v.memo || '';
+    $('v-memo').value = v.memo || '';
     V_ITEMS.forEach(function(it){
       document.querySelector('input[name="st-'+it.id+'"][value="'+(v.st[it.id] || 'q')+'"]').checked = true;
     });
-    $('vErr').hidden = true; linkHint();
+    $('vErr').hidden = true; linkHint(); showGrade();
     $('vForm').hidden = false;
     $('v-name').focus();
     $('vForm').scrollIntoView({block:'start'});
@@ -2178,7 +2193,7 @@ window.SHISUU_DIST.r8 = {
     var f = matchFac(name);
     rec.name = name; rec.area = f ? f[0] : $('v-area').value; rec.fac = f ? f[0] + '|' + f[1] : null;
     rec.date = $('v-date').value;
-    rec.ra = +$('v-ra').value; rec.rb = +$('v-rb').value; rec.memo = $('v-memo').value.trim(); rec.ex = false;
+    rec.memo = $('v-memo').value.trim(); rec.ex = false;
     rec.st = {};
     V_ITEMS.forEach(function(it){ rec.st[it.id] = document.querySelector('input[name="st-'+it.id+'"]:checked').value; });
     if(!editing) visits.push(rec);
@@ -2307,7 +2322,7 @@ window.SHISUU_DIST.r8 = {
     getVisits: function(){ return visits; },
     setVisits: function(a){ visits = a; vSave(); renderVisit(); },
     facMap: facMap, stat: stat, times: times, cls: function(){ return cls; }, esc: esc,
-    items: V_ITEMS, status: V_STATUS, counts: counts, tab: tab,
+    grade: grade, gbadge: gbadge, items: V_ITEMS, status: V_STATUS, counts: counts, tab: tab,
     renderFind: function(){ renderFind(); },
     setSort: function(v){ fSort = v; $('fSort').value = v; fShown = 15; }
   };
@@ -2628,6 +2643,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=63"></script>
+<script src="features.js?v=64"></script>
 </body>
 </html>

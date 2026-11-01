@@ -532,7 +532,7 @@ function renderAll(){
   function row(label, fn){ return '<tr><th scope="row">' + esc(label) + '</th>' + vs.map(function(v){ return '<td>' + fn(v) + '</td>'; }).join('') + '</tr>'; }
   var h = '<p class="hint" style="margin:0">園の数に上限はありません(無料版は3園まで)。横にスライドして見られます。</p><div class="tblwrap"><table class="cmp"><thead><tr><th scope="col">項目</th>' + vs.map(function(v){ return '<th scope="col">' + esc(v.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
   h += row('地域・見学日', function(v){ return esc(v.area) + (v.date ? '<br>' + esc(v.date.slice(5).replace('-', '/')) : ''); });
-  h += row('評価(◯Aさん △Bさん)', function(v){ return '<b>◯' + (v.ra || '―') + '</b> <b>△' + (v.rb || '―') + '</b>'; });
+  h += row('総合評価', function(v){ var g = HK.grade(v); return HK.gbadge(v) + '<br><small>○' + g.c.g + ' △' + g.c.w + ' ？' + g.c.q + '</small>'; });
   h += row('入園可能数', function(v){ var s = vst(v); return s && s.vac !== null ? s.vac + '人' : '―'; });
   h += row('第1希望の倍率', function(v){ var s = vst(v); return s && s.r1 !== null ? HK.times(s.r1) : '―'; });
   h += row('全希望の倍率', function(v){ var s = vst(v); return s && s.r2 !== null ? '<b>' + HK.times(s.r2) + '</b>' : '―'; });
@@ -547,7 +547,7 @@ function renderAll(){
 var pr = document.createElement('div'); pr.id = 'hkPrint'; document.body.appendChild(pr);
 function visitHtml(v, photos){
   var c = HK.counts(v), s = vst(v), a = qd.a[v.id] || {};
-  var h = '<div class="pg"><h2>' + esc(v.name) + '</h2><p>' + esc(v.area) + (v.date ? ' ・ 見学日 ' + esc(v.date) : '') + ' ・ 評価 A ' + (v.ra || '―') + ' / B ' + (v.rb || '―') + '</p>';
+  var h = '<div class="pg"><h2>' + esc(v.name) + '</h2><p>' + esc(v.area) + (v.date ? ' ・ 見学日 ' + esc(v.date) : '') + ' ・ 総合評価 ' + HK.grade(v).l + ' (○' + HK.grade(v).c.g + ' △' + HK.grade(v).c.w + ' ？' + HK.grade(v).c.q + ')</p>';
   h += '<p>○' + c.g + ' △' + c.w + ' ？' + c.q + (s && s.vac !== null ? ' ・ ' + HK.cls() + '歳児 入園可能 ' + s.vac + '人' + (s.r2 !== null ? '、全希望の倍率 ' + HK.times(s.r2) : '') : '') + '</p>';
   h += '<table><tbody>' + HK.items.map(function(it){ var x = v.st[it.id] || 'q'; return '<tr><td>' + esc(it.l) + '</td><td style="width:3em">' + HK.status[x].s + '</td></tr>'; }).join('') + '</tbody></table>';
   if(v.memo) h += '<p>メモ: ' + esc(v.memo) + '</p>';
@@ -567,7 +567,7 @@ $('hkP2').addEventListener('click', function(){ doPrint(realVisits().map(functio
 function shareText(){
   return '【見学メモ】\n' + realVisits().map(function(v){
     var c = HK.counts(v), s = vst(v);
-    return '■' + v.name + '(' + v.area + (v.date ? '・' + v.date : '') + ')\n評価 A' + (v.ra || '―') + ' B' + (v.rb || '―') + ' / ○' + c.g + ' △' + c.w + ' ？' + c.q + (s && s.r2 !== null ? ' / 全希望の倍率 ' + HK.times(s.r2) : '') + (v.memo ? '\nメモ: ' + v.memo : '');
+    return '■' + v.name + '(' + v.area + (v.date ? '・' + v.date : '') + ')\n総合評価 ' + HK.grade(v).l + ' / ○' + c.g + ' △' + c.w + ' ？' + c.q + (s && s.r2 !== null ? ' / 全希望の倍率 ' + HK.times(s.r2) : '') + (v.memo ? '\nメモ: ' + v.memo : '');
   }).join('\n\n');
 }
 function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
@@ -675,7 +675,7 @@ function renderWish(){
   if(!wish.length) h += '<p class="hint">下から園を追加してください。見学メモに入れた園が出ます。</p>';
   wish.forEach(function(id, i){
     var v = wVisit(id), s = vst(v), r = wR2(v);
-    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + esc(v.name) + '</b><small>' + esc(v.area || '') + ' / 評価 ' + (v.ra || '―') + '・' + (v.rb || '―') + ' / ' + (s && s.vac !== null ? '入園可能 ' + s.vac + '人・全希望の倍率 ' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small></span>'
+    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + esc(v.name) + '</b><small>' + esc(v.area || '') + ' / 総合評価 ' + HK.grade(v).l + ' / ' + (s && s.vac !== null ? '入園可能 ' + s.vac + '人・全希望の倍率 ' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small></span>'
       + '<span style="display:flex; gap:4px; flex:none"><button type="button" data-w="up" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0" aria-label="外す">✕</button></span></div>';
   });
   var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
@@ -709,7 +709,7 @@ $('hkWish').addEventListener('click', function(e){
   }
   if(t.id === 'hkWaddB'){ var v = $('hkWadd').value; if(v && wish.length < 10 && wish.indexOf(v) < 0){ wish.push(v); wSave(); renderWish(); } }
   else if(t.id === 'hkWs1'){ wish.sort(function(x, y){ var a = wR2(wVisit(x)), b = wR2(wVisit(y)); return (a === null ? 1e9 : a) - (b === null ? 1e9 : b); }); wSave(); renderWish(); }
-  else if(t.id === 'hkWs2'){ wish.sort(function(x, y){ function av(v){ var n = (v.ra ? 1 : 0) + (v.rb ? 1 : 0); return n ? ((v.ra || 0) + (v.rb || 0)) / n : 0; } return av(wVisit(y)) - av(wVisit(x)); }); wSave(); renderWish(); }
+  else if(t.id === 'hkWs2'){ wish.sort(function(x, y){ function av(v){ return HK.grade(v).s; } return av(wVisit(y)) - av(wVisit(x)); }); wSave(); renderWish(); }
   else if(t.id === 'hkWcp'){
     var txt = '希望園リスト\n' + wish.map(function(id, k){ return '第' + (k + 1) + '希望 ' + wVisit(id).name; }).join('\n');
     copy(txt, function(ok){ $('hkWm').textContent = ok ? 'コピーしました。' : 'コピーできませんでした。画面の文字を見て写してください。'; });
