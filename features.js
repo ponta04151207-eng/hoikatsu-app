@@ -798,7 +798,7 @@ function showDocs(){
   TABIDS.forEach(function(id){ $(id).setAttribute('aria-selected', 'false'); });
   tbD.setAttribute('aria-selected', 'true');
   document.querySelector('.bar').hidden = true;
-  if(PREMIUM) renderDocs(); else viewD.innerHTML = lockCard('提出前チェック'); window.scrollTo(0, 0);
+  if(PREMIUM) renderDocs(); else viewD.innerHTML = lockCard('提出前チェックと書類リスト'); window.scrollTo(0, 0);
 }
 tbD.addEventListener('click', showDocs);
 Array.prototype.forEach.call(tabs.querySelectorAll('button'), function(b){
@@ -832,7 +832,7 @@ function renderDocs(){
   var dl = dd.way === 'mail' ? evDate('first-mail') : evDate('first-visit');
   var k = daysLeft(dl);
   var h = '<section class="panel"><h2>💻 オンラインで申込む</h2><p class="hint" style="margin:0 0 8px">区の電子申請なら、スマホから申込めます。印刷も郵送もいりません。締切は、郵送と同じ' + md(evDate('first-mail')) + 'です(あと' + Math.max(0, daysLeft(evDate('first-mail'))) + '日)。ログインや入力は、区のページで、ご自身でしてください。</p><a class="primary" href="' + ONLINE + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:14px; border-radius:999px; font-weight:700">区の電子申請のページを開く</a><p class="hint" style="margin:8px 0 0">先に、下の書類リストで、必要な書類をそろえて、写真かPDFにしておくと、早く進みます。申込書の様式は <a href="' + FORM_PDF + '" target="_blank" rel="noopener">PDF</a>・<a href="' + FORM_XLS + '" target="_blank" rel="noopener">Excel</a> です。</p></section>';
-  h += '<section class="panel"><h2 style="display:flex; align-items:center; gap:8px; margin:0">' + CR + '<span>提出前チェック</span></h2><p style="margin:2px 0 8px; font-size:12px; font-weight:700; color:var(--accent)">令和9年4月入園(認可保育園)</p><p class="hint" style="margin:0">申込みに必要な書類を、状況に合わせて一覧にします。<br>出典: <a href="' + DSRC.url + '" target="_blank" rel="noopener">' + esc(DSRC.name) + '</a>(確認日 ' + esc(DSRC.checked) + ')。<br>人によって増える書類もあるので、出す前に区のページでも確認してください。</p></section>';
+  h += '<section class="panel"><h2 style="display:flex; align-items:center; gap:8px; margin:0">' + CR + '<span style="line-height:1.35">提出前チェック<br>書類リスト</span></h2><p style="margin:2px 0 8px; font-size:12px; font-weight:700; color:var(--accent)">令和9年4月入園(認可保育園)</p><p class="hint" style="margin:0">申込みに必要な書類を、状況に合わせて一覧にします。<br>出典: <a href="' + DSRC.url + '" target="_blank" rel="noopener">' + esc(DSRC.name) + '</a>(確認日 ' + esc(DSRC.checked) + ')。<br>人によって増える書類もあるので、出す前に区のページでも確認してください。</p></section>';
   h += '<section class="panel"><h2>1. あてはまる状況を選ぶ</h2>'
     + '<label class="field" for="hkDa">保護者1の状況</label>' + selHtml('hkDa', dd.a, false)
     + '<label class="field" for="hkDb">保護者2の状況</label>' + selHtml('hkDb', dd.b, true);
