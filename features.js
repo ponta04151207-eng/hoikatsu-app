@@ -127,6 +127,10 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '.tabs .tgl{grid-column:span 12!important; font-size:11px; font-weight:700; color:var(--muted); display:flex; align-items:center; gap:6px; margin:2px 2px 0; line-height:1.2}.tabs .tgl::after{content:""; flex:1; height:1px; background:var(--line)}.tabs .tgl.pd{color:#a8730a; margin-top:6px}.tabs .tgl.pd::after{background:#f0d9a0}',
+  '#tabIndex{order:2}#tabAzuke{order:3}#tabFind{order:4}#tabCmp{order:5}#tabVisit{order:6}#tabAbout{order:7}#tabSet{order:8}#tabSched{order:10}#tabDocs{order:11}#tabPaid{order:12}.tabs .tgl.fr{order:1}.tabs .tgl.pd{order:9}',
+  '#tabIndex,#tabAzuke,#tabAbout,#tabSet,#tabSched,#tabDocs{grid-column:span 6!important}#tabFind,#tabCmp,#tabVisit{grid-column:span 4!important}#tabPaid{grid-column:span 12!important}',
+  '#tabSched:not([aria-selected="true"]),#tabDocs:not([aria-selected="true"]),#tabPaid:not([aria-selected="true"]){background:#fffaf0!important; border-color:#f0d9a0!important}',
   '.tabs button.hero svg.cr,.tabs button.hero .ti svg,.tabs button svg.cr,.tabs button.hero span svg{width:12px!important; height:12px!important; flex:none}',
   '#viewSched .panel:has(.tk){padding:12px 12px 10px!important}',
   '#viewSched .panel:has(.tk) h2{font-size:15px!important; margin:0 0 4px!important}',
@@ -1621,5 +1625,13 @@ function syJoin(code, manual){
     var t = document.getElementById('tabIndex');
     if(t && t.getAttribute('aria-selected') !== 'true'){ popping = true; t.click(); popping = false; window.scrollTo(0, 0); }
   });
+})();
+
+/* ===== タブを「無料」と「有料(王冠)」に分ける ===== */
+(function(){
+  var nav = document.querySelector('.tabs'); if(!nav || nav.querySelector('.tgl')) return;
+  function mk(cls, html){ var d = document.createElement('div'); d.className = 'tgl ' + cls; d.innerHTML = html; d.setAttribute('aria-hidden', 'true'); nav.appendChild(d); }
+  mk('fr', '無料で使えます');
+  mk('pd', CR + ' 有料プランの機能');
 })();
 })();
