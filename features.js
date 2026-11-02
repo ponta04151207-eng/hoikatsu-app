@@ -540,6 +540,9 @@ function renderAll(){
   h += row('○ △ ？', function(v){ var c = HK.counts(v); return '○' + c.g + ' △' + c.w + ' ？' + c.q; });
   HK.items.forEach(function(it){ h += row(it.l, function(v){ var s = v.st[it.id] || 'q'; return '<span class="s ' + s + '">' + HK.status[s].s + '</span>'; }); });
   h += row('聞けた質問', function(v){ return askedCount(v) + ' / ' + allQ().length; });
+  h += row('良かったところ', function(v){ return esc(v.good || '') || '―'; });
+  h += row('気になったところ', function(v){ return esc(v.bad || '') || '―'; });
+  h += row('次に聞くこと', function(v){ return esc(v.ask || '') || '―'; });
   h += row('メモ', function(v){ return esc(v.memo || '') || '―'; });
   box.innerHTML = h + '</tbody></table></div><p class="hint">○ 良い / △ 気になる / ？ 聞き忘れ。倍率は ' + HK.cls() + '歳児クラスの数字です。</p>';
 }
@@ -551,6 +554,9 @@ function visitHtml(v, photos){
   var h = '<div class="pg"><h2>' + esc(v.name) + '</h2><p>' + esc(v.area) + (v.date ? ' ・ 見学日 ' + esc(v.date) : '') + ' ・ 総合評価 ' + HK.grade(v).l + ' (○' + HK.grade(v).c.g + ' △' + HK.grade(v).c.w + ' ？' + HK.grade(v).c.q + ')</p>';
   h += '<p>○' + c.g + ' △' + c.w + ' ？' + c.q + (s && s.vac !== null ? ' ・ ' + HK.cls() + '歳児 入園可能 ' + s.vac + '人' + (s.r2 !== null ? '、全希望の倍率 ' + HK.times(s.r2) : '') : '') + '</p>';
   h += '<table><tbody>' + HK.items.map(function(it){ var x = v.st[it.id] || 'q'; return '<tr><td>' + esc(it.l) + '</td><td style="width:3em">' + HK.status[x].s + '</td></tr>'; }).join('') + '</tbody></table>';
+  if(v.good) h += '<p>良かったところ: ' + esc(v.good) + '</p>';
+  if(v.bad) h += '<p>気になったところ: ' + esc(v.bad) + '</p>';
+  if(v.ask) h += '<p>次に聞くこと: ' + esc(v.ask) + '</p>';
   if(v.memo) h += '<p>メモ: ' + esc(v.memo) + '</p>';
   var asked = allQ().filter(function(q){ return a[q.id] && (a[q.id].d || a[q.id].n); });
   if(asked.length) h += '<p><b>聞いたこと</b></p><ul>' + asked.map(function(q){ return '<li>' + esc(q.t) + (a[q.id].n ? ': ' + esc(a[q.id].n) : '') + '</li>'; }).join('') + '</ul>';
@@ -568,7 +574,7 @@ $('hkP2').addEventListener('click', function(){ doPrint(realVisits().map(functio
 function shareText(){
   return '【見学メモ】\n' + realVisits().map(function(v){
     var c = HK.counts(v), s = vst(v);
-    return '■' + v.name + '(' + v.area + (v.date ? '・' + v.date : '') + ')\n総合評価 ' + HK.grade(v).l + ' / ○' + c.g + ' △' + c.w + ' ？' + c.q + (s && s.r2 !== null ? ' / 全希望の倍率 ' + HK.times(s.r2) : '') + (v.memo ? '\nメモ: ' + v.memo : '');
+    return '■' + v.name + '(' + v.area + (v.date ? '・' + v.date : '') + ')\n総合評価 ' + HK.grade(v).l + ' / ○' + c.g + ' △' + c.w + ' ？' + c.q + (s && s.r2 !== null ? ' / 全希望の倍率 ' + HK.times(s.r2) : '') + (v.good ? '\n良かった: ' + v.good : '') + (v.bad ? '\n気になる: ' + v.bad : '') + (v.ask ? '\n次に聞く: ' + v.ask : '') + (v.memo ? '\nメモ: ' + v.memo : '');
   }).join('\n\n');
 }
 function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
