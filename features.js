@@ -127,6 +127,16 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#viewSet .panel{padding:12px 14px!important}',
+  '#viewSet h2{font-size:16px!important; margin:0 0 4px!important}',
+  '#viewSet h2::before{width:6px!important; height:16px!important}',
+  '#viewSet .srow{min-height:40px!important; font-size:13.5px!important; padding:0 4px!important; line-height:1.3!important}',
+  '#viewSet .srow small{font-size:10px!important; line-height:1.4!important}',
+  '#viewSet .faq{padding:5px 4px!important}',
+  '#viewSet .faq summary{font-size:12.5px!important}',
+  '#viewSet .faq p{font-size:11.5px!important; line-height:1.55!important; margin:4px 0 0!important}',
+  '#viewSet .hint{font-size:10px!important; line-height:1.45!important; margin:4px 0 0!important}',
+  '#viewSet input,#viewSet button:not(.srow){font-size:12.5px!important; min-height:34px!important}',
   '.panel:has(#vList){max-width:100%!important; box-sizing:border-box!important; overflow:hidden}',
   '.panel:has(#vList) h2{font-size:16px!important; margin:0 0 6px!important}',
   '.panel:has(#vList) h2 svg,.panel:has(#vList) h2 .hi,.panel:has(#vList) h2 img{width:26px!important; height:26px!important}',
