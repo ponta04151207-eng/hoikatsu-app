@@ -542,6 +542,7 @@ img{max-width:100%}
 
     <section class="panel">
       <h2>見学した園 <span id="vCount" style="font-size:14px; color:var(--muted)"></span></h2>
+      <p class="hint" id="vLimit" style="margin:0 0 6px; color:#b4532a; font-weight:700">※記録できるのは、無料版は2園まで、3園からは有料版(王冠)です。</p>
       <label class="field" for="vSort" style="margin-top:0">並び順</label>
       <select id="vSort">
         <option value="added">登録した順</option>
@@ -2204,7 +2205,11 @@ window.SHISUU_DIST.r8 = {
     el.innerHTML = '<span class="gl">総合評価(自動)</span><span class="gb big ' + g.k + '">' + g.l + '</span><span class="gd">○' + g.c.g + ' △' + g.c.w + ' ？' + g.c.q + (g.l === '―' ? '<br>○か△を3項目以上つけると出ます' : '<br>' + {A:'○が8割以上', B:'○が5割以上', C:'○が5割未満'}[g.l] + '(？は数えません)') + '</span>';
   }
   document.addEventListener('change', function(e){ if(e.target && e.target.name && e.target.name.indexOf('st-') === 0) showGrade(); });
+  var VIS_FREE_MSG = '無料版で記録できるのは2園までです。3園からは有料版(王冠のマーク)です。';
+  function visFull(){ return window.HK_PREMIUM === false && visits.filter(function(v){ return !v.ex; }).length >= 2; }
+  function visBlock(){ var m = $('vLimit'); if(m){ m.textContent = '※' + VIS_FREE_MSG + 'ここを増やすには、「削除」で1園をはずしてください。'; m.scrollIntoView({block:'center'}); } }
   function openForm(id, pre, mode){
+    if(!id && visFull()){ visBlock(); return; }
     editing = id || null; mode = mode || 'memo';
     var v = id ? vFind(id) : {name:(pre && pre.name) || '', area:(pre && pre.area) || V_AREAS[0], date:today(), st:pack(''), ra:0, rb:0, memo:''};
     $('v-area').value = v.area; fillNames();
@@ -2278,6 +2283,7 @@ window.SHISUU_DIST.r8 = {
       if(ex) ex.cmp = false;
       else { $('cmpMsg').textContent = (window.HK_PREMIUM === false ? CMP_FREE_MSG + '追加するには、「見学した園」の「比べる」のチェックを1つ外してください。' : '比べられるのは3園までです。「見学した園」の「比べる」のチェックを1つ外してから、追加してください。'); return; }
     }
+    if(!v && visFull()){ $('cmpMsg').textContent = VIS_FREE_MSG + '「見学した園」の「削除」で1園をはずしてください。'; return; }
     if(v) v.cmp = true;
     else visits.push({id:'v' + Date.now(), name:f[1], area:f[0], fac:key, date:'', st:pack(''), memo:'', ex:false, cmp:true});
     vSave(); $('cmpQ').value = ''; $('cmpRes').innerHTML = ''; renderVisit();
@@ -2718,6 +2724,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=119"></script>
+<script src="features.js?v=120"></script>
 </body>
 </html>
