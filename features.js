@@ -1605,4 +1605,21 @@ function syJoin(code, manual){
     ms.forEach(function(m){ [].slice.call(m.addedNodes).forEach(function(n){ if(n.nodeType === 1) fix(n); else if(n.parentNode && n.parentNode.nodeType === 1) fix(n.parentNode); }); });
   }).observe(document.body, {childList: true, subtree: true, characterData: false});
 })();
+
+/* ===== 端末の「戻る」で、トップ(点数シミュレーター)に戻る ===== */
+(function(){
+  var nav = document.querySelector('.tabs'); if(!nav || !window.history || !history.pushState) return;
+  var popping = false;
+  nav.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('button[role=tab]') : null; if(!b || popping) return;
+    var onState = history.state && history.state.hkTab;
+    if(b.id === 'tabIndex'){ if(onState){ popping = true; history.back(); setTimeout(function(){ popping = false; }, 400); } return; }
+    if(!onState){ try{ history.pushState({hkTab: 1}, '', location.href); }catch(_){ } }
+  });
+  window.addEventListener('popstate', function(){
+    if(popping){ popping = false; return; }
+    var t = document.getElementById('tabIndex');
+    if(t && t.getAttribute('aria-selected') !== 'true'){ popping = true; t.click(); popping = false; window.scrollTo(0, 0); }
+  });
+})();
 })();
