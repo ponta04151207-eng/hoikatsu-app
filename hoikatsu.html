@@ -220,6 +220,8 @@ table.cmp{border-collapse:collapse; width:100%; min-width:340px; font-size:14px}
 .lgs{display:flex; flex-wrap:wrap; gap:4px 6px; margin-top:4px}
 .lg{white-space:nowrap; font-size:12px; font-weight:700; padding:2px 8px; border-radius:999px; color:#fff}
 .lg.qlo{background:#4a8fd8}.lg.qme{background:#0f9d76}.lg.qhi{background:#f29a3d}
+.dnote{margin:6px 0 4px; padding:6px 8px; background:#fff; border-radius:10px; font-size:11.5px; line-height:1.5; color:var(--fg)}
+.dnote b{display:block; font-size:11.5px; color:#8a5a00}
 .dbx summary{cursor:pointer; list-style:none}
 .dbx summary::-webkit-details-marker{display:none}
 .dbx summary::after{content:"▼ ひらく"; float:right; font-size:11.5px; color:var(--muted)}
@@ -356,7 +358,7 @@ img{max-width:100%}
 </svg>
     <p class="tag" id="tag">世田谷区・認可保育園</p>
     <h1>保活アプリ<span class="sub">(世田谷区版)</span></h1>
-    <div class="feat"><p class="fh2">このアプリでできること</p><ul><li><span class="fi">🧮</span><span class="ft"><b>点数シミュレーター</b><small>保護者の状況から、予想の点数がわかります。</small></span></li><li><span class="fi">🔍</span><span class="ft"><b>園を探す</b><small>昨年の倍率と、住所から近い順の一覧。</small></span></li><li><span class="fi">⚖️</span><span class="ft"><b>園を比べる</b><span style="font-size:11px; font-weight:700; color:#0f8a7a; margin-left:4px">(無料版は2園まで)</span><small>見学した園を、並べて比べられます。</small></span></li><li><span class="fi">📝</span><span class="ft"><b>見学メモ</b><small>見たこと・聞いたことを、自分の言葉で書き留めます。</small></span></li><li><span class="fi">🍼</span><span class="ft"><b>預け先を探す</b><small>病児保育と認可外保育施設を探せます。</small></span></li><li><span class="fi">📅</span><span class="ft"><b>スケジュール</b><span class="fcr" aria-label="有料版">👑</span><small>区の申込みの日程と、やることリスト。締切が近づくとお知らせ。</small></span></li><li><span class="fi">📋</span><span class="ft"><b>提出前チェックと書類リスト</b><span class="fcr" aria-label="有料版">👑</span><small>必要書類の一覧、出す前の最終チェック、勤務先への依頼文。</small></span></li><li><span class="fi">⚖️</span><span class="ft"><b>園を比べる(3園から)</b><span class="fcr" aria-label="有料版">👑</span><small>3園以上を並べて比べられます。2園までは無料です。</small></span></li><li><span class="fi">📷</span><span class="ft"><b>見学メモ プラス</b><span class="fcr" aria-label="有料版">👑</span><small>写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。</small></span></li><li><span class="fi">📊</span><span class="ft"><b>園ごとの点数の分布</b><span class="fcr" aria-label="有料版">👑</span><small>あなたの点数で、あなたの受かりやすさと今どのくらいの位置にいるかがわかります!</small><br><details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。</small></details></span></li><li><span class="fi">📝</span><span class="ft"><b>希望園の並べ方</b><span class="fcr" aria-label="有料版">👑</span><small>第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。</small></span></li><li class="fgo"><button type="button" id="featPaidGo" class="mini"><span aria-hidden="true">👑</span> 有料プラン・料金を見る</button></li></ul></div>
+    <div class="feat"><p class="fh2">このアプリでできること</p><ul><li><span class="fi">🧮</span><span class="ft"><b>点数シミュレーター</b><small>保護者の状況から、予想の点数がわかります。</small></span></li><li><span class="fi">🔍</span><span class="ft"><b>園を探す</b><small>昨年の倍率と、住所から近い順の一覧。</small></span></li><li><span class="fi">⚖️</span><span class="ft"><b>園を比べる</b><span style="font-size:11px; font-weight:700; color:#0f8a7a; margin-left:4px">(無料版は2園まで)</span><small>見学した園を、並べて比べられます。</small></span></li><li><span class="fi">📝</span><span class="ft"><b>見学メモ</b><small>見たこと・聞いたことを、自分の言葉で書き留めます。</small></span></li><li><span class="fi">🍼</span><span class="ft"><b>預け先を探す</b><small>病児保育と認可外保育施設を探せます。</small></span></li><li><span class="fi">📅</span><span class="ft"><b>スケジュール</b><span class="fcr" aria-label="有料版">👑</span><small>区の申込みの日程と、やることリスト。締切が近づくとお知らせ。</small></span></li><li><span class="fi">📋</span><span class="ft"><b>提出前チェックと書類リスト</b><span class="fcr" aria-label="有料版">👑</span><small>必要書類の一覧、出す前の最終チェック、勤務先への依頼文。</small></span></li><li><span class="fi">⚖️</span><span class="ft"><b>園を比べる(3園から)</b><span class="fcr" aria-label="有料版">👑</span><small>3園以上を並べて比べられます。2園までは無料です。</small></span></li><li><span class="fi">📷</span><span class="ft"><b>見学メモ プラス</b><span class="fcr" aria-label="有料版">👑</span><small>写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。</small></span></li><li><span class="fi">📊</span><span class="ft"><b>園ごとの点数の分布</b><span class="fcr" aria-label="有料版">👑</span><small>あなたの点数で、あなたの受かりやすさと今どのくらいの位置にいるかがわかります!</small><br><details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。<br>実際は、令和8年(2026年)4月に入園した児童の点数の分布(区の公表資料)と、あなたの予想点数(令和9年4月入園の申込み想定)を並べます。</small></details></span></li><li><span class="fi">📝</span><span class="ft"><b>希望園の並べ方</b><span class="fcr" aria-label="有料版">👑</span><small>第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。</small></span></li><li class="fgo"><button type="button" id="featPaidGo" class="mini"><span aria-hidden="true">👑</span> 有料プラン・料金を見る</button></li></ul></div>
     <details class="leadd"><summary>点数シミュレーターは、2〜3分で入力できます。<span class="lt">▼</span></summary><p class="lead">表示は目安で、実際の点数は区の「保育のごあんない」と提出書類で決まります。</p></details>
   </header>
 
@@ -419,7 +421,7 @@ img{max-width:100%}
 
     <div class="panel" id="distPanel" aria-labelledby="h-dist">
       <h2 id="h-dist">昨年入園した子の点数</h2>
-      <p class="hint" style="margin:0 0 6px">令和8年4月に入園した子が、どの点数の区分だったかの分布です(区の公表資料)。</p>
+      <p class="hint" style="margin:0 0 6px">令和8年(2026年)4月に入園した子が、どの点数の区分だったかの分布です(区の公表資料)。<br>あなたの予想点数(令和9年4月入園の申込み想定)を、この去年の分布に当てはめています。</p>
       <div class="ctl">
         <div><label class="field" for="dReg">地域</label><select id="dReg"></select></div>
         <div><label class="field" for="dCls">クラス</label><select id="dCls"></select></div>
@@ -2100,6 +2102,7 @@ window.SHISUU_DIST.r8 = {
       if(!DIST || !DIST.data[f[0]]) return '';
       if(!PREM) return '<div class="dbx">' + CRW + '<b style="display:inline">点数の分布(0〜5歳児)</b> <small style="display:inline">有料版の機能です。「課金でできること」から見られます。</small></div>';
       var h = '<details class="dbx"><summary>' + CRW + '<b style="display:inline">' + esc(f[0]) + '地域の入園者の点数(0〜5歳児)</b></summary>';
+      h += '<p class="dnote"><b>いつの分布?</b>' + esc(DIST.label) + 'の点数の分布です(区の公表資料)。あなたの予想点数は、令和9年4月入園を申し込む想定の点数です。去年の入園者と、あなたの今の点数を並べています。</p>';
       for(var c = 0; c < 6; c++) h += distOne(f, c);
       return h + '<div class="dl"><span>' + DIST.bands[0].l + '</span><span>' + DIST.bands[DIST.bands.length - 1].l + '</span></div><small>青はあなたより低い区分、緑があなたの区分、橙はあなたより高い区分です。園ごとではなく地域全体の昨年の分布で、人気の園は上の区分に偏ります。入れる目安であり、保証ではありません。</small></details>';
     }
@@ -2715,6 +2718,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=88"></script>
+<script src="features.js?v=89"></script>
 </body>
 </html>
