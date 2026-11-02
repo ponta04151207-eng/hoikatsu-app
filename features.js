@@ -127,6 +127,19 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#secFind h2{font-size:14.5px!important}',
+  '#secFind select,#secFind input[type=search],#secFind input[type=text]{font-size:12px!important; min-height:32px!important; height:32px!important; padding:0 8px!important; border-radius:11px!important}',
+  '#secFind .aznear input,#secFind #hkFnear input{min-height:34px!important; height:34px!important}',
+  '#secFind button{min-height:32px!important; font-size:12px!important; padding:0 10px!important}',
+  '#secFind label{font-size:11px!important}',
+  '#secFind input[type=checkbox]{width:15px!important; height:15px!important; margin:0!important}',
+  '#secFind label:has(input[type=checkbox]){gap:6px!important; line-height:1.3!important; font-size:11.5px!important}',
+  '#secFind .hint{font-size:10px!important; line-height:1.45!important}',
+  '#secFind .fcard{padding:8px 10px!important; margin-top:7px!important; border-radius:14px!important}',
+  '#secFind .fcard h3,#secFind .fcard .fn,#secFind .fcard .nm{font-size:14px!important; line-height:1.3!important}',
+  '#secFind .fcard .area{font-size:10px!important; padding:0 7px!important}',
+  '#secFind .fcard .n,#secFind .fcard p,#secFind .fcard small,#secFind .fcard td,#secFind .fcard th{font-size:11.5px!important; line-height:1.45!important}',
+  '#secFind .fcard button,#secFind .fcard .btnlike{min-height:26px!important; height:auto!important; font-size:11px!important; padding:2px 10px!important}',
   '#viewAzuke .panel{padding:12px 12px 10px!important}',
   '#viewAzuke h2{font-size:15px!important; margin:0 0 4px!important}',
   '#viewAzuke .hint,#viewAzuke .notice{font-size:10.5px!important; line-height:1.5!important; margin:3px 0 0!important}',
