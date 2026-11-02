@@ -830,7 +830,7 @@ function monthsBack(s, n){ var d = ymd(s); d.setMonth(d.getMonth() - n); return 
 var tbD = document.createElement('button');
 tbD.type = 'button'; tbD.id = 'tabDocs'; tbD.className = 'hero'; tbD.setAttribute('role', 'tab'); tbD.setAttribute('aria-selected', 'false');
 tbD.style.gridColumn = 'span 6';
-tbD.innerHTML = '<span class="ti">📋</span><span>' + CR + ' 提出前チェック<small style="display:block; font-size:11px; font-weight:500; line-height:1.2">書類リスト</small></span>';
+tbD.innerHTML = '<span class="ti">📋</span><span style="text-align:left"><span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap!important">' + CR + '<span>提出前チェック</span></span><small style="display:block; font-size:11px; font-weight:500; line-height:1.2; padding-left:20px">書類リスト</small></span>';
 tabs.insertBefore(tbD, $('tabFind'));
 var viewD = document.createElement('div'); viewD.id = 'viewDocs'; viewD.hidden = true;
 view.parentNode.insertBefore(viewD, view);
