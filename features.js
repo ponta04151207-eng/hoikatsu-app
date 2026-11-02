@@ -127,7 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
-  '.tabs button.hero svg.cr,.tabs button.hero .ti svg,.tabs button svg.cr,.tabs button.hero span svg{width:13px!important; height:13px!important; flex:none}',
+  '.tabs button.hero svg.cr,.tabs button.hero .ti svg,.tabs button svg.cr,.tabs button.hero span svg{width:11px!important; height:11px!important; flex:none}',
   '#viewSched .panel:has(.tk){padding:12px 12px 10px!important}',
   '#viewSched .panel:has(.tk) h2{font-size:15px!important; margin:0 0 4px!important}',
   '#viewSched .panel:has(.tk) h2::before{width:6px!important; height:16px!important}',
@@ -290,7 +290,7 @@ var tabs = document.querySelector('.tabs');
 var hsv = document.querySelector('header svg.hero'); if(hsv) hsv.setAttribute('preserveAspectRatio', 'xMidYMid slice');
 var tb = document.createElement('button');
 tb.type = 'button'; tb.id = 'tabSched'; tb.className = 'hero'; tb.setAttribute('role', 'tab'); tb.setAttribute('aria-selected', 'false');
-tb.innerHTML = '<span class="ti">📅</span><span>' + CR + ' スケジュール</span>';
+tb.innerHTML = '<span class="ti">📅</span><span style="text-align:left"><span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap!important">' + CR + '<span>スケジュール</span></span><small style="display:block; font-size:11px; font-weight:500; line-height:1.2; padding-left:14px">やることリスト</small></span>';
 tabs.insertBefore(tb, $('tabFind'));
 var view = document.createElement('div'); view.id = 'viewSched'; view.hidden = true;
 $('viewAbout').parentNode.insertBefore(view, $('viewAbout'));
@@ -831,7 +831,7 @@ function monthsBack(s, n){ var d = ymd(s); d.setMonth(d.getMonth() - n); return 
 var tbD = document.createElement('button');
 tbD.type = 'button'; tbD.id = 'tabDocs'; tbD.className = 'hero'; tbD.setAttribute('role', 'tab'); tbD.setAttribute('aria-selected', 'false');
 tbD.style.gridColumn = 'span 6';
-tbD.innerHTML = '<span class="ti">📋</span><span style="text-align:left"><span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap!important">' + CR + '<span>提出前チェック</span></span><small style="display:block; font-size:11px; font-weight:500; line-height:1.2; padding-left:20px">書類リスト</small></span>';
+tbD.innerHTML = '<span class="ti">📋</span><span style="text-align:left"><span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap!important">' + CR + '<span>提出前チェック</span></span><small style="display:block; font-size:11px; font-weight:500; line-height:1.2; padding-left:14px">書類リスト</small></span>';
 tabs.insertBefore(tbD, $('tabFind'));
 var viewD = document.createElement('div'); viewD.id = 'viewDocs'; viewD.hidden = true;
 view.parentNode.insertBefore(viewD, view);
