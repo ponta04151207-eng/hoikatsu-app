@@ -127,6 +127,14 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#secMemo{padding:12px 14px!important}',
+  '#secMemo h2{font-size:15px!important; margin:0 0 4px!important; gap:8px!important}',
+  '#secMemo h2 .hi,#secMemo h2 svg,#secMemo h2 img{width:26px!important; height:26px!important; border-radius:9px!important}',
+  '#secMemo .hint{font-size:10.5px!important; line-height:1.5!important; margin:3px 0 6px!important}',
+  '#secMemo .notice{font-size:11.5px!important; line-height:1.45!important; padding:6px 10px!important; border-radius:12px!important; margin:0 0 6px!important}',
+  '#secMemo label.field{font-size:12px!important; margin:6px 0 3px!important}',
+  '#secMemo #vAdd{margin-top:8px!important}',
+  '#secMemo #vAdd + .hint{font-size:10px!important; margin:5px 4px 0!important}',
   '#secFind h2{font-size:14.5px!important}',
   '#secFind select,#secFind input[type=search],#secFind input[type=text]{font-size:12px!important; min-height:32px!important; height:32px!important; padding:0 8px!important; border-radius:11px!important}',
   '#secFind .aznear input,#secFind #hkFnear input{min-height:34px!important; height:34px!important}',
