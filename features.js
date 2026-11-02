@@ -1671,7 +1671,7 @@ function syJoin(code, manual){
     setTimeout(function(){ var t = document.getElementById('hkPlus'); if(t) t.scrollIntoView(); }, 150);
   });
   var c = document.getElementById('tabCmp');
-  if(c){ var sp = c.querySelectorAll('span')[1]; if(sp){ sp.insertAdjacentHTML('afterend', '<small style="display:inline-flex; align-items:center; gap:2px; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap">(' + CR + '3園から)</small>'); } }
+  if(c){ var sp = c.querySelectorAll('span')[1]; if(sp){ sp.insertAdjacentHTML('afterend', '<small style="display:inline-flex; align-items:center; gap:2px; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap">(' + CR + '3園から有料)</small>'); } }
 })();
 
 /* ===== 有料タブに「園を比べる(3園から)」「点数の分布」を追加 ===== */
