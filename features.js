@@ -127,6 +127,13 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#secMemo{max-width:100%!important; box-sizing:border-box!important; overflow:hidden}',
+  '#secMemo .hint{font-size:10px!important; line-height:1.45!important; margin:2px 0 4px!important}',
+  '#secMemo .notice{font-size:10.5px!important; line-height:1.4!important; padding:5px 9px!important; border-radius:10px!important}',
+  '#secMemo label.field{font-size:11px!important; margin:4px 0 2px!important}',
+  '#secMemo select{width:100%!important; max-width:100%!important; min-width:0!important; box-sizing:border-box!important; text-overflow:ellipsis; font-size:12px!important; min-height:32px!important; height:32px!important; padding:0 24px 0 9px!important; border-radius:11px!important}',
+  '#secMemo #vAdd{min-height:38px!important; height:38px!important; font-size:13.5px!important; margin-top:6px!important}',
+  '#secMemo #vAdd + .hint{font-size:9.5px!important; margin:4px 2px 0!important}',
   '#hkPlus{padding:10px 12px!important}',
   '#hkPlus h2{font-size:14px!important; margin:0 0 3px!important}',
   '#hkPlus h2 .hi,#hkPlus h2 svg{width:26px!important; height:26px!important}',
