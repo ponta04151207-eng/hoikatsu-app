@@ -127,6 +127,16 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#vForm{padding:12px 14px!important}',
+  '#vForm h2{font-size:15px!important; margin:0 0 6px!important}',
+  '#vForm h3.grp{font-size:13px!important; margin:10px 0 3px!important; padding:2px 10px!important}',
+  '#vForm label.field{font-size:11.5px!important; margin:8px 0 3px!important}',
+  '#vForm input[type=text],#vForm input[type=date],#vForm select{font-size:13px!important; min-height:34px!important; height:34px!important; padding:0 10px!important; border-radius:12px!important}',
+  '#vForm textarea{display:block!important; margin:0!important; resize:none; height:48px!important}#vForm textarea#v-memo{height:48px!important}',
+  '#vForm textarea{font-size:13px!important; min-height:0!important; padding:6px 10px!important; border-radius:12px!important; line-height:1.4!important}',
+  '#vForm .hint{font-size:10.5px!important; line-height:1.45!important; margin:3px 0 0!important}',
+  '#vForm .nav{margin-top:10px!important; gap:8px!important}#vForm .nav button{min-height:36px!important; height:36px!important; font-size:13px!important; padding:0 14px!important}',
+  '#vForm #vItems *{font-size:12.5px!important}',
   '.tabs .tgl{grid-column:span 12!important; font-size:11px; font-weight:700; color:var(--muted); display:flex; align-items:center; gap:6px; margin:2px 2px 0; line-height:1.2}.tabs .tgl::after{content:""; flex:1; height:1px; background:var(--line)}.tabs .tgl.pd{color:#a8730a; margin-top:6px}.tabs .tgl.pd::after{background:#f0d9a0}',
   '#tabIndex{order:2}#tabAzuke{order:3}#tabFind{order:4}#tabCmp{order:5}#tabVisit{order:6}#tabAbout{order:7}#tabSet{order:8}#tabSched{order:10}#tabDocs{order:11}#tabPlus{order:12}#tabPaid{order:13}.tabs .tgl.fr{order:1}.tabs .tgl.pd{order:9}',
   '#tabIndex,#tabAzuke,#tabAbout,#tabSet,#tabSched,#tabDocs{grid-column:span 6!important}#tabFind,#tabCmp,#tabVisit{grid-column:span 4!important}#tabPlus,#tabPaid{grid-column:span 6!important}',
