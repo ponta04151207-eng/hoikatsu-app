@@ -1667,7 +1667,7 @@ function syJoin(code, manual){
     b.innerHTML = '<span class="ti">' + ico + '</span><span style="text-align:left"><span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap!important">' + CR + '<span>' + t1 + '</span></span><small style="display:block; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap!important; letter-spacing:-0.03em; padding-left:13px">' + t2 + '</small></span>';
     nav.appendChild(b); b.addEventListener('click', go);
   }
-  mk('tabCmp3', '⚖️', '園を比べる', '3園から比べられる', function(){ document.getElementById('tabCmp').click(); window.scrollTo(0, 0); });
+  mk('tabCmp3', '⚖️', '園を比べる', '(3園から有料)', function(){ document.getElementById('tabCmp').click(); window.scrollTo(0, 0); });
   mk('tabDist', '📊', '点数の分布', '園ごとの入りやすさ', function(){ document.getElementById('tabFind').click(); window.scrollTo(0, 0); });
   var pd = document.getElementById('tabPaid'); if(pd) nav.appendChild(pd);
 })();
