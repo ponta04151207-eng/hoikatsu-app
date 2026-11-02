@@ -127,6 +127,16 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#hkPlus{padding:10px 12px!important}',
+  '#hkPlus h2{font-size:14px!important; margin:0 0 3px!important}',
+  '#hkPlus h2 .hi,#hkPlus h2 svg{width:26px!important; height:26px!important}',
+  '#hkPlus .badge{font-size:10px!important; padding:0 8px!important}',
+  '#hkPlus .hint{font-size:10px!important; line-height:1.45!important; margin:2px 0 4px!important}',
+  '#hkPlus label.field{font-size:11px!important; margin:4px 0 2px!important}',
+  '#hkPlus select{font-size:12px!important; min-height:32px!important; height:32px!important; padding:0 8px!important}',
+  '#hkPlus details.plus{padding:0!important; margin:0!important}',
+  '#hkPlus details.plus > summary{font-size:12px!important; padding:4px 2px!important; min-height:0!important; height:auto!important; line-height:1.3!important}',
+  '#hkPlus details.plus > summary svg{width:11px!important; height:11px!important}',
   '#secMemo{padding:12px 14px!important}',
   '#secMemo h2{font-size:15px!important; margin:0 0 4px!important; gap:8px!important}',
   '#secMemo h2 .hi,#secMemo h2 svg,#secMemo h2 img{width:26px!important; height:26px!important; border-radius:9px!important}',
