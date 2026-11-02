@@ -127,6 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '.tabs button.hero svg.cr,.tabs button.hero .ti svg,.tabs button svg.cr,.tabs button.hero span svg{width:13px!important; height:13px!important; flex:none}',
   '#viewSched .panel:has(.tk){padding:12px 12px 10px!important}',
   '#viewSched .panel:has(.tk) h2{font-size:15px!important; margin:0 0 4px!important}',
   '#viewSched .panel:has(.tk) h2::before{width:6px!important; height:16px!important}',
