@@ -127,6 +127,11 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '.panel:has(#vList){max-width:100%!important; box-sizing:border-box!important; overflow:hidden}',
+  '.panel:has(#vList) h2{font-size:19px!important; margin:0 0 6px!important}',
+  '.panel:has(#vList) h2 svg,.panel:has(#vList) h2 .hi,.panel:has(#vList) h2 img{width:30px!important; height:30px!important}',
+  '.panel:has(#vList) h2 #vCount{display:none!important}',
+  '.panel:has(#vList) #vSort{width:100%!important; max-width:100%!important; box-sizing:border-box!important}',
   '#secMemo{max-width:100%!important; box-sizing:border-box!important; overflow:hidden}',
   '#secMemo .hint{font-size:10px!important; line-height:1.45!important; margin:2px 0 4px!important}',
   '#secMemo .notice{font-size:10.5px!important; line-height:1.4!important; padding:5px 9px!important; border-radius:10px!important}',
@@ -207,8 +212,8 @@ css.textContent = [
   '#viewSched .tk .x .sc,#viewSched .tk .sc{font-size:10px!important; padding:0 6px!important; line-height:1.5!important}',
   '#viewSched .tk > button.mini{min-height:24px!important; height:24px!important; padding:0 10px!important; font-size:11px!important; border-width:1.5px!important; flex:none}',
   '.panel:has(#vList){padding:12px 12px 10px!important}',
-  '.panel:has(#vList) h2{font-size:15px!important; margin:0 0 6px!important; gap:6px!important}',
-  '.panel:has(#vList) h2 svg,.panel:has(#vList) h2 .hi,.panel:has(#vList) h2 img{width:24px!important; height:24px!important; flex:none}',
+  '.panel:has(#vList) h2{font-size:19px!important; margin:0 0 6px!important; gap:6px!important}',
+  '.panel:has(#vList) h2 svg,.panel:has(#vList) h2 .hi,.panel:has(#vList) h2 img{width:30px!important; height:30px!important; flex:none}',
   '.panel:has(#vList) h2 #vCount{font-size:11.5px!important}',
   '.panel:has(#vList) label.field{font-size:11.5px!important; margin:0 0 3px!important}',
   '.panel:has(#vList) #vSort{font-size:12.5px!important; min-height:34px!important; height:34px!important; padding:0 28px 0 10px!important; border-radius:12px!important}',
