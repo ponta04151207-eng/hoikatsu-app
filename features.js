@@ -1707,4 +1707,12 @@ function syJoin(code, manual){
   mk('tabDist', '📊', '点数の分布', '園ごとの入りやすさ', function(){ document.getElementById('tabFind').click(); window.scrollTo(0, 0); });
   var pd = document.getElementById('tabPaid'); if(pd) nav.appendChild(pd);
 })();
+
+/* ===== 園を比べるのタイトルの「(3園から有料)」に王冠 ===== */
+(function(){
+  var t = document.getElementById('cmpPaidTag'); if(!t) return;
+  t.style.display = 'inline-flex'; t.style.alignItems = 'center'; t.style.gap = '2px'; t.style.verticalAlign = 'middle';
+  t.innerHTML = '(' + CR + '<span>3園から有料</span>)';
+  var sv = t.querySelector('svg'); if(sv){ sv.setAttribute('width', '13'); sv.setAttribute('height', '13'); sv.style.verticalAlign = 'middle'; }
+})();
 })();
