@@ -25,7 +25,7 @@ function unlockTok(){ var o = lsGet(UL_KEY, null); return (o && typeof o === 'ob
 function unlockUntil(){ var o = lsGet(UL_KEY, null); return (o && typeof o === 'object' && o.until) ? o.until : null; }
 function unlockActive(){ var u = unlockUntil(); if(!u) return false; var t = new Date(); var today = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); return u >= today; }
 var PREMIUM = TRIAL || unlockActive();
-window.HK_PREMIUM = PREMIUM; if(window.HK && HK.renderFind){ try{ HK.renderFind(); }catch(e){} }
+window.HK_PREMIUM = PREMIUM; if(window.HK){ try{ HK.renderFind(); HK.rerender(); }catch(e){} }
 
 function lsGet(k, d){ try{ var s = localStorage.getItem(k); return s === null ? d : JSON.parse(s); }catch(e){ return d; } }
 function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -531,7 +531,7 @@ function renderAll(){
   var vs = realVisits(), box = $('hkAll');
   if(!vs.length){ box.innerHTML = '<p class="hint">見学した園を追加すると、ここに並びます。</p>'; return; }
   function row(label, fn){ return '<tr><th scope="row">' + esc(label) + '</th>' + vs.map(function(v){ return '<td>' + fn(v) + '</td>'; }).join('') + '</tr>'; }
-  var h = '<p class="hint" style="margin:0">園の数に上限はありません(無料版は3園まで)。横にスライドして見られます。</p><div class="tblwrap"><table class="cmp"><thead><tr><th scope="col">項目</th>' + vs.map(function(v){ return '<th scope="col">' + esc(v.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
+  var h = '<p class="hint" style="margin:0">園の数に上限はありません。横にスライドして見られます。</p><div class="tblwrap"><table class="cmp"><thead><tr><th scope="col">項目</th>' + vs.map(function(v){ return '<th scope="col">' + esc(v.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
   h += row('地域・見学日', function(v){ return esc(v.area) + (v.date ? '<br>' + esc(v.date.slice(5).replace('-', '/')) : ''); });
   h += row('総合評価', function(v){ var g = HK.grade(v); return HK.gbadge(v) + '<br><small>○' + g.c.g + ' △' + g.c.w + ' ？' + g.c.q + '</small>'; });
   h += row('入園可能数', function(v){ var s = vst(v); return s && s.vac !== null ? s.vac + '人' : '―'; });
@@ -671,7 +671,7 @@ function renderWish(){
   var box = $('hkWish'); if(!box) return;
   wish = wish.filter(function(id){ return wVisit(id); });
   var vs = realVisits(), h = '';
-  h += '<p class="hint" style="margin:0 0 8px">区は「希望する園の数や順位で、有利・不利にはならない」と説明しています(出典: <a href="' + WSRC.url + '" target="_blank" rel="noopener">' + esc(WSRC.name) + '</a>、区の更新 ' + esc(WSRC.upd) + '、確認日 ' + esc(WSRC.checked) + ')。選考は指数の高い順です。だから、順位は<b>行きたい順</b>で大丈夫です。このリストは、考えを整理して、申込書に写すためのものです。</p>';
+  h += '<p class="hint" style="margin:0 0 8px">区は「希望する園の数や順位で、有利・不利にはならない」と説明しています(出典: <a href="' + WSRC.url + '" target="_blank" rel="noopener">' + esc(WSRC.name) + '</a>、区の更新 ' + esc(WSRC.upd) + '、確認日 ' + esc(WSRC.checked) + ')。選考は点数の高い順です。だから、順位は<b>行きたい順</b>で大丈夫です。このリストは、考えを整理して、申込書に写すためのものです。</p>';
   h += '<p style="margin:0 0 8px"><b>' + wish.length + ' / 10園</b>(第10希望まで書けます)</p>';
   if(!wish.length) h += '<p class="hint">下から園を追加してください。見学メモに入れた園が出ます。</p>';
   wish.forEach(function(id, i){
@@ -768,7 +768,7 @@ var DOPTS = [
   ['single', 'ひとり親(保護者がひとり)', [['ひとり親世帯の申立書', '離婚・死別などの状況がわかる資料(児童扶養手当証書、ひとり親医療証、戸籍謄本など)も付けられます。未婚や事実婚でも、保育にかかわるパートナーがいるときは、ひとり親にはなりません。', false]]],
   ['ext', '区立保育園の延長保育を使いたい(満1歳以上・月ぎめ)', [['区立保育園等延長保育申込書', 'オンライン(電子申請)ではできません。', false]]],
   ['ninka', 'いま認可外保育施設・ベビーシッターなどに預けている', [['受託証明書', '預けている施設ごとに必要です。施設に書いてもらいます。これから預けるときは、預け始めてから出します。ベビーシッターなどの場合は、認可外保育施設設置届の写しも付けます。', true]]],
-  ['move', '世田谷区へ転入する予定がある', [['本人確認書類・転入に関する申立書・転入を証明する資料', '入園月の前月までに転入が確認できるときだけ、区民と同じ指数で選考されます。', false]]]
+  ['move', '世田谷区へ転入する予定がある', [['本人確認書類・転入に関する申立書・転入を証明する資料', '入園月の前月までに転入が確認できるときだけ、区民と同じ点数で選考されます。', false]]]
 ];
 var DOC_COMMON = [
   ['申込書兼給付認定申請書', '「保育所等入園(転園)申込書兼教育・保育給付認定申請書(2号・3号認定用)」。世帯で1通です。区のページからダウンロードできます。'],
@@ -935,8 +935,9 @@ function hidePaid(){ viewP.hidden = true; tbP.setAttribute('aria-selected', 'fal
 var PAID = [
   ['sched', 'スケジュール', '区の申込みの日程と、やることリスト。締切が近づくと、画面の上にお知らせが出ます。カレンダーにも入れられます。'],
   ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
+  ['cmp3', '園を比べる(3園から)', '無料で比べられるのは2園までです。3園以上を並べて比べられます。'],
   ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。'],
-  ['dist', '園ごとの指数の分布', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!※高い方でも確実に入れるわけではありません。ご了承ください。', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">分布でわかること・わからないこと</b></summary><ul class="hint" style="margin:6px 0 0; padding-left:1.2em"><li><b>わかる</b>: 自分の指数が、昨年入園した人の中で高い方か低い方か。「園を探す」の各園カードに、地域ごとの分布とあなたの位置を出します。</li><li><b>わかる</b>: 同じ指数の人が多い区分は、ほかの人と並びやすいということ。並んだ場合は、区の同点時の順位で決まります。</li><li><b>わからない</b>: 入れるかどうか。入園は、指数の高い順に、希望した園の空きへ入っていく形で決まるため、人気の園は高い指数が必要になります。指数が分布の上の方でも、希望が人気の園だけなら入れないことがあります。</li><li><b>わからない</b>: 今年の申込者数。令和9年は、申込者数や指数表が変わる可能性があります。</li><li>見方のコツ: 指数が高いほど有利です。第1希望の倍率が低めの園も混ぜて、希望を多めに書くのが基本です(希望園の数の制限は区に確認してください)。</li></ul></details>' + '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。</small></details>'],
+  ['dist', '園ごとの点数の分布', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!※高い方でも確実に入れるわけではありません。ご了承ください。', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">分布でわかること・わからないこと</b></summary><ul class="hint" style="margin:6px 0 0; padding-left:1.2em"><li><b>わかる</b>: 自分の点数が、昨年入園した人の中で高い方か低い方か。「園を探す」の各園カードに、地域ごとの分布とあなたの位置を出します。</li><li><b>わかる</b>: 同じ点数の人が多い区分は、ほかの人と並びやすいということ。並んだ場合は、区の同点時の順位で決まります。</li><li><b>わからない</b>: 入れるかどうか。入園は、点数の高い順に、希望した園の空きへ入っていく形で決まるため、人気の園は高い点数が必要になります。点数が分布の上の方でも、希望が人気の園だけなら入れないことがあります。</li><li><b>わからない</b>: 今年の申込者数。令和9年は、申込者数や点数表が変わる可能性があります。</li><li>見方のコツ: 点数が高いほど有利です。第1希望の倍率が低めの園も混ぜて、希望を多めに書くのが基本です(希望園の数の制限は区に確認してください)。</li></ul></details>' + '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。</small></details>'],
   ['wish', '希望園の並べ方', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。']
 ];
 function planHtml(){
@@ -970,7 +971,7 @@ function renderPaid(){
   PAID.forEach(function(x){
     h += '<div class="ev"><div class="d">' + CR + ' ' + esc(x[1]) + ' <span class="badge" style="font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px">' + st + '</span></div><div class="n">' + esc(x[2]) + '</div>' + (x[3] || '') + '<button type="button" data-p="' + x[0] + '" style="width:max-content; min-height:40px; padding:0 18px; margin-top:4px">開く</button></div>';
   });
-  h += '<p class="hint" style="margin:10px 0 0">無料のまま使えるもの: 点数シミュレーター、園を探す、園を比べる、見学メモ(3園まで)。</p></section>';
+  h += '<p class="hint" style="margin:10px 0 0">無料のまま使えるもの: 点数シミュレーター、園を探す、園を比べる、見学メモ、園を比べる(2園まで)。</p></section>';
   h += '<section class="panel"><h2>' + CR + ' 料金プラン</h2>' + planHtml() + '</section>';
   viewP.innerHTML = h;
 }
@@ -998,6 +999,7 @@ viewP.addEventListener('click', function(e){
   if(k === 'sched') showSched();
   else if(k === 'docs') showDocs();
   else if(k === 'dist'){ $('tabFind').click(); }
+  else if(k === 'cmp3'){ $('tabCmp').click(); }
   else { $('tabVisit').click(); setTimeout(function(){ var d = k === 'wish' ? $('hkD6') : null; if(d) d.open = true; var t = $(k === 'plus' ? 'hkPlus' : 'hkD6'); if(t) t.scrollIntoView(); }, 120); }
 });
 
@@ -1055,7 +1057,7 @@ function lastUpd(){ return (window.SHISUU_NOW && window.SHISUU_NOW.checkedOn) ||
 var FAQ = [
   ['入力した内容は、どこに保存されますか?', 'お使いのスマホのブラウザの中だけです。運営者のサーバーには送られません。ブラウザのデータを消したり、端末を変えたりすると、消えます。大切な記録は、PDFなどで控えてください。'],
   ['夫婦でメモをそろえられますか?', '「見学メモ プラス」の「夫婦で同期する」で、部屋を作り、LINEで相手に送ります。相手がリンクをタップして参加すると、2人の見学メモ・質問・希望園・書類・予定のチェックが自動でそろいます。写真は同期されません。同期をオンにすると内容がサーバーに置かれます(くわしくはプライバシーの案内)。使わないなら、LINEなどで1回だけ送る方法もあります。'],
-  ['表示される指数や倍率は、正しいですか?', '区が公表した資料をもとにした目安です。実際の指数、日程、必要書類は、区の資料で決まります。申込みの前に、必ず区の資料で確認してください。'],
+  ['表示される点数や倍率は、正しいですか?', '区が公表した資料をもとにした目安です。実際の点数、日程、必要書類は、区の資料で決まります。申込みの前に、必ず区の資料で確認してください。'],
   ['情報は、新しいですか? いつ更新されますか?', '毎月、新しい情報に更新しています。園の空き数は、毎月1日と15日の朝に、区のページから自動で取り込みます。日程や必要書類などは、区が発表したときに、見直して直します。区の更新が古いときは、赤い印が出ます。それぞれの画面に、出典と確認日を載せています。'],
   ['有料の機能は、どうなりますか?', 'いまは、お試しで全員が無料です。有料になるときは、先にお知らせします。料金の予定は、「課金でできること」で見られます。'],
   ['ほかの区でも使えますか?', 'いまは、世田谷区だけです。ほかの区は、あとで対応する予定です。']
@@ -1527,14 +1529,6 @@ function syJoin(code, manual){
     b.addEventListener('click', function(){ setTimeout(top, 30); });
   });
 })();
-
-/* 無料版のひとことを、プラスへの案内に差し替える */
-var hint = $('vCmpHint');
-if(hint){
-  new MutationObserver(function(){
-    if(hint.textContent.indexOf('準備中') >= 0 && PREMIUM) hint.textContent = '無料では3園まで比べられます。4園以上は、上の「見学メモ プラス」の「すべての園を並べて比べる」で見られます。';
-  }).observe(hint, {childList: true, characterData: true, subtree: true});
-}
 
 /* ===== 説明文は「。」のあとで改行 ===== */
 (function(){
