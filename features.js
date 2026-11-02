@@ -127,7 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
-'#hkPlus details.plus{padding:0; margin:0!important; border-top:1px dotted var(--line)}#hkPlus details.plus > summary{font-size:14.5px!important; min-height:0!important; height:auto!important; padding:9px 2px!important; margin:0!important; line-height:1.3; display:flex; align-items:center; gap:6px; list-style:none}#hkPlus details.plus > summary::-webkit-details-marker{display:none}#hkPlus details.plus > summary::after{content:"▼"; margin-left:auto; font-size:10px; color:var(--muted)}#hkPlus details.plus[open] > summary::after{content:"▲"}#hkPlus details.plus[open]{padding-bottom:8px}#hkPlus h2{font-size:18px}#hkPlus .hint{margin:0 0 4px}#hkPlus select{min-height:42px; font-size:15px}',
+'#hkPlus details.plus{padding:0; margin:0!important; border-top:1px dotted var(--line)}#hkPlus details.plus > summary{font-size:14px!important; min-height:0!important; height:auto!important; padding:6px 2px!important; margin:0!important; line-height:1.3; display:flex; align-items:center; gap:6px; list-style:none}#hkPlus details.plus > summary::-webkit-details-marker{display:none}#hkPlus details.plus > summary::after{content:"▼"; margin-left:auto; font-size:10px; color:var(--muted)}#hkPlus details.plus[open] > summary::after{content:"▲"}#hkPlus details.plus[open]{padding-bottom:8px}#hkPlus h2{font-size:17px; margin-bottom:4px}#hkPlus label.field{margin-top:6px; font-size:13px}#hkPlus .hint{margin:0 0 4px}#hkPlus select{min-height:42px; font-size:15px}',
 '.hint{font-size:11px!important; line-height:1.6!important}.notice{font-size:12px!important; line-height:1.65!important}.ev .n{font-size:12px!important; line-height:1.55!important}.azc .azl{font-size:13px!important}',
 '.azc{background:var(--surface); border:2px solid var(--line); border-left:7px solid var(--accent); border-radius:16px; padding:12px 12px 12px 14px; margin-top:10px; box-shadow:var(--shadow)}',
 '.azc .azn{font-family:var(--font-display); font-size:20px; font-weight:700; line-height:1.35; color:var(--accent); overflow-wrap:anywhere}',
@@ -417,7 +417,7 @@ if(!PREMIUM){
   + '<details class="plus" id="hkD3"><summary>📊 すべての園を並べて比べる</summary><div id="hkAll"></div></details>'
   + '<details class="plus" id="hkD4"><summary>📄 PDFにする・印刷する</summary><div><p class="hint" style="margin:0 0 8px">印刷の画面で「PDFに保存」を選ぶと、PDFになります。</p><button type="button" id="hkP1" style="width:100%; margin-bottom:8px">選んだ園のレポート(写真つき)</button><button type="button" id="hkP2" style="width:100%">すべての園のレポート</button></div></details>'
   + '<details class="plus" id="hkD5"><summary>👪 夫婦・家族で共有する</summary><div id="hkSh"></div></details>'
-  + '<details class="plus" id="hkD6"><summary>' + CR + ' 🏁 希望園の並べ方(第10希望まで)</summary><div id="hkWish"></div></details>';
+  + '<details class="plus" id="hkD6"><summary>' + CR + ' 🏁 希望園の並べ方</summary><div id="hkWish"></div></details>';
 }
 
 function vis(){ return HK.getVisits(); }
