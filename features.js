@@ -138,9 +138,9 @@ css.textContent = [
   '#vForm .nav{margin-top:10px!important; gap:8px!important}#vForm .nav button{min-height:36px!important; height:36px!important; font-size:13px!important; padding:0 14px!important}',
   '#vForm #vItems *{font-size:12.5px!important}',
   '.tabs .tgl{grid-column:span 12!important; font-size:11px; font-weight:700; color:var(--muted); display:flex; align-items:center; gap:6px; margin:2px 2px 0; line-height:1.2}.tabs .tgl::after{content:""; flex:1; height:1px; background:var(--line)}.tabs .tgl.pd{color:#a8730a; margin-top:6px}.tabs .tgl.pd::after{background:#f0d9a0}',
-  '#tabIndex{order:2}#tabAzuke{order:3}#tabFind{order:4}#tabCmp{order:5}#tabVisit{order:6}#tabAbout{order:7}#tabSet{order:8}#tabSched{order:10}#tabDocs{order:11}#tabPlus{order:12}#tabPaid{order:13}.tabs .tgl.fr{order:1}.tabs .tgl.pd{order:9}',
-  '#tabIndex,#tabAzuke,#tabAbout,#tabSet,#tabSched,#tabDocs{grid-column:span 6!important}#tabFind,#tabCmp,#tabVisit{grid-column:span 4!important}#tabPlus,#tabPaid{grid-column:span 6!important}',
-  '#tabSched:not([aria-selected="true"]),#tabDocs:not([aria-selected="true"]),#tabPlus,#tabPaid:not([aria-selected="true"]){background:#fffaf0!important; border-color:#f0d9a0!important}',
+  '#tabIndex{order:2}#tabAzuke{order:3}#tabFind{order:4}#tabCmp{order:5}#tabVisit{order:6}#tabAbout{order:7}#tabSet{order:8}#tabSched{order:10}#tabDocs{order:11}#tabPlus{order:12}#tabCmp3{order:13}#tabDist{order:14}#tabPaid{order:15}.tabs .tgl.fr{order:1}.tabs .tgl.pd{order:9}',
+  '#tabIndex,#tabAzuke,#tabAbout,#tabSet,#tabSched,#tabDocs{grid-column:span 6!important}#tabFind,#tabCmp,#tabVisit{grid-column:span 4!important}#tabPlus,#tabCmp3,#tabDist,#tabPaid{grid-column:span 6!important}',
+  '#tabSched:not([aria-selected="true"]),#tabDocs:not([aria-selected="true"]),#tabPlus,#tabCmp3,#tabDist,#tabPaid:not([aria-selected="true"]){background:#fffaf0!important; border-color:#f0d9a0!important}',
   '.tabs button.hero svg.cr,.tabs button.hero .ti svg,.tabs button svg.cr,.tabs button.hero span svg{width:12px!important; height:12px!important; flex:none}',
   '#viewSched .panel:has(.tk){padding:12px 12px 10px!important}',
   '#viewSched .panel:has(.tk) h2{font-size:15px!important; margin:0 0 4px!important}',
@@ -1657,5 +1657,18 @@ function syJoin(code, manual){
   });
   var c = document.getElementById('tabCmp');
   if(c){ var sp = c.querySelectorAll('span')[1]; if(sp){ sp.insertAdjacentHTML('afterend', '<small style="display:inline-flex; align-items:center; gap:2px; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap">(' + CR + '3園から)</small>'); } }
+})();
+
+/* ===== 有料タブに「園を比べる(3園から)」「点数の分布」を追加 ===== */
+(function(){
+  var nav = document.querySelector('.tabs'); if(!nav || document.getElementById('tabCmp3')) return;
+  function mk(id, ico, t1, t2, go){
+    var b = document.createElement('button'); b.type = 'button'; b.id = id; b.className = 'hero';
+    b.innerHTML = '<span class="ti">' + ico + '</span><span style="text-align:left"><span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap!important">' + CR + '<span>' + t1 + '</span></span><small style="display:block; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap!important; letter-spacing:-0.03em; padding-left:13px">' + t2 + '</small></span>';
+    nav.appendChild(b); b.addEventListener('click', go);
+  }
+  mk('tabCmp3', '⚖️', '園を比べる', '3園から比べられる', function(){ document.getElementById('tabCmp').click(); window.scrollTo(0, 0); });
+  mk('tabDist', '📊', '点数の分布', '園ごとの入りやすさ', function(){ document.getElementById('tabFind').click(); window.scrollTo(0, 0); });
+  var pd = document.getElementById('tabPaid'); if(pd) nav.appendChild(pd);
 })();
 })();
