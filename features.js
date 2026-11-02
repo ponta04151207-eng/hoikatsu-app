@@ -127,6 +127,21 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#viewAzuke .panel{padding:12px 12px 10px!important}',
+  '#viewAzuke h2{font-size:15px!important; margin:0 0 4px!important}',
+  '#viewAzuke .hint,#viewAzuke .notice{font-size:10.5px!important; line-height:1.5!important; margin:3px 0 0!important}',
+  '#viewAzuke details.faq{padding:0!important; margin:0!important; border-top:1px dotted var(--line)!important}',
+  '#viewAzuke details.faq > summary{font-size:12.5px!important; padding:7px 2px!important; min-height:0!important; height:auto!important}',
+  '#viewAzuke details.faq > p,#viewAzuke details.faq p{font-size:11px!important; line-height:1.55!important; margin:0 0 6px!important}',
+  '#viewAzuke select,#viewAzuke input[type=search],#viewAzuke input[type=text]{font-size:12.5px!important; min-height:34px!important; height:34px!important; padding:0 10px!important; border-radius:12px!important}',
+  '#viewAzuke label{font-size:11.5px!important; line-height:1.3!important}',
+  '#viewAzuke input[type=checkbox]{width:16px!important; height:16px!important}',
+  '#viewAzuke button{min-height:32px!important; font-size:12px!important; padding:0 10px!important}',
+  '#viewAzuke .azc{padding:8px 10px 8px 12px!important; border-width:1.5px!important; border-left-width:5px!important; border-radius:14px!important; margin-top:7px!important}',
+  '#viewAzuke .azc .azn{font-size:15px!important; line-height:1.3!important}',
+  '#viewAzuke .azc .area{font-size:10.5px!important; padding:0 8px!important}',
+  '#viewAzuke .azc .azl{font-size:11.5px!important; line-height:1.5!important}',
+  '#viewAzuke .azc a.btnlike{font-size:11.5px!important; padding:3px 12px!important; min-height:0!important}',
   '#vForm{padding:12px 14px!important}',
   '#vForm h2{font-size:15px!important; margin:0 0 6px!important}',
   '#vForm h3.grp{font-size:13px!important; margin:10px 0 3px!important; padding:2px 10px!important}',
