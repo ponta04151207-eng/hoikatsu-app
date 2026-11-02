@@ -88,10 +88,10 @@ var QUESTIONS = [
 /* ===== 有料版のカギ ===== */
 function legalLinks(){ return '<a href="terms.html" target="_blank" rel="noopener">利用規約</a> / <a href="privacy.html" target="_blank" rel="noopener">プライバシー</a> / <a href="tokusho.html" target="_blank" rel="noopener">特定商取引法に基づく表記</a>'; }
 function buyHtml(onlyCode){
-  if(onlyCode) return '<label class="field">購入コードを持っているとき</label><div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>';
+  if(onlyCode) return '<label class="field">購入コードを持っているとき</label>' + '<p class="hint" style="margin:0 0 6px">購入コードは、有料プランを買ったことをアプリに知らせる合言葉です。<br>別のスマホや、機種変更のときに、同じコードを入れると有料版が使えます。<br>人には見せないでください。</p>' + '<div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>';
   return '<p style="margin:10px 0 4px"><b>' + CR + ' 毎月プラン ' + esc(PRICE) + '</b><br><span class="hint">毎月自動で更新されます。いつでも解約できます。有料の機能がすべて使えます。夫婦の2人で使えます。</span></p>'
     + (PAYLINK_M ? '<a class="primary" href="' + esc(PAYLINK_M) + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:12px; border-radius:999px; font-weight:700; margin:8px 0">購入する</a>' : '<p class="hint">購入の受付は、準備中です。</p>')
-    + '<label class="field">購入コードを持っているとき</label><div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>'
+    + '<label class="field">購入コードを持っているとき</label>' + '<p class="hint" style="margin:0 0 6px">購入コードは、有料プランを買ったことをアプリに知らせる合言葉です。<br>別のスマホや、機種変更のときに、同じコードを入れると有料版が使えます。<br>人には見せないでください。</p>' + '<div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>'
     + '<p class="hint" style="margin-top:10px">' + legalLinks() + '</p>';
 }
 function lockCard(name){ return '<section class="panel"><h2>' + CR + ' ' + esc(name) + '</h2><p class="hint" style="margin:0">この機能は、有料版です。</p>' + buyHtml() + '</section>'; }
@@ -1068,7 +1068,7 @@ function renderSet(){
     + row('faq', 'よくある質問') + '<div id="hkFaq" hidden>' + FAQ.map(function(q){ return '<details class="faq"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '</div>'
     + row('share', 'このアプリを友達に教える')
     + row('mail', 'お問い合わせ')
-    + row('code', '購入コードを入れる・課金でできること')
+    + row('code', '購入コードを入れる・課金でできること<small style="display:block; font-size:11px; font-weight:500; color:var(--muted); line-height:1.4; margin-top:2px">購入コード: 有料プランを買ったことを知らせる合言葉です。</small>')
     + row('lock', 'パスコードロック(' + (lkGet() ? 'オン' : 'オフ') + ')') + '<div id="hkLockBox" hidden></div>'
     + row('privacy', 'プライバシーポリシー')
     + row('terms', '利用規約')
