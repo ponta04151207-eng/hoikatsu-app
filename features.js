@@ -1639,7 +1639,7 @@ function syJoin(code, manual){
 (function(){
   var nav = document.querySelector('.tabs'); if(!nav || document.getElementById('tabPlus')) return;
   var b = document.createElement('button'); b.type = 'button'; b.id = 'tabPlus'; b.className = 'hero';
-  b.innerHTML = '<span class="ti">📷</span><span style="text-align:left"><span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap!important">' + CR + '<span>見学メモ プラス</span></span><small style="display:block; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap!important; letter-spacing:-0.03em; padding-left:13px">写真・質問・PDF</small></span>';
+  b.innerHTML = '<span class="ti">📷</span><span style="text-align:left"><span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap!important">' + CR + '<span>見学メモ プラス</span></span><small style="display:block; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap!important; letter-spacing:-0.03em; padding-left:13px">写真・共有・PDF</small></span>';
   nav.appendChild(b);
   b.addEventListener('click', function(){
     document.getElementById('tabVisit').click();
