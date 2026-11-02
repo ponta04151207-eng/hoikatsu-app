@@ -127,6 +127,17 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#viewSched .panel:has(.tk){padding:12px 12px 10px!important}',
+  '#viewSched .panel:has(.tk) h2{font-size:15px!important; margin:0 0 4px!important}',
+  '#viewSched .panel:has(.tk) h2::before{width:6px!important; height:16px!important}',
+  '#viewSched .panel:has(.tk) > .hint{font-size:11px!important; line-height:1.45!important; margin:0 0 4px!important}',
+  '#viewSched .tk{padding:5px 0!important; gap:8px!important; align-items:center!important}',
+  '#viewSched .tk input[type=checkbox]{width:18px!important; height:18px!important; margin:0!important; flex:none}',
+  '#viewSched .tk .x{min-width:0; flex:1}',
+  '#viewSched .tk .x b{font-size:13px!important; line-height:1.3!important; font-weight:700!important}',
+  '#viewSched .tk .x small{font-size:10.5px!important; margin-top:1px!important}',
+  '#viewSched .tk .x .sc,#viewSched .tk .sc{font-size:10px!important; padding:0 6px!important; line-height:1.5!important}',
+  '#viewSched .tk > button.mini{min-height:24px!important; height:24px!important; padding:0 10px!important; font-size:11px!important; border-width:1.5px!important; flex:none}',
   '.panel:has(#vList){padding:12px 12px 10px!important}',
   '.panel:has(#vList) h2{font-size:15px!important; margin:0 0 6px!important; gap:6px!important}',
   '.panel:has(#vList) h2 svg,.panel:has(#vList) h2 .hi,.panel:has(#vList) h2 img{width:24px!important; height:24px!important; flex:none}',
