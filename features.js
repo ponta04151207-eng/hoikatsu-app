@@ -127,6 +127,12 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '.hkb.on{padding:5px 10px!important; margin:0 0 8px!important; border-radius:14px!important; text-align:center!important}',
+  '.hkb .bm{display:flex!important; align-items:baseline; justify-content:center; gap:6px; margin:0!important}',
+  '.hkb .bl{font-size:10.5px!important}',
+  '.hkb .bd{font-size:19px!important; line-height:1.2!important}',
+  '.hkb .bdt{font-size:12px!important}',
+  '.hkb .bt{font-size:10.5px!important; line-height:1.3!important; text-align:center!important}',
   '.hkb.on{display:block!important; padding:8px 12px!important; margin:0 0 10px!important; border-radius:16px!important; border:2px solid #e5483d; background:#fff1ee!important; color:#7a2a1f!important; cursor:pointer}',
   '.hkb .bl{font-size:10.5px; font-weight:700; color:#b4532a; line-height:1.3}',
   '.hkb .bm{display:flex; align-items:baseline; gap:8px; margin:1px 0}',
@@ -415,7 +421,7 @@ function renderBanner(){
   if(!n || daysLeft(n.date) > 14){ banner.className = 'hkb'; banner.innerHTML = ''; return; }
   var k = daysLeft(n.date);
   banner.className = 'hkb on';
-  banner.innerHTML = '<div class="bl">📣 次の締切</div><div class="bm"><b class="bd">' + (k === 0 ? '今日です' : 'あと' + k + '日') + '</b><span class="bdt">' + md(n.date) + '</span></div><div class="bt">' + esc(n.title) + '</div>';
+  banner.innerHTML = '<div class="bm"><span class="bl">📣 次の締切</span><b class="bd">' + (k === 0 ? '今日です' : 'あと' + k + '日') + '</b><span class="bdt">' + md(n.date) + '</span></div><div class="bt">' + esc(n.title) + '</div>';
   banner.onclick = showSched; banner.setAttribute('role', 'button'); banner.tabIndex = 0;
 }
 
