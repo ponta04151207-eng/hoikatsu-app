@@ -127,6 +127,11 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#tabDist small{padding-left:0!important; font-size:9.5px!important; letter-spacing:-0.05em!important; white-space:nowrap!important}',
+  '#tabDist{padding-left:4px!important; padding-right:3px!important; gap:4px!important}',
+  '#tabDist .ti{font-size:20px!important}',
+  '#tabPaid,#tabPaid span{white-space:nowrap!important}',
+  '#tabPaid{font-size:12px!important; letter-spacing:-0.03em!important; padding-left:4px!important; padding-right:4px!important; gap:4px!important; justify-content:center!important}',
   '#tabIndex,#tabAzuke,#tabFind,#tabCmp,#tabVisit,#tabAbout,#tabSet{min-height:34px!important; font-size:10.5px!important; padding:2px 2px!important; border-radius:11px!important}',
   '#tabIndex .ti,#tabAzuke .ti,#tabFind .ti,#tabCmp .ti,#tabVisit .ti,#tabAbout .ti,#tabSet .ti{font-size:14px!important}',
   '#tabIndex,#tabAzuke{min-height:32px!important}',
