@@ -127,6 +127,12 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '.hkb.on{display:block!important; padding:8px 12px!important; margin:0 0 10px!important; border-radius:16px!important; border:2px solid #e5483d; background:#fff1ee!important; color:#7a2a1f!important; cursor:pointer}',
+  '.hkb .bl{font-size:10.5px; font-weight:700; color:#b4532a; line-height:1.3}',
+  '.hkb .bm{display:flex; align-items:baseline; gap:8px; margin:1px 0}',
+  '.hkb .bd{font-size:24px; font-weight:800; color:#d93a2f; line-height:1.15}',
+  '.hkb .bdt{font-size:13px; font-weight:700; color:#7a2a1f}',
+  '.hkb .bt{font-size:11px; font-weight:500; line-height:1.4; color:#7a2a1f}',
   '#viewSet .panel{padding:12px 14px!important}',
   '#viewSet h2{font-size:16px!important; margin:0 0 4px!important}',
   '#viewSet h2::before{width:6px!important; height:16px!important}',
@@ -409,8 +415,8 @@ function renderBanner(){
   if(!n || daysLeft(n.date) > 14){ banner.className = 'hkb'; banner.innerHTML = ''; return; }
   var k = daysLeft(n.date);
   banner.className = 'hkb on';
-  banner.innerHTML = '<span class="t">📣 ' + esc(n.title) + 'まで、' + (k === 0 ? '今日です' : 'あと' + k + '日') + '(' + md(n.date) + ')</span><button type="button" class="primary" id="hkBn">見る</button>';
-  $('hkBn').addEventListener('click', showSched);
+  banner.innerHTML = '<div class="bl">📣 次の締切</div><div class="bm"><b class="bd">' + (k === 0 ? '今日です' : 'あと' + k + '日') + '</b><span class="bdt">' + md(n.date) + '</span></div><div class="bt">' + esc(n.title) + '</div>';
+  banner.onclick = showSched; banner.setAttribute('role', 'button'); banner.tabIndex = 0;
 }
 
 function taskDue(t){ return t.ev ? addDays(EVENTS.filter(function(e){ return e.id === t.ev; })[0].date, t.off) : null; }
