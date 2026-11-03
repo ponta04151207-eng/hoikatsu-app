@@ -127,6 +127,16 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#tabIndex,#tabAzuke,#tabFind,#tabCmp,#tabVisit,#tabAbout,#tabSet{min-height:34px!important; font-size:10.5px!important; padding:2px 2px!important; border-radius:11px!important}',
+  '#tabIndex .ti,#tabAzuke .ti,#tabFind .ti,#tabCmp .ti,#tabVisit .ti,#tabAbout .ti,#tabSet .ti{font-size:14px!important}',
+  '#tabIndex,#tabAzuke{min-height:32px!important}',
+  '#tabCmp small{font-size:9px!important}',
+  '#tabSched,#tabDocs,#tabPlus,#tabCmp3,#tabDist,#tabPaid{min-height:54px!important; font-size:12.5px!important; font-weight:800!important; border-width:2.5px!important; border-color:#e8c15a!important; background:linear-gradient(180deg,#fffaf0,#fff0c8)!important; box-shadow:0 3px 0 #e3c06a!important}',
+  '#tabSched .ti,#tabDocs .ti,#tabPlus .ti,#tabCmp3 .ti,#tabDist .ti,#tabPaid .ti{font-size:22px!important}',
+  '#tabSched small,#tabDocs small,#tabPlus small,#tabCmp3 small,#tabDist small{font-size:10.5px!important; font-weight:600!important}',
+  '#tabSched svg.cr,#tabDocs svg.cr,#tabPlus svg.cr,#tabCmp3 svg.cr,#tabDist svg.cr,#tabPaid svg.cr{width:15px!important; height:15px!important}',
+  '#tabSched[aria-selected="true"],#tabDocs[aria-selected="true"],#tabPaid[aria-selected="true"]{background:var(--accent)!important; border-color:var(--accent)!important; box-shadow:0 3px 0 rgba(0,0,0,.15)!important}',
+  '.tabs .tgl.pd{font-size:11.5px!important}',
   'html,body{overflow-x:hidden!important; max-width:100vw}',
   '.tabs{grid-template-columns:repeat(12,minmax(0,1fr))!important; gap:5px!important; margin:0 0 10px!important}',
   '.tabs button{min-width:0!important; min-height:42px!important; padding:3px 2px!important; border-radius:13px!important; font-size:11px!important; gap:0!important; box-shadow:0 1px 0 rgba(0,0,0,.06)!important}',
@@ -1757,7 +1767,7 @@ function syJoin(code, manual){
     nav.appendChild(b); b.addEventListener('click', go);
   }
   mk('tabCmp3', '⚖️', '園を比べる', '(3園から有料)', function(){ document.getElementById('tabCmp').click(); window.scrollTo(0, 0); });
-  mk('tabDist', '📊', '点数の分布', '園ごとの入りやすさ', function(){ document.getElementById('tabFind').click(); window.scrollTo(0, 0); });
+  mk('tabDist', '📊', '点数の分布', '自分の点数で入れるか', function(){ document.getElementById('tabFind').click(); window.scrollTo(0, 0); });
   var pd = document.getElementById('tabPaid'); if(pd) nav.appendChild(pd);
 })();
 
