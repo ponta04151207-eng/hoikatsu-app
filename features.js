@@ -127,6 +127,12 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#tabSched,#tabDocs,#tabPlus,#tabCmp3,#tabDist,#tabPaid{justify-content:center!important; gap:7px!important; padding-left:6px!important; padding-right:6px!important}',
+  '#tabSched .ti,#tabDocs .ti,#tabPlus .ti,#tabCmp3 .ti,#tabDist .ti{width:26px; text-align:center; flex:none!important}',
+  '#tabSched > span:not(.ti),#tabDocs > span:not(.ti),#tabPlus > span:not(.ti),#tabCmp3 > span:not(.ti),#tabDist > span:not(.ti){text-align:center!important; flex:0 1 auto!important}',
+  '#tabSched > span:not(.ti) > span,#tabDocs > span:not(.ti) > span,#tabPlus > span:not(.ti) > span,#tabCmp3 > span:not(.ti) > span,#tabDist > span:not(.ti) > span{justify-content:center!important}',
+  '#tabSched small,#tabDocs small,#tabPlus small,#tabCmp3 small,#tabDist small{padding-left:0!important; text-align:center!important; letter-spacing:-0.04em!important; white-space:nowrap!important}',
+  '#tabDist small{font-size:9px!important}',
   '#tabDist small{padding-left:0!important; font-size:9.5px!important; letter-spacing:-0.05em!important; white-space:nowrap!important}',
   '#tabDist{padding-left:4px!important; padding-right:3px!important; gap:4px!important}',
   '#tabDist .ti{font-size:20px!important}',
@@ -1772,7 +1778,7 @@ function syJoin(code, manual){
     nav.appendChild(b); b.addEventListener('click', go);
   }
   mk('tabCmp3', '⚖️', '園を比べる', '(3園から有料)', function(){ document.getElementById('tabCmp').click(); window.scrollTo(0, 0); });
-  mk('tabDist', '📊', '点数の分布', '自分の点数で入れるか', function(){ document.getElementById('tabFind').click(); window.scrollTo(0, 0); });
+  mk('tabDist', '📊', '点数の分布', '自分の点数での入りやすさ', function(){ document.getElementById('tabFind').click(); window.scrollTo(0, 0); });
   var pd = document.getElementById('tabPaid'); if(pd) nav.appendChild(pd);
 })();
 
