@@ -127,6 +127,15 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  'html,body{overflow-x:hidden!important; max-width:100vw}',
+  '.tabs{grid-template-columns:repeat(12,minmax(0,1fr))!important; gap:5px!important; margin:0 0 10px!important}',
+  '.tabs button{min-width:0!important; min-height:42px!important; padding:3px 2px!important; border-radius:13px!important; font-size:11px!important; gap:0!important; box-shadow:0 1px 0 rgba(0,0,0,.06)!important}',
+  '.tabs button .ti{font-size:16px!important}',
+  '.tabs button.hero{min-height:40px!important; padding:3px 5px!important; gap:5px!important}',
+  '.tabs button.hero .ti{font-size:17px!important}',
+  '.tabs button small{font-size:9.5px!important}',
+  '.tabs .tgl{font-size:10px!important; margin:0 2px!important}.tabs .tgl.pd{margin-top:3px!important}',
+  '#tabAzuke,#tabIndex{font-size:11px!important}',
   '.hkb.on{padding:5px 10px!important; margin:0 0 8px!important; border-radius:14px!important; text-align:center!important}',
   '.hkb .bm{display:flex!important; align-items:baseline; justify-content:center; gap:6px; margin:0!important}',
   '.hkb .bl{font-size:10.5px!important}',
