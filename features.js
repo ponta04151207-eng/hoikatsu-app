@@ -127,6 +127,11 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '.tabs button#tabSched,.tabs button#tabDocs,.tabs button#tabPlus,.tabs button#tabCmp3,.tabs button#tabDist{font-size:clamp(9.5px,2.9vw,11.5px)!important; letter-spacing:-0.04em!important; gap:4px!important; padding-left:4px!important; padding-right:4px!important; justify-content:flex-start!important}',
+  '.tabs button#tabSched .ti,.tabs button#tabDocs .ti,.tabs button#tabPlus .ti,.tabs button#tabCmp3 .ti,.tabs button#tabDist .ti{width:22px!important; font-size:19px!important; flex:none!important}',
+  '.tabs button#tabSched small,.tabs button#tabDocs small,.tabs button#tabPlus small,.tabs button#tabCmp3 small,.tabs button#tabDist small{font-size:clamp(8.5px,2.5vw,10px)!important; letter-spacing:-0.05em!important; padding-left:0!important}',
+  '.tabs button#tabSched > span:not(.ti),.tabs button#tabDocs > span:not(.ti),.tabs button#tabPlus > span:not(.ti),.tabs button#tabCmp3 > span:not(.ti),.tabs button#tabDist > span:not(.ti){flex:1 1 0!important; min-width:0!important; text-align:center!important}',
+  '.tabs button#tabPaid{justify-content:center!important}',
   '#tabSched,#tabDocs,#tabPlus,#tabCmp3,#tabDist,#tabPaid{justify-content:center!important; gap:7px!important; padding-left:6px!important; padding-right:6px!important}',
   '#tabSched .ti,#tabDocs .ti,#tabPlus .ti,#tabCmp3 .ti,#tabDist .ti{width:26px; text-align:center; flex:none!important}',
   '#tabSched > span:not(.ti),#tabDocs > span:not(.ti),#tabPlus > span:not(.ti),#tabCmp3 > span:not(.ti),#tabDist > span:not(.ti){text-align:center!important; flex:0 1 auto!important}',
