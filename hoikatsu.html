@@ -1869,7 +1869,8 @@ window.SHISUU_DIST.r8 = {
       lis[i].classList.toggle('done', i < n-1);
       if(i === n-1) lis[i].setAttribute('aria-current','step');
     }
-    window.scrollTo(0, 0);
+    var top = document.querySelector('#viewIndex > section.panel');
+    window.scrollTo(0, top ? Math.max(0, top.getBoundingClientRect().top + window.pageYOffset - 8) : 0);
   }
 
   $('round').addEventListener('change', function(e){ state.round = e.target.value; render(); });
@@ -2724,6 +2725,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=139"></script>
+<script src="features.js?v=140"></script>
 </body>
 </html>
