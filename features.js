@@ -1826,4 +1826,14 @@ function syJoin(code, manual){
   t.innerHTML = '(' + CR + '<span>3園から有料</span>)';
   var sv = t.querySelector('svg'); if(sv){ sv.setAttribute('width', '13'); sv.setAttribute('height', '13'); sv.style.verticalAlign = 'middle'; }
 })();
+
+/* ===== 「昨年入園した子の点数」は有料(無料版では鍵つきカードにする) ===== */
+(function(){
+  var dp = document.getElementById('distPanel'); if(!dp) return;
+  var h2 = dp.querySelector('h2'); if(h2 && !h2.querySelector('svg.cr')) h2.insertAdjacentHTML('afterbegin', CR + ' ');
+  if(PREMIUM) return;
+  Array.prototype.forEach.call(dp.children, function(c){ if(c !== h2) c.hidden = true; });
+  var box = document.createElement('div'); box.innerHTML = '<p class="hint" style="margin:0">昨年入園した子の点数の分布と、自分の点数の位置は、有料版の機能です。</p>' + buyHtml();
+  dp.appendChild(box);
+})();
 })();
