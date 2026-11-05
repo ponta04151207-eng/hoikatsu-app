@@ -127,6 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#viewAzuke button[data-azm]{font-size:12px!important; padding:0 4px!important; letter-spacing:-0.02em}',
   '.hkb .bmsg{display:block; width:100%; margin:5px 0 0!important; padding:5px 8px!important; min-height:0!important; height:auto!important; font-size:clamp(9.5px,2.8vw,11px)!important; font-weight:800!important; line-height:1.35!important; letter-spacing:-0.02em; color:#fff!important; background:#d93a2f!important; border:0!important; border-radius:999px!important; box-shadow:none!important; text-align:center}',
   '.feat .fh2{display:flex!important; align-items:center; justify-content:center; gap:5px; margin:0 0 8px!important; font-size:clamp(12px,3.6vw,14px)!important; font-weight:800!important; letter-spacing:0; white-space:nowrap; overflow:hidden; color:#0f6b5c!important}',
   '.feat .fh2::before,.feat .fh2::after{content:"";flex:1; max-width:40px; min-width:6px; height:3px; border-radius:3px; background:linear-gradient(90deg,#ffd36b,#f29a3d)}',
@@ -1394,16 +1395,16 @@ function decorateFind(){
 })();
 
 /* ===== 預け先を探す(病児・病後児保育 / 認可外保育施設) ===== */
-var AZ = window.AZUKE || null;
+var AZ = window.AZUKE || null, IC = window.ICHIJI || null;
 var tbAz = document.createElement('button');
 tbAz.type = 'button'; tbAz.id = 'tabAzuke'; tbAz.className = 'hero'; tbAz.setAttribute('role', 'tab'); tbAz.setAttribute('aria-selected', 'false');
 tbAz.style.gridColumn = 'span 6';
-tbAz.innerHTML = '<span class="ti">🍼</span><span>預け先を探す<small style="display:block; font-size:11px; font-weight:500; line-height:1.2">(病児・認可外)</small></span>';
+tbAz.innerHTML = '<span class="ti">🍼</span><span>預け先を探す<small style="display:block; font-size:11px; font-weight:500; line-height:1.2">(病児・一時・認可外)</small></span>';
 tabs.insertBefore(tbAz, $('tabAbout'));
 $('tabAbout').style.gridColumn = 'span 3'; tbS.style.gridColumn = 'span 3';
 var viewAz = document.createElement('div'); viewAz.id = 'viewAzuke'; viewAz.hidden = true;
 view.parentNode.insertBefore(viewAz, view);
-var azMode = 'byoji', azShown = 20, azF = {q: '', cat: '', night: false, all24: false, sort: 'name'}, azB = {area: '', sat: false};
+var azMode = 'byoji', azShown = 20, azF = {q: '', cat: '', night: false, all24: false, sort: 'name'}, azB = {area: '', sat: false}, azI = {area: '', cat: ''};
 function endMin(h){ if(/^0:00〜0:00$/.test(h)) return 1440; var m = h.match(/〜(翌)?(\d{1,2}):(\d{2})/); if(!m) return 0; var e = (+m[2]) * 60 + (+m[3]); if(m[1]) e += 1440; return e; }
 function mapA(name, addr){ return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('世田谷区' + addr + ' ' + name); }
 function telA(t){ return '<a href="tel:' + esc(t.replace(/[^0-9]/g, '')) + '">' + esc(t) + '</a>'; }
@@ -1443,6 +1444,7 @@ function azAllAddrs(){
   var list = [];
   if(AZ){ AZ.byoji.rows.forEach(function(r){ list.push(r[3]); }); AZ.ninkagai.rows.forEach(function(r){ list.push(r[3]); }); }
   ADDRS.forEach(function(r){ list.push(r[2]); });
+  if(IC) IC.rows.forEach(function(r){ list.push(r[3]); });
   return list;
 }
 function azGeoAll(done){
@@ -1512,8 +1514,8 @@ viewAz.addEventListener('input', azNearInput); viewAz.addEventListener('click', 
 if(fnBox){ fnBox.addEventListener('input', azNearInput); fnBox.addEventListener('click', azNearClick); }
 function renderAz(){
   if(!AZ){ viewAz.innerHTML = '<section class="panel"><h2>🍼 預け先を探す</h2><p class="hint">データを読み込めませんでした。</p></section>'; return; }
-  var h = '<section class="panel"><h2>🍼 預け先を探す</h2><p class="hint" style="margin:0 0 8px">認可保育園とは別に、病児・病後児保育と、認可外保育施設を探せます。区の公表資料をもとにしています。</p>'
-    + '<div style="display:flex; gap:6px"><button type="button" data-azm="byoji" class="' + (azMode === 'byoji' ? 'primary' : '') + '" style="flex:1; min-height:40px; padding:0 8px; font-size:14px; white-space:nowrap; border-radius:14px">🤒 病児・病後児</button><button type="button" data-azm="ninkagai" class="' + (azMode === 'ninkagai' ? 'primary' : '') + '" style="flex:1; min-height:40px; padding:0 8px; font-size:14px; white-space:nowrap; border-radius:14px">🏠 認可外</button></div>' + azNearBox() + '</section>';
+  var h = '<section class="panel"><h2>🍼 預け先を探す</h2><p class="hint" style="margin:0 0 8px">認可保育園とは別に、病児・病後児保育、一時預かり、認可外保育施設を探せます。区の公表資料をもとにしています。</p>'
+    + '<div style="display:flex; gap:6px"><button type="button" data-azm="byoji" class="' + (azMode === 'byoji' ? 'primary' : '') + '" style="flex:1; min-height:40px; padding:0 8px; font-size:14px; white-space:nowrap; border-radius:14px">🤒 病児・病後児</button><button type="button" data-azm="ichiji" class="' + (azMode === 'ichiji' ? 'primary' : '') + '" style="flex:1; min-height:40px; padding:0 8px; font-size:14px; white-space:nowrap; border-radius:14px">🧸 一時預かり</button><button type="button" data-azm="ninkagai" class="' + (azMode === 'ninkagai' ? 'primary' : '') + '" style="flex:1; min-height:40px; padding:0 8px; font-size:14px; white-space:nowrap; border-radius:14px">🏠 認可外</button></div>' + azNearBox() + '</section>';
   if(azMode === 'byoji'){
     var d = AZ.byoji, rows = d.rows.map(function(r){ return {name: r[0], kind: r[1], area: r[2], addr: r[3], tel: r[4], cap: r[5], hours: r[6], pay: r[7]}; })
       .filter(function(r){ return (!azB.area || r.area === azB.area) && (!azB.sat || r.hours.indexOf('土') >= 0); });
@@ -1527,6 +1529,17 @@ function renderAz(){
     rows.forEach(function(r){ h += azCard({name: r.name, chip: r.area + ' / ' + r.kind, addr: r.addr, lines: [].concat(azDLine(r.dist), ['📍 ' + esc(r.addr), '📞 ' + telA(r.tel), '👶 定員 ' + esc(r.cap) + '名(1日)', '🕗 ' + esc(r.hours), '💴 支払い: ' + esc(r.pay)])}); });
     if(!rows.length) h += '<p class="hint">条件に合う施設はありません。</p>';
     h += '<p class="hint">出典: <a href="' + d.url + '" target="_blank" rel="noopener">' + esc(d.src) + '</a>(確認日 ' + esc(d.checked) + ')。時間や定員は変わることがあります。電話で確認してください。区の登録制度の対象は、区の資料にある施設です。</p></section>';
+  } else if(azMode === 'ichiji'){
+    var ic = IC, irows = ic ? ic.rows.map(function(r){ return {area: r[0], name: r[1], cat: r[2], addr: r[3], tel: r[4], age: r[5], note: r[6], dist: azDist(r[3])}; }) : [];
+    irows = irows.filter(function(r){ return (!azI.area || r.area === azI.area) && (!azI.cat || r.cat === azI.cat); });
+    if(azO) irows.sort(azByDist);
+    h += '<section class="panel"><h2>一時預かり(' + irows.length + '施設)</h2>'
+      + '<div class="hint" style="margin:0 0 8px"><b>一時預かりとは</b>: 保育園などに通っていないお子さんを、数時間〜1日、預けられる制度です。用事、通院、リフレッシュなどに使えます。<br><b>使い方</b>: どの施設も、空きがあるときだけ使えます。予約と空きの確認は、施設へ電話します。</div>'
+      + '<div style="display:flex; gap:8px; margin:10px 0"><select id="hkIcArea" aria-label="地域" style="flex:1"><option value="">全地域</option>' + ['世田谷', '北沢', '玉川', '砧', '烏山'].map(function(a){ return '<option' + (azI.area === a ? ' selected' : '') + '>' + a + '</option>'; }).join('') + '</select><select id="hkIcCat" aria-label="種類" style="flex:1"><option value="">全部の種類</option>' + ['私立保育園・こども園', '一時保育専用施設', '認証保育所', '企業主導型保育', '保育室'].map(function(c){ return '<option' + (azI.cat === c ? ' selected' : '') + '>' + c + '</option>'; }).join('') + '</select></div>';
+    irows.forEach(function(r){ h += azCard({name: r.name, chip: r.area + ' / ' + r.cat, addr: r.addr, lines: [].concat(azDLine(r.dist), ['📍 ' + esc(r.addr), '📞 ' + telA(r.tel), '👶 対象 ' + esc(r.age), 'ℹ️ ' + esc(r.note)])}); });
+    if(!irows.length) h += '<p class="hint">条件に合う施設はありません。</p>';
+    h += '<p class="hint">区立保育園の一時保育は、定員に空きのある園だけで実施され、この一覧には入れていません。<a href="https://www.city.setagaya.lg.jp/02243/1540.html" target="_blank" rel="noopener">区のページ</a>で確認するか、お住まいの地域の総合支所(子ども家庭支援課)に問い合わせてください。休止中と区が書いている施設は、入れていません。</p>'
+      + '<p class="hint">出典: ' + (ic ? ic.urls.map(function(u){ return '<a href="' + u[1] + '" target="_blank" rel="noopener">' + esc(u[0]) + '</a>'; }).join(' / ') : '') + '(区の公表資料、確認日 ' + (ic ? esc(ic.checked) : '') + ')。料金や定員、休止は変わることがあります。電話で確認してください。</p></section>';
   } else {
     var n = AZ.ninkagai, all = n.rows.map(function(r){ return {no: r[0], name: r[1], cat: r[2], addr: r[3], tel: r[4], cap: r[5], hours: r[6], op: r[7], end: endMin(r[6]), dist: azDist(r[3])}; });
     var q = azF.q.trim().toLowerCase();
@@ -1574,6 +1587,8 @@ viewAz.addEventListener('click', function(e){
 viewAz.addEventListener('change', function(e){
   var t = e.target;
   if(t.id === 'hkAzArea'){ azB.area = t.value; renderAz(); }
+  else if(t.id === 'hkIcArea'){ azI.area = t.value; renderAz(); }
+  else if(t.id === 'hkIcCat'){ azI.cat = t.value; renderAz(); }
   else if(t.id === 'hkAzSat'){ azB.sat = t.checked; renderAz(); }
   else if(t.id === 'hkAzCat'){ azF.cat = t.value; azShown = 20; renderAz(); }
   else if(t.id === 'hkAzSort'){ azF.sort = t.value; renderAz(); }
