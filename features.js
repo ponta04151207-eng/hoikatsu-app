@@ -127,6 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '.wtop{display:block; width:100%; margin:6px 0; padding:8px 10px; font-size:13px; font-weight:700; border-radius:10px; border:1px solid #e6d7a8; background:#fffaf0; color:#7a4a00; text-align:center}',
     '.advl{margin:0; padding-left:1.2em; display:grid; gap:4px; font-size:13px; line-height:1.6}',
     '.ezb{display:inline-block; font-size:11px; font-weight:700; padding:1px 7px; border-radius:99px; margin-left:4px; vertical-align:1px}',
     '.ez-easy{background:#dff3e4; color:#1d6b35}.ez-mid{background:#fff1cc; color:#8a5a00}.ez-hard{background:#fde0df; color:#a3281f}',
@@ -643,7 +644,8 @@ if(!PREMIUM){
   + '<details class="plus" id="hkD3"><summary>📊 すべての園を並べて比べる</summary><div id="hkAll"></div></details>'
   + '<details class="plus" id="hkD4"><summary>📄 PDFにする・印刷する</summary><div><p class="hint" style="margin:0 0 8px">印刷の画面で「PDFに保存」を選ぶと、PDFになります。</p><button type="button" id="hkP1" style="width:100%; margin-bottom:8px">選んだ園のレポート(写真つき)</button><button type="button" id="hkP2" style="width:100%">すべての園のレポート</button></div></details>'
   + '<details class="plus" id="hkD5"><summary>👪 夫婦・家族で共有する</summary><div id="hkSh"></div></details>'
-  + '<details class="plus" id="hkD6"><summary>' + CR + ' 🏁 希望園の並べ方</summary><div id="hkWish"></div></details>';
+  + '<details class="plus" id="hkD6"><summary>' + CR + ' 🏁 希望園の並べ方</summary><div id="hkWish"></div></details>'
+  + '<details class="plus" id="hkD7"><summary>' + CR + ' 🔔 空きが変わったらお知らせ</summary><div id="hkWatch"></div></details>';
 }
 
 function vis(){ return HK.getVisits(); }
@@ -1936,5 +1938,70 @@ function syJoin(code, manual){
   var body = document.getElementById('advBody'); if(body) body.hidden = true;
   var box = document.createElement('div'); box.innerHTML = '<p class="hint" style="margin:0 0 4px">あなたの入力から、まだ使っていない加点や、点数が届きにくいときの別の預け先を提案します。</p>' + buyHtml();
   ap.appendChild(box);
+})();
+/* ===== 空きが変わったらお知らせ(アプリを開いたとき・メールなし) ===== */
+(function(){
+  var NOW = window.SHISUU_NOW; var box = document.getElementById('hkWatch'); if(!box || !NOW) return;
+  var K = 'hoikatsu-nowsnap-v1', snap = lsGet(K, null) || {};
+  var nm = {}; NOW.rows.forEach(function(r){ nm[r[0] + '|' + r[1]] = r[2]; });
+  function watched(){
+    var out = [], seen = {};
+    (HK.getVisits() || []).forEach(function(v){ if(v.ex || !v.fac || seen[v.fac] || !nm[v.fac]) return; seen[v.fac] = 1; out.push(v); });
+    return out;
+  }
+  function compute(){
+    var ch = [];
+    watched().forEach(function(v){
+      var cur = nm[v.fac], old = snap.d && snap.d[v.fac]; if(!old){ if(!snap.d) snap.d = {}; snap.d[v.fac] = cur; lsSet(K, snap); return; }
+      var cls = HK.cls(), a = old[cls], b = cur[cls];
+      if(a !== b && !(a == null && b == null)) ch.push({v: v, a: a, b: b, c: cls});
+    });
+    return ch;
+  }
+  function save(){ var d = {}; watched().forEach(function(v){ d[v.fac] = nm[v.fac]; }); snap = {on: NOW.checkedOn, d: d}; lsSet(K, snap); }
+  function fmt(x){ return x == null ? '―' : x + '人'; }
+  var changes = [];
+  function render(){
+    var ws = watched(), h = '';
+    h += '<p class="hint" style="margin:0 0 8px">見学メモに入れた園の「いま入れる空き」を、前に見たときと比べてお知らせします。区の空き表が更新されて、アプリに反映されると表示されます。スマホの通知やメールは送りません。アプリを開いたときに出ます。</p>';
+    if(!ws.length) h += '<p class="hint">見学メモに園を入れると、ここで空きの変化を見られます。</p>';
+    else if(!snap.d || !Object.keys(snap.d).length) h += '<p class="hint">いまの空きを記録しました。次に区の空き表が更新されたとき、変わった園をお知らせします。</p>';
+    if(changes.length) h += '<ul class="advl">' + changes.map(function(c){ return '<li><b>' + esc(c.v.name) + '</b>(' + c.c + '歳児): ' + fmt(c.a) + ' → <b>' + fmt(c.b) + '</b>' + ((c.b || 0) > (c.a || 0) ? ' 空きが増えました' : ' 空きが減りました') + '</li>'; }).join('') + '</ul><button type="button" class="mini" id="hkWok" style="margin-top:6px">確認した</button>';
+    else if(ws.length && snap.d && Object.keys(snap.d).length) h += '<p class="hint">前に見たときから、変わった園はありません(空き表の確認日 ' + esc(NOW.checkedOn) + ')。</p>';
+    h += '<p style="margin:10px 0 4px"><b>カレンダーで思い出す</b></p><p class="hint" style="margin:0 0 6px">毎月1日と15日に「空きを確認」の予定を入れます。区の空き表は月ごとに更新されます。</p><button type="button" id="hkWcal" style="width:100%">📅 カレンダーに入れる(毎月1日・15日)</button>';
+    box.innerHTML = h;
+  }
+  function ics(){
+    var d = new Date(), y = d.getFullYear(), m = ('0' + (d.getMonth() + 1)).slice(-2), st = y + m + '01';
+    var L = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//hoikatsu-app//JP'];
+    [['1','1'],['15','15']].forEach(function(x, i){
+      L.push('BEGIN:VEVENT','UID:vac' + i + '-' + Date.now() + '@hoikatsu-app','DTSTAMP:' + new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,''),
+        'DTSTART;VALUE=DATE:' + y + m + ('0' + x[0]).slice(-2),'RRULE:FREQ=MONTHLY;BYMONTHDAY=' + x[1] + ';COUNT=8','SUMMARY:【保活】保育園の空きを確認',
+        'DESCRIPTION:保活アプリを開いて、希望園の空きが変わっていないか見ます。','BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:保育園の空きを確認','TRIGGER:PT0S','END:VALARM','END:VEVENT');
+    });
+    L.push('END:VCALENDAR');
+    var a = document.createElement('a'), u = URL.createObjectURL(new Blob([L.join('\r\n')], {type: 'text/calendar'}));
+    a.href = u; a.download = 'hoikatsu-vacancy.ics'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); }, 1500);
+  }
+  box.addEventListener('click', function(e){
+    var t = e.target;
+    if(t.id === 'hkWok'){ save(); changes = []; render(); hideTop(); }
+    if(t.id === 'hkWcal') ics();
+  });
+  var top = null;
+  function hideTop(){ if(top) top.hidden = true; }
+  function init(){
+    changes = compute();
+    if(!snap.d) save();
+    render();
+    if(!PREMIUM){ var d7 = document.getElementById('hkD7'); if(d7) d7.querySelector('div').innerHTML = '<p class="hint" style="margin:0">この機能は、有料版です。</p>' + buyHtml(); return; }
+    if(changes.length){
+      top = document.createElement('button'); top.type = 'button'; top.className = 'wtop';
+      top.textContent = '🔔 空きが変わった園があります(' + changes.length + '園) ›';
+      top.onclick = function(){ var d = document.getElementById('hkD7'); document.getElementById('tabVisit').click(); setTimeout(function(){ if(d){ d.open = true; d.scrollIntoView(); } }, 150); };
+      var tabsEl = document.querySelector('.tabs'); if(tabsEl) tabsEl.parentNode.insertBefore(top, tabsEl);
+    }
+  }
+  setTimeout(init, 400);
 })();
 })();
