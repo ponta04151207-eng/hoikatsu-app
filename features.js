@@ -127,6 +127,10 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '.feat li.fpd{display:flex!important; align-items:center; gap:8px; margin:12px 0 4px!important; padding:6px 10px!important; border:1.5px solid #e8c15a!important; border-radius:10px; background:linear-gradient(135deg,#fff6d6,#fffaf0); list-style:none; font-size:13px; font-weight:800; color:#8a5a00}',
+    '.feat .fbd{display:inline-block; margin-left:6px; padding:0 8px; border-radius:999px; font-size:11px; font-weight:800; line-height:1.6; vertical-align:1px; white-space:nowrap}',
+    '.feat .fbd.top{background:linear-gradient(135deg,#ff6b4a,#ff9a3c); color:#fff; box-shadow:0 1px 0 #c94a2a}',
+    '.feat .fbd.two{background:#fff1cc; color:#8a5a00; border:1px solid #e8c15a}',
     '#viewDocs a.primary{padding:8px 12px!important; font-size:13px!important; min-height:0!important; margin:4px 0!important; display:block!important; text-align:center!important}',
     '#viewDocs h2 span[style]{font-size:15px!important; line-height:1.3!important}',
     '#viewDocs .tk{padding:3px 0!important}',
