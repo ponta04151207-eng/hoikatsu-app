@@ -127,6 +127,17 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '#hkWish #hkWs1,#hkWish #hkWs2,#hkWish #hkWcp{min-height:34px!important; padding:4px 6px!important; font-size:12px!important; white-space:nowrap!important}',
+    '#hkWish .tk{padding:5px 0!important; gap:6px!important; align-items:center!important}',
+    '#hkWish .tk .x{min-width:0; flex:1}',
+    '#hkWish .tk .x b{font-size:13px!important; line-height:1.3!important}',
+    '#hkWish .tk .x small{display:block; font-size:10.5px!important; line-height:1.35!important; margin-top:1px!important}',
+    '#hkWish .tk .sc{font-size:10.5px!important; padding:0 6px!important; line-height:1.6!important}',
+    '#hkWish .tk button{min-height:28px!important; min-width:28px!important; width:28px; height:28px; padding:0!important; font-size:13px!important; border-width:1.5px!important}',
+    '#hkWish .tk > span:last-child{gap:3px!important}',
+    '#hkWish .hint{font-size:11px!important; line-height:1.45!important}',
+    '#hkWish .ezb{font-size:10.5px!important; padding:0 6px!important; margin-left:3px!important}',
+    '#hkWish .ezbox{padding:6px 9px!important; font-size:12px!important}',
     '.wtop{display:block; width:100%; margin:6px 0; padding:8px 10px; font-size:13px; font-weight:700; border-radius:10px; border:1px solid #e6d7a8; background:#fffaf0; color:#7a4a00; text-align:center}',
     '.advl{margin:0; padding-left:1.2em; display:grid; gap:4px; font-size:13px; line-height:1.6}',
     '.ezb{display:inline-block; font-size:11px; font-weight:700; padding:1px 7px; border-radius:99px; margin-left:4px; vertical-align:1px}',
@@ -634,7 +645,7 @@ plus.className = 'panel'; plus.id = 'hkPlus';
 vSec.parentNode.insertBefore(plus, vSec.nextSibling);
 var CROWN = '<span class="hi" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 11l6 5 6-9 6 9 6-5-3 15H7z" fill="#ffd36b" stroke="#f0b429" stroke-width="1.5" stroke-linejoin="round"/><circle cx="4" cy="11" r="2" fill="#ff7b6b"/><circle cx="16" cy="6" r="2" fill="#ff7b6b"/><circle cx="28" cy="11" r="2" fill="#ff7b6b"/></svg></span>';
 if(!PREMIUM){
-  plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge" style="font-size:12px">有料版</span></h2><p class="hint" style="margin:0">写真、質問リスト、すべての園を並べて比べる、PDF、家族での共有、希望園の並べ方は、有料版の機能です。</p>' + buyHtml();
+  plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge" style="font-size:12px">有料版</span></h2><p class="hint" style="margin:0">写真、質問リスト、すべての園を並べて比べる、PDF、家族での共有、希望園を並べるは、有料版の機能です。</p>' + buyHtml();
 } else {
   plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge">有料版・お試し中</span></h2>'
   + '<p class="hint" style="margin:0 0 6px">いまは、お試しで全員が使えます。有料になるときは、先にお知らせします。</p>'
@@ -644,7 +655,7 @@ if(!PREMIUM){
   + '<details class="plus" id="hkD3"><summary>📊 すべての園を並べて比べる</summary><div id="hkAll"></div></details>'
   + '<details class="plus" id="hkD4"><summary>📄 PDFにする・印刷する</summary><div><p class="hint" style="margin:0 0 8px">印刷の画面で「PDFに保存」を選ぶと、PDFになります。</p><button type="button" id="hkP1" style="width:100%; margin-bottom:8px">選んだ園のレポート(写真つき)</button><button type="button" id="hkP2" style="width:100%">すべての園のレポート</button></div></details>'
   + '<details class="plus" id="hkD5"><summary>👪 夫婦・家族で共有する</summary><div id="hkSh"></div></details>'
-  + '<details class="plus" id="hkD6"><summary>' + CR + ' 🏁 希望園の並べ方</summary><div id="hkWish"></div></details>'
+  + '<details class="plus" id="hkD6"><summary>' + CR + ' 🏁 希望園を並べる</summary><div id="hkWish"></div></details>'
   + '<details class="plus" id="hkD7"><summary>' + CR + ' 🔔 空きが変わったらお知らせ</summary><div id="hkWatch"></div></details>';
 }
 
@@ -893,7 +904,7 @@ $('hkS3').addEventListener('click', function(){
 })();
 
 
-/* --- 希望園の並べ方 --- */
+/* --- 希望園を並べる --- */
 var W_KEY = 'hoikatsu-wish-v1';
 var wish = lsGet(W_KEY, []);
 if(!Array.isArray(wish)) wish = [];
@@ -913,7 +924,7 @@ function renderWish(){
   wish.forEach(function(id, i){
     var v = wVisit(id), s = vst(v), r = wR2(v), ez = ezOf(v);
     if(ez) EZ[ez.k]++; else EZ.none++;
-    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + esc(v.name) + '</b>' + (ez ? ' <span class="ezb ez-' + ez.k + '" title="' + esc(ez.why) + '">' + ez.l + '</span>' : '') + '<small>' + esc(v.area || '') + ' / 総合評価 ' + HK.grade(v).l + ' / ' + (s && s.vac !== null ? '入園可能 ' + s.vac + '人・全希望の倍率 ' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small></span>'
+    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + esc(v.name) + '</b>' + (ez ? ' <span class="ezb ez-' + ez.k + '" title="' + esc(ez.why) + '">' + ez.l + '</span>' : '') + '<small>' + esc(v.area || '') + ' / 評価' + HK.grade(v).l + ' / ' + (s && s.vac !== null ? '空き' + s.vac + '人・倍率' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small></span>'
       + '<span style="display:flex; gap:4px; flex:none"><button type="button" data-w="up" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0" aria-label="外す">✕</button></span></div>';
   });
   var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
@@ -1143,7 +1154,7 @@ function draftSection(){
     h += '<h3 style="font-size:15px; margin:14px 0 2px; color:var(--muted)">' + esc(g[0]) + '</h3>';
     g[1].forEach(function(f){ h += '<label class="field" for="hkF_' + f[0] + '">' + esc(f[1]) + '</label><input type="text" id="hkF_' + f[0] + '" data-f="' + f[0] + '" value="' + esc(fd[f[0]] || (f[0] === 'cm' ? '令和9年4月' : '')) + '" placeholder="' + esc(f[2]) + '" style="width:100%">'; });
   });
-  h += '<p class="hint">希望園は、「見学メモ プラス」の「希望園の並べ方」で作ったリストが、メモの最後に入ります(' + wish.length + '園)。</p>'
+  h += '<p class="hint">希望園は、「見学メモ プラス」の「希望園を並べる」で作ったリストが、メモの最後に入ります(' + wish.length + '園)。</p>'
     + '<button type="button" id="hkFcp" style="width:100%; margin-top:6px">書き写しメモを文字でコピーする</button>'
     + '<h3 style="font-size:15px; margin:18px 0 2px; color:var(--muted)">勤務先への依頼文(就労証明書)</h3>'
     + '<textarea id="hkEmp" readonly style="width:100%; min-height:200px; font:inherit; font-size:14px">' + esc(empText(dl)) + '</textarea>'
@@ -1184,7 +1195,7 @@ var PAID = [
   ['cmp3', '園を比べる(3園から有料)', '無料で比べられるのは2園までです。3園以上を並べて比べられます。'],
   ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。'],
   ['dist', '各園の点数比較', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!※高い方でも確実に入れるわけではありません。ご了承ください。無料版は、1園だけ見られます。', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">分布でわかること・わからないこと</b></summary><ul class="hint" style="margin:6px 0 0; padding-left:1.2em"><li><b>わかる</b>: 自分の点数が、昨年入園した人の中で高い方か低い方か。「園を探す」の各園カードに、地域ごとの分布とあなたの位置を出します。</li><li><b>わかる</b>: 同じ点数の人が多い区分は、ほかの人と並びやすいということ。並んだ場合は、区の同点時の順位で決まります。</li><li><b>わからない</b>: 入れるかどうか。入園は、点数の高い順に、希望した園の空きへ入っていく形で決まるため、人気の園は高い点数が必要になります。点数が分布の上の方でも、希望が人気の園だけなら入れないことがあります。</li><li><b>わからない</b>: 今年の申込者数。令和9年は、申込者数や点数表が変わる可能性があります。</li><li>見方のコツ: 点数が高いほど有利です。第1希望の倍率が低めの園も混ぜて、希望を多めに書くのが基本です(希望園の数の制限は区に確認してください)。</li></ul></details>' + '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。<br>実際は、令和8年(2026年)4月に入園した児童の点数の分布(区の公表資料)と、あなたの予想点数(令和9年4月入園の申込み想定)を並べます。</small></details>'],
-  ['wish', '希望園の並べ方', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。'],
+  ['wish', '希望園を並べる', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。'],
   ['ease', '合格しやすさの目安', '希望園ごとに「入りやすい・ふつう・厳しい」の目安が出ます。10園のバランスの提案つき。合格の約束ではありません。'],
   ['adv', '点数アップのアドバイス', 'まだ使っていない加点や、点数が届きにくいときの別の預け先を提案します。'],
   ['watch', '空きアラート', '見学メモの園の空きが変わったら、アプリを開いたときにお知らせ(メールなし)。毎月1日・15日のカレンダー予定も入れられます。']
