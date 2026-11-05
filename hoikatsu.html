@@ -420,6 +420,8 @@ img{max-width:100%}
       </details>
     </div>
 
+    <div class="panel" id="advPanel" aria-labelledby="h-adv"><h2 id="h-adv">点数アップのアドバイス</h2><div id="advBody"></div></div>
+
     <div class="panel" id="distPanel" aria-labelledby="h-dist">
       <h2 id="h-dist">昨年入園した子の点数</h2>
       <p class="hint" style="margin:0 0 6px">令和8年(2026年)4月に入園した子が、どの点数の区分だったかの分布です(区の公表資料)。<br>あなたの予想点数(令和9年4月入園の申込み想定)を、この去年の分布に当てはめています。</p>
@@ -1847,11 +1849,39 @@ window.SHISUU_DIST.r8 = {
     return {rows:rows, total:total};
   }
 
+  /* 点数アップのアドバイス: まだチェックしていない加点項目と、点数が届きにくいときの別の預け先 */
+  var ADV_DO = {
+    mushou: '認可外保育施設や一時預かりなどに有償で預ける(月48時間以上で+5、96時間以上で+6)。実際に預けている場合の加点です。必要な書類や期間は、区の案内で確認してください。',
+    betsukyo: null, youchien: null
+  };
+  function renderAdv(r){
+    var el = $('advBody'); if(!el) return;
+    var sel = state.adj, h = '', tips = [], maybe = [];
+    var m = sel.mushou, hasPre = (m !== undefined && m >= 0 && m !== false) || sel.betsukyo || sel.youchien || sel.kodomoen;
+    if(m !== undefined && m !== false && +m === 1 && Y.adjustments.filter(function(a){return a.id==='mushou'})[0].choices[1]) tips.push({p:1, t:'認可外などに預けている時間が月96時間以上になると、加点が+5から+6になります。'});
+    if(!hasPre) tips.push({p:6, t:ADV_DO.mushou});
+    Y.adjustments.forEach(function(a){
+      if(sel[a.id] === true || (a.choices && sel[a.id] >= 0 && sel[a.id] !== undefined) || ['single','sibling','kyuumei','tanshin','tenen','techo','jishou'].indexOf(a.id) < 0) return;
+      if(a.secondOnly && state.round !== 'second') return;
+      if(['mushou','betsukyo','youchien'].indexOf(a.id) >= 0) return;
+      maybe.push(a);
+    });
+    maybe.sort(function(x, y){ return (y.p || 5) - (x.p || 5); });
+    if(tips.length) h += '<p class="hint" style="margin:0 0 4px"><b>点数を上げられるかもしれないこと</b></p><ul class="advl">' + tips.map(function(x){ return '<li>' + esc(x.t) + '</li>'; }).join('') + '</ul>';
+    if(maybe.length) h += '<p class="hint" style="margin:8px 0 4px"><b>まだチェックしていない加点(当てはまるときだけ)</b></p><ul class="advl">' + maybe.slice(0, 5).map(function(a){ return '<li><b>+' + (a.p !== undefined ? a.p : a.choices[a.choices.length - 1].p) + '</b> ' + esc(a.l) + '</li>'; }).join('') + '</ul>';
+    var low = DIST && (function(){ var d = DIST.data['全体'] && DIST.data['全体'][cls]; if(!d || !d.c) return false; var me = bandOf(r.total), lo = 0, i; for(i = 0; i < me; i++) lo += d.c[i]; return lo / d.n < 0.35; })();
+    if(low) h += '<p class="hint" style="margin:8px 0 4px"><b>点数が届きにくいときは</b></p><ul class="advl"><li>昨年の入園者の中で、あなたの点数は低めの位置です。認可保育園だけでなく、認可外保育施設や小規模な園、病児・一時預かりも、同時に探しておくと安心です。</li></ul><button type="button" class="mini" id="advAz" style="margin-top:6px">預け先を探すを開く</button>';
+    if(!h) h = '<p class="hint" style="margin:0">いまの入力では、ほかに加点できそうな項目は見つかりませんでした。</p>';
+    h += '<p class="hint" style="margin:8px 0 0">点数は、実際の状況が当てはまる場合だけ加点されます。無理に条件を作ることはおすすめしません。最終的な点数は、区の案内と窓口で確認してください。</p>';
+    el.innerHTML = h;
+    var bt = $('advAz'); if(bt) bt.onclick = function(){ var t = document.getElementById('tabAzuke'); if(t) t.click(); };
+  }
   function render(){
     syncSecondOnly();
     var r = calc();
     renderDist(r.total);
     $('total').textContent = r.total;
+    try{ renderAdv(r); }catch(e){}
     $('barTotal').textContent = r.total;
     $('rows').innerHTML = r.rows.map(function(x){
       var v = x.dropped ? '0' : (x.v < 0 ? sign(x.v) : (x.t.indexOf('調整基準')===0 ? sign(x.v) : String(x.v)));
@@ -2785,6 +2815,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=157"></script>
+<script src="features.js?v=159"></script>
 </body>
 </html>

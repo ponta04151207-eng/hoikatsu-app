@@ -127,6 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '.advl{margin:0; padding-left:1.2em; display:grid; gap:4px; font-size:13px; line-height:1.6}',
     '.ezb{display:inline-block; font-size:11px; font-weight:700; padding:1px 7px; border-radius:99px; margin-left:4px; vertical-align:1px}',
     '.ez-easy{background:#dff3e4; color:#1d6b35}.ez-mid{background:#fff1cc; color:#8a5a00}.ez-hard{background:#fde0df; color:#a3281f}',
     '.ezbox{display:flex; flex-direction:column; gap:2px; margin-top:10px; padding:8px 10px; border:1px solid #e6d7a8; border-radius:10px; background:#fffaf0; font-size:13px}',
@@ -1926,5 +1927,14 @@ function syJoin(code, manual){
 (function(){
   var h = document.querySelector('.feat .fh2'); if(!h || h.querySelector('.ac')) return;
   h.innerHTML = '<span class="ac">✨</span><span>このアプリでできること</span><span class="ac">✨</span>';
+})();
+/* ===== 「点数アップのアドバイス」は有料 ===== */
+(function(){
+  var ap = document.getElementById('advPanel'); if(!ap) return;
+  var h2 = ap.querySelector('h2'); if(h2 && !h2.querySelector('svg.cr')) h2.insertAdjacentHTML('afterbegin', CR + ' ');
+  if(PREMIUM) return;
+  var body = document.getElementById('advBody'); if(body) body.hidden = true;
+  var box = document.createElement('div'); box.innerHTML = '<p class="hint" style="margin:0 0 4px">あなたの入力から、まだ使っていない加点や、点数が届きにくいときの別の預け先を提案します。</p>' + buyHtml();
+  ap.appendChild(box);
 })();
 })();
