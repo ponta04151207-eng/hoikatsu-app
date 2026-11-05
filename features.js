@@ -127,6 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '.hkb .bmsg{display:block; width:100%; margin:5px 0 0!important; padding:5px 8px!important; min-height:0!important; height:auto!important; font-size:clamp(9.5px,2.8vw,11px)!important; font-weight:800!important; line-height:1.35!important; letter-spacing:-0.02em; color:#fff!important; background:#d93a2f!important; border:0!important; border-radius:999px!important; box-shadow:none!important; text-align:center}',
   '.feat .fh2{display:flex!important; align-items:center; justify-content:center; gap:5px; margin:0 0 8px!important; font-size:clamp(12px,3.6vw,14px)!important; font-weight:800!important; letter-spacing:0; white-space:nowrap; overflow:hidden; color:#0f6b5c!important}',
   '.feat .fh2::before,.feat .fh2::after{content:"";flex:1; max-width:40px; min-width:6px; height:3px; border-radius:3px; background:linear-gradient(90deg,#ffd36b,#f29a3d)}',
   '.feat .fh2::before{background:linear-gradient(270deg,#ffd36b,#f29a3d)}',
@@ -508,8 +509,9 @@ function renderBanner(){
   if(!n || daysLeft(n.date) > 14){ banner.className = 'hkb'; banner.innerHTML = ''; return; }
   var k = daysLeft(n.date);
   banner.className = 'hkb on';
-  banner.innerHTML = '<div class="bm"><span class="bl">📣 次の締切</span><b class="bd">' + (k === 0 ? '今日です' : 'あと' + k + '日') + '</b><span class="bdt">' + md(n.date) + '</span></div><div class="bt">' + esc(n.title) + '</div>';
-  banner.onclick = showSched; banner.setAttribute('role', 'button'); banner.tabIndex = 0;
+  banner.innerHTML = '<div class="bm"><span class="bl">📣 次の締切</span><b class="bd">' + (k === 0 ? '今日です' : 'あと' + k + '日') + '</b><span class="bdt">' + md(n.date) + '</span></div><div class="bt">' + esc(n.title) + '</div><button type="button" class="bmsg" id="hkBdoc">' + (k === 0 ? '今日が締切です。' : 'あと' + k + '日で締切です。') + '提出前チェックで書類のミスを防げます ›</button>';
+  banner.onclick = showSched;
+  var bd = document.getElementById('hkBdoc'); if(bd) bd.onclick = function(e){ e.stopPropagation(); document.getElementById('tabDocs').click(); }; banner.setAttribute('role', 'button'); banner.tabIndex = 0;
 }
 
 function taskDue(t){ return t.ev ? addDays(EVENTS.filter(function(e){ return e.id === t.ev; })[0].date, t.off) : null; }
@@ -1162,7 +1164,7 @@ var PAID = [
   ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
   ['cmp3', '園を比べる(3園から有料)', '無料で比べられるのは2園までです。3園以上を並べて比べられます。'],
   ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。'],
-  ['dist', '各園の点数比較', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!※高い方でも確実に入れるわけではありません。ご了承ください。', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">分布でわかること・わからないこと</b></summary><ul class="hint" style="margin:6px 0 0; padding-left:1.2em"><li><b>わかる</b>: 自分の点数が、昨年入園した人の中で高い方か低い方か。「園を探す」の各園カードに、地域ごとの分布とあなたの位置を出します。</li><li><b>わかる</b>: 同じ点数の人が多い区分は、ほかの人と並びやすいということ。並んだ場合は、区の同点時の順位で決まります。</li><li><b>わからない</b>: 入れるかどうか。入園は、点数の高い順に、希望した園の空きへ入っていく形で決まるため、人気の園は高い点数が必要になります。点数が分布の上の方でも、希望が人気の園だけなら入れないことがあります。</li><li><b>わからない</b>: 今年の申込者数。令和9年は、申込者数や点数表が変わる可能性があります。</li><li>見方のコツ: 点数が高いほど有利です。第1希望の倍率が低めの園も混ぜて、希望を多めに書くのが基本です(希望園の数の制限は区に確認してください)。</li></ul></details>' + '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。<br>実際は、令和8年(2026年)4月に入園した児童の点数の分布(区の公表資料)と、あなたの予想点数(令和9年4月入園の申込み想定)を並べます。</small></details>'],
+  ['dist', '各園の点数比較', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!※高い方でも確実に入れるわけではありません。ご了承ください。無料版は、1園だけ見られます。', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">分布でわかること・わからないこと</b></summary><ul class="hint" style="margin:6px 0 0; padding-left:1.2em"><li><b>わかる</b>: 自分の点数が、昨年入園した人の中で高い方か低い方か。「園を探す」の各園カードに、地域ごとの分布とあなたの位置を出します。</li><li><b>わかる</b>: 同じ点数の人が多い区分は、ほかの人と並びやすいということ。並んだ場合は、区の同点時の順位で決まります。</li><li><b>わからない</b>: 入れるかどうか。入園は、点数の高い順に、希望した園の空きへ入っていく形で決まるため、人気の園は高い点数が必要になります。点数が分布の上の方でも、希望が人気の園だけなら入れないことがあります。</li><li><b>わからない</b>: 今年の申込者数。令和9年は、申込者数や点数表が変わる可能性があります。</li><li>見方のコツ: 点数が高いほど有利です。第1希望の倍率が低めの園も混ぜて、希望を多めに書くのが基本です(希望園の数の制限は区に確認してください)。</li></ul></details>' + '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。<br>実際は、令和8年(2026年)4月に入園した児童の点数の分布(区の公表資料)と、あなたの予想点数(令和9年4月入園の申込み想定)を並べます。</small></details>'],
   ['wish', '希望園の並べ方', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。']
 ];
 function planHtml(){

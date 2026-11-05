@@ -2103,8 +2103,12 @@ window.SHISUU_DIST.r8 = {
     }
     function distBox(f){
       if(!DIST || !DIST.data[f[0]]) return '';
-      if(!PREM) return '<div class="dbx">' + CRW + '<b style="display:inline">各園の点数比較(0〜5歳児)</b> <small style="display:inline">有料版の機能です。「課金でできること」から見られます。</small></div>';
-      var h = '<details class="dbx"><summary>' + CRW + '<b style="display:inline">' + esc(f[0]) + '地域の入園者の点数(0〜5歳児)</b></summary>';
+      var fk = f[0] + '|' + f[1], fr = null, freeMode = !PREM;
+      if(freeMode){
+        try{ fr = localStorage.getItem('hoikatsu-distfree-v1'); }catch(e){}
+        if(fr && fr !== fk) return '<div class="dbx">' + CRW + '<b style="display:inline">各園の点数比較(0〜5歳児)</b> <small style="display:inline">無料で見られるのは1園だけです(「' + esc(fr.split('|')[1]) + '」で使いました)。ほかの園は有料版で見られます。</small></div>';
+      }
+      var h = '<details class="dbx"' + (freeMode ? ' data-dfree="' + esc(fk) + '"' + (fr === fk ? ' open' : '') : '') + '><summary>' + CRW + '<b style="display:inline">' + (freeMode ? '各園の点数比較(無料は1園だけ' + (fr === fk ? '・この園で使用中' : '・開くとこの園に決まります') + ')' : esc(f[0]) + '地域の入園者の点数(0〜5歳児)') + '</b></summary>';
       h += '<p class="dnote"><b>いつの分布?</b>' + esc(DIST.label) + 'の点数の分布です(区の公表資料)。あなたの予想点数は、令和9年4月入園を申し込む想定の点数です。去年の入園者と、あなたの今の点数を並べています。</p>';
       for(var c = 0; c < 6; c++) h += distOne(f, c);
       return h + '<div class="dl"><span>' + DIST.bands[0].l + '</span><span>' + DIST.bands[DIST.bands.length - 1].l + '</span></div><small>青はあなたより低い区分、緑があなたの区分、橙はあなたより高い区分です。園ごとではなく地域全体の昨年の分布で、人気の園は上の区分に偏ります。入れる目安であり、保証ではありません。</small></details>';
@@ -2313,6 +2317,13 @@ window.SHISUU_DIST.r8 = {
   $('fNow').addEventListener('change', function(e){ fNow = e.target.checked; fShown = 15; renderFind(); });
   $('fHide').addEventListener('change', function(e){ fHide = e.target.checked; fShown = 15; renderFind(); });
   $('fMore').addEventListener('click', function(){ fShown += 15; renderFind(); });
+  $('fList').addEventListener('toggle', function(e){
+    var d = e.target; if(!d || !d.getAttribute || !d.getAttribute('data-dfree') || !d.open) return;
+    var cur = null; try{ cur = localStorage.getItem('hoikatsu-distfree-v1'); }catch(err){}
+    if(cur) return;
+    try{ localStorage.setItem('hoikatsu-distfree-v1', d.getAttribute('data-dfree')); }catch(err){}
+    renderFind();
+  }, true);
   function bkIcs(name, date, time, tel){
     var d = date.replace(/-/g, ''), t = (time || '10:00').replace(':', '') + '00', h = parseInt((time || '10:00').slice(0, 2), 10), e = ('0' + Math.min(h + 1, 23)).slice(-2) + (time || '10:00').slice(3, 5) + '00';
     var L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//hoikatsu-app//JP', 'BEGIN:VEVENT', 'UID:visit-' + Date.now() + '@hoikatsu-app', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
@@ -2760,6 +2771,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=150"></script>
+<script src="features.js?v=153"></script>
 </body>
 </html>
