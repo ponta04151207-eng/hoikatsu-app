@@ -2129,7 +2129,8 @@ window.SHISUU_DIST.r8 = {
           + st('入園可能', s.vac === null ? '―' : '<b>' + s.vac + '人</b>', last)
           + st('第1希望', (z || s.fi === null) ? '―' : '<b>' + times(s.r1) + '</b>', (z || s.fi === null) ? '' : s.fi + '人')
           + st('全希望', (z || s.all === null) ? '―' : '<b>' + times(s.r2) + '</b>', (z || s.all === null) ? '' : s.all + '人')
-          + '</div>' + distBox(x.f) + (window.HKNEAR ? HKNEAR.line(x.f) : '') + nowStrip(x.f) + ageTable(x.f) + '</article>';
+          + '</div>' + distBox(x.f) + (window.HKNEAR ? HKNEAR.line(x.f) : '') + nowStrip(x.f) + ageTable(x.f)
+          + '<button type="button" class="bk" data-fbook="' + i + '">📞 見学を予約する</button><div class="bkp" hidden></div></article>';
       }).join('');
       $('fList').innerHTML = '<div class="fcards">' + ch + '</div>';
       $('fMore').hidden = shown.length >= a.length;
@@ -2311,7 +2312,40 @@ window.SHISUU_DIST.r8 = {
   $('fNow').addEventListener('change', function(e){ fNow = e.target.checked; fShown = 15; renderFind(); });
   $('fHide').addEventListener('change', function(e){ fHide = e.target.checked; fShown = 15; renderFind(); });
   $('fMore').addEventListener('click', function(){ fShown += 15; renderFind(); });
+  function bkIcs(name, date, time, tel){
+    var d = date.replace(/-/g, ''), t = (time || '10:00').replace(':', '') + '00', h = parseInt((time || '10:00').slice(0, 2), 10), e = ('0' + Math.min(h + 1, 23)).slice(-2) + (time || '10:00').slice(3, 5) + '00';
+    var L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//hoikatsu-app//JP', 'BEGIN:VEVENT', 'UID:visit-' + Date.now() + '@hoikatsu-app', 'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
+      'DTSTART:' + d + 'T' + t, 'DTEND:' + d + 'T' + e, 'SUMMARY:【保活】' + name + ' 見学', 'DESCRIPTION:' + (tel ? '電話 ' + tel + '。' : '') + '予約の確認は園に電話で。',
+      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + name + ' 見学(前日)', 'TRIGGER:-P1D', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'];
+    var a = document.createElement('a'), u = URL.createObjectURL(new Blob([L.join('\r\n')], {type: 'text/calendar'}));
+    a.href = u; a.download = 'hoikatsu-visit.ics'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); }, 1500);
+  }
   $('fList').addEventListener('click', function(e){
+    var bk = e.target.closest('[data-fbook]');
+    if(bk){
+      var card = bk.closest('.fcard'), pn = card.querySelector('.bkp'), fx = fRows[+bk.getAttribute('data-fbook')];
+      if(!pn.hidden){ pn.hidden = true; return; }
+      var tel = (window.HKNEAR && HKNEAR.tel) ? HKNEAR.tel(fx.f) : '', key = fx.f[0] + '|' + fx.f[1];
+      pn.innerHTML = '<p class="hint">見学の予約は、園に電話で申し込みます。日時が決まったら、ここに入れておけます。</p>'
+        + (tel ? '<div class="bkb"><a class="btnlike" href="tel:' + esc(tel.replace(/[^0-9]/g, '')) + '">📞 ' + esc(tel) + ' に電話する</a></div>' : '<p class="hint">電話番号が見つかりませんでした。園の名前で調べてください。</p>')
+        + '<div class="bkr"><input type="date" class="bkd" aria-label="見学の日"><input type="time" class="bkt" value="10:00" aria-label="見学の時間"></div>'
+        + '<div class="bkb"><button type="button" class="primary" data-bkact="rec">📝 見学予定に入れる</button><button type="button" data-bkact="cal">📅 カレンダーに入れる</button></div><div class="bkmsg" role="status"></div>';
+      pn.hidden = false;
+      pn.onclick = function(ev){
+        var ab = ev.target.closest('[data-bkact]'); if(!ab) return;
+        var dt = pn.querySelector('.bkd').value, tm = pn.querySelector('.bkt').value, msg = pn.querySelector('.bkmsg');
+        if(!dt){ msg.textContent = '見学の日を選んでください。'; return; }
+        if(ab.getAttribute('data-bkact') === 'cal'){ bkIcs(fx.f[1], dt, tm, tel); msg.textContent = 'カレンダーに入れる画面を開きました。'; return; }
+        var v = visits.filter(function(q){ return q.fac === key || (q.name === fx.f[1] && q.area === fx.f[0]); })[0];
+        if(v){ v.date = dt; }
+        else {
+          if(visFull()){ msg.textContent = VIS_FREE_MSG; return; }
+          visits.push({id:'v' + Date.now(), name:fx.f[1], area:fx.f[0], fac:key, date:dt, st:pack(''), memo:'見学予定 ' + tm + '〜', ex:false, cmp:false});
+        }
+        vSave(); renderVisit(); msg.textContent = '「見学した園」に、' + dt.slice(5).replace('-', '/') + ' ' + tm + 'の予定を入れました。';
+      };
+      return;
+    }
     var b = e.target.closest('[data-fadd]'); if(!b) return;
     var x = fRows[+b.getAttribute('data-fadd')];
     openForm(null, {name:x.f[1], area:x.f[0]});
@@ -2725,6 +2759,6 @@ window.SHISUU_ADDR = {
 /*ADDR-END*/
 </script>
 <script src="azuke.js?v=1"></script>
-<script src="features.js?v=141"></script>
+<script src="features.js?v=142"></script>
 </body>
 </html>

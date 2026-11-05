@@ -127,6 +127,14 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '#secFind .bk{width:100%!important; margin-top:8px!important; min-height:30px!important; font-size:12px!important; font-weight:700!important; color:#0f6b5c!important; background:#e6f5ef!important; border:1.5px solid #9fd3c3!important; border-radius:999px!important; box-shadow:none!important}',
+  '#secFind .bkp{margin-top:6px; padding:8px 10px; background:var(--surface); border:1.5px dashed #9fd3c3; border-radius:12px}',
+  '#secFind .bkp .hint{margin:0 0 6px!important}',
+  '#secFind .bkp .bkr{display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:6px; margin:4px 0}',
+  '#secFind .bkp input{min-height:32px!important; height:32px!important; font-size:12.5px!important; padding:0 8px!important; width:100%!important; box-sizing:border-box!important}',
+  '#secFind .bkp .bkb{display:grid; gap:5px; margin-top:6px}',
+  '#secFind .bkp .bkb a,#secFind .bkp .bkb button{display:flex; align-items:center; justify-content:center; min-height:34px!important; font-size:12px!important; font-weight:700; border-radius:999px; text-decoration:none; padding:0 10px!important; margin:0!important}',
+  '#secFind .bkp .bkmsg{font-size:10.5px; color:#0f6b5c; font-weight:700; margin-top:4px; min-height:0}',
   '#viewIndex #s3 .panel{padding:10px 12px!important; margin-bottom:8px!important}',
   '#viewIndex #s3 .panel h2{font-size:14px!important; margin:0 0 4px!important; gap:7px!important}',
   '#viewIndex #s3 .panel h2 .hi,#viewIndex #s3 .panel h2 svg{width:24px!important; height:24px!important}',
@@ -1439,6 +1447,7 @@ function azGeoAll(done){
 }
 /* 認可保育園(園を探す)から使う */
 window.HKNEAR = {
+  tel: function(f){ var r = addrMap[f[0] + '|' + f[1]]; return r && r[3] ? r[3] : ''; },
   dist: function(f){ var r = addrMap[f[0] + '|' + f[1]]; return r ? azDist(r[2]) : null; },
   line: function(f){ var d = window.HKNEAR.dist(f), r = addrMap[f[0] + '|' + f[1]]; if(!azO) return r ? '<div class="n" style="margin:4px 0 0; font-size:13px">📍 ' + esc(r[2]) + '</div>' : ''; return '<div class="n" style="margin:4px 0 0; font-size:13px">' + (r ? '📍 ' + esc(r[2]) + ' ・ ' : '') + (d === null ? '📏 位置を調べられませんでした' : '📏 <b>' + azFmt(d) + '</b>') + '</div>'; }
 };
