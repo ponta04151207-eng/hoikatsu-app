@@ -534,7 +534,7 @@ function renderBanner(){
   if(!n || daysLeft(n.date) > 14){ banner.className = 'hkb'; banner.innerHTML = ''; return; }
   var k = daysLeft(n.date);
   banner.className = 'hkb on';
-  banner.innerHTML = '<div class="bm"><span class="bl">📣 次の締切</span><b class="bd">' + (k === 0 ? '今日です' : 'あと' + k + '日') + '</b><span class="bdt">' + md(n.date) + '</span></div><div class="bt">' + esc(n.title) + '</div><button type="button" class="bmsg" id="hkBdoc">' + (k === 0 ? '今日が締切です。' : 'あと' + k + '日で締切です。') + '提出前チェックで書類のミスを防げます ›</button>';
+  banner.innerHTML = '<div class="bm"><span class="bl">📣 次の締切</span><b class="bd">' + (k === 0 ? '今日です' : 'あと' + k + '日') + '</b><span class="bdt">' + md(n.date) + '</span></div><div class="bt">' + esc(n.title) + '</div><button type="button" class="bmsg" id="hkBdoc">' + (k === 0 ? '今日が締切です。' : 'あと' + k + '日で締切です。') + '提出前チェックで書類のミスを防げます タップ ›</button>';
   banner.onclick = showSched;
   var bd = document.getElementById('hkBdoc'); if(bd) bd.onclick = function(e){ e.stopPropagation(); document.getElementById('tabDocs').click(); }; banner.setAttribute('role', 'button'); banner.tabIndex = 0;
 }
