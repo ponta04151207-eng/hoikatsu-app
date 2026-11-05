@@ -127,7 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
-  '.srcl{display:block; margin:6px auto 6px!important; padding:5px 12px!important; width:fit-content; max-width:96%; box-sizing:border-box; font-size:clamp(10px,3vw,11.5px)!important; letter-spacing:-0.03em; white-space:nowrap; font-weight:800!important; line-height:1.4; color:#0b5e50!important; background:#e3f6ee; border:1.5px solid #3fa88e; border-radius:999px; text-align:center}',
+  '.srcl{display:block; margin:6px auto 6px!important; padding:5px 4px!important; width:calc(100% - 20px); max-width:none; text-indent:0; overflow:hidden; box-sizing:border-box; font-size:clamp(9.5px,2.8vw,11px)!important; letter-spacing:-0.04em; white-space:nowrap; font-weight:800!important; line-height:1.4; color:#0b5e50!important; background:#e3f6ee; border:1.5px solid #3fa88e; border-radius:999px; text-align:center}',
   '.srcl.rs{margin:10px 0 0!important; width:100%; max-width:100%; border-radius:12px; white-space:normal}',
   '#distPanel .teaser{margin:4px 0 0; overflow:hidden}',
   '#distPanel .teaser .tm{font-size:12px; font-weight:700; line-height:1.5; margin:0 0 6px}',
