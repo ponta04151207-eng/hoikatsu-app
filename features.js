@@ -127,6 +127,9 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '#hkWish .mysc{display:flex; align-items:baseline; justify-content:space-between; margin:6px 0; padding:8px 14px; border-radius:12px; background:linear-gradient(135deg,#e8f6f1,#fffaf0); border:1.5px solid #bfe3d8}',
+    '#hkWish .mysc span{font-size:13px; font-weight:700; color:#2f6f60}',
+    '#hkWish .mysc b{font-size:28px; line-height:1; color:#0f8a7a}#hkWish .mysc b small{font-size:13px; margin-left:2px}',
     '#hkWish #hkWs1,#hkWish #hkWs2,#hkWish #hkWcp{min-height:34px!important; padding:4px 6px!important; font-size:12px!important; white-space:nowrap!important}',
     '#hkWish .tk{padding:5px 0!important; gap:6px!important; align-items:center!important}',
     '#hkWish .tk .x{min-width:0; flex:1}',
@@ -136,7 +139,7 @@ css.textContent = [
     '#hkWish .tk button{min-height:28px!important; min-width:28px!important; width:28px; height:28px; padding:0!important; font-size:13px!important; border-width:1.5px!important}',
     '#hkWish .tk > span:last-child{gap:3px!important}',
     '#hkWish .hint{font-size:11px!important; line-height:1.45!important}',
-    '#hkWish .ezb{font-size:10.5px!important; padding:0 6px!important; margin-left:3px!important}',
+    '#hkWish .ezb{font-size:11px!important; padding:0 7px!important; margin:0 3px 0 0!important; white-space:nowrap}',
     '#hkWish .ezbox{padding:6px 9px!important; font-size:12px!important}',
     '.wtop{display:block; width:100%; margin:6px 0; padding:8px 10px; font-size:13px; font-weight:700; border-radius:10px; border:1px solid #e6d7a8; background:#fffaf0; color:#7a4a00; text-align:center}',
     '.advl{margin:0; padding-left:1.2em; display:grid; gap:4px; font-size:13px; line-height:1.6}',
@@ -917,6 +920,7 @@ function renderWish(){
   wish = wish.filter(function(id){ return wVisit(id); });
   var vs = realVisits(), h = '';
   h += '<p class="hint" style="margin:0 0 8px">区は「希望する園の数や順位で、有利・不利にはならない」と説明しています(出典: <a href="' + WSRC.url + '" target="_blank" rel="noopener">' + esc(WSRC.name) + '</a>、区の更新 ' + esc(WSRC.upd) + '、確認日 ' + esc(WSRC.checked) + ')。選考は点数の高い順です。だから、順位は<b>行きたい順</b>で大丈夫です。このリストは、考えを整理して、申込書に写すためのものです。</p>';
+  h += '<div class="mysc"><span>あなたの予想点数</span><b>' + (HK.total ? HK.total() : '') + '<small>点</small></b></div><p class="hint" style="margin:0 0 6px">この点数からみた、各園の入りやすさの目安を、園の名前の横に出しています。</p>';
   h += '<p style="margin:0 0 8px"><b>' + wish.length + ' / 10園</b>(第10希望まで書けます)</p>';
   if(!wish.length) h += '<p class="hint">下から園を追加してください。見学メモに入れた園が出ます。</p>';
   var EZ = {easy:0, mid:0, hard:0, none:0};
@@ -924,7 +928,7 @@ function renderWish(){
   wish.forEach(function(id, i){
     var v = wVisit(id), s = vst(v), r = wR2(v), ez = ezOf(v);
     if(ez) EZ[ez.k]++; else EZ.none++;
-    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + esc(v.name) + '</b>' + (ez ? ' <span class="ezb ez-' + ez.k + '" title="' + esc(ez.why) + '">' + ez.l + '</span>' : '') + '<small>' + esc(v.area || '') + ' / 評価' + HK.grade(v).l + ' / ' + (s && s.vac !== null ? '空き' + s.vac + '人・倍率' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small></span>'
+    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + esc(v.name) + '</b><small>' + (ez ? '<span class="ezb ez-' + ez.k + '" title="' + esc(ez.why) + '">あなたの点:' + ez.l + '</span> ' : '') + esc(v.area || '') + ' / 評価' + HK.grade(v).l + ' / ' + (s && s.vac !== null ? '空き' + s.vac + '人・倍率' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small></span>'
       + '<span style="display:flex; gap:4px; flex:none"><button type="button" data-w="up" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0" aria-label="外す">✕</button></span></div>';
   });
   var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
