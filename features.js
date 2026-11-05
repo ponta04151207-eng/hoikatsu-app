@@ -127,6 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '.vnote{font-size:11px; color:var(--muted,#5b6b73); margin-left:6px; line-height:1.4}',
     '.vmic{display:inline-flex; align-items:center; gap:4px; margin:4px 0 0; min-height:30px!important; padding:2px 12px!important; font-size:12px!important; font-weight:700; border-radius:999px; border:1.5px solid #bfe3d8; background:#f1faf7; color:#1d6b5c; box-shadow:none!important}',
     '.vmic.on{background:#fde0df; border-color:#e9a29e; color:#a3281f}',
     '.vmsg{display:block; font-size:11px; color:#a3281f; margin-top:3px}',
@@ -2039,7 +2040,8 @@ function syJoin(code, manual){
     var b = document.createElement('button'); b.type = 'button'; b.className = 'vmic'; b.setAttribute('data-for', id);
     b.innerHTML = '🎤 声で入力する';
     var msg = document.createElement('span'); msg.className = 'vmsg'; msg.setAttribute('role', 'status');
-    ta.insertAdjacentElement('afterend', msg); ta.insertAdjacentElement('afterend', b);
+    var nt = document.createElement('span'); nt.className = 'vnote'; nt.textContent = 'お子さんを抱っこしたままでも、声でメモできます。';
+    ta.insertAdjacentElement('afterend', msg); ta.insertAdjacentElement('afterend', nt); ta.insertAdjacentElement('afterend', b);
     function stop(){ if(cur){ try{ cur.rec.stop(); }catch(e){} } }
     b.addEventListener('click', function(){
       if(!SR){ msg.textContent = 'このブラウザは、声の入力に対応していません。スマホのキーボードにあるマイク(🎤)を使ってください。'; return; }
