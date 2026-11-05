@@ -1867,8 +1867,8 @@ window.SHISUU_DIST.r8 = {
       maybe.push(a);
     });
     maybe.sort(function(x, y){ return (y.p || 5) - (x.p || 5); });
-    if(tips.length) h += '<p class="hint" style="margin:0 0 4px"><b>点数を上げられるかもしれないこと</b></p><ul class="advl">' + tips.map(function(x){ return '<li>' + esc(x.t) + '</li>'; }).join('') + '</ul>';
-    if(maybe.length) h += '<p class="hint" style="margin:8px 0 4px"><b>まだチェックしていない加点(当てはまるときだけ)</b></p><ul class="advl">' + maybe.slice(0, 5).map(function(a){ return '<li><b>+' + (a.p !== undefined ? a.p : a.choices[a.choices.length - 1].p) + '</b> ' + esc(a.l) + '</li>'; }).join('') + '</ul>';
+    if(tips.length) h += '<p class="hint" style="margin:0 0 4px"><b>点数を上げられるかもしれないこと</b></p><ul class="advl">' + tips.map(function(x){ return '<li>' + esc(x.t).replace(/([+＋]\d+)/g, '<span class="pn">$1</span>') + '</li>'; }).join('') + '</ul>';
+    if(maybe.length) h += '<p class="hint" style="margin:8px 0 4px"><b>まだチェックしていない加点(当てはまるときだけ)</b></p><ul class="advl">' + maybe.slice(0, 5).map(function(a){ return '<li><span class="pn">+' + (a.p !== undefined ? a.p : a.choices[a.choices.length - 1].p) + '</span> ' + esc(a.l) + '</li>'; }).join('') + '</ul>';
     var low = DIST && (function(){ var d = DIST.data['全体'] && DIST.data['全体'][cls]; if(!d || !d.c) return false; var me = bandOf(r.total), lo = 0, i; for(i = 0; i < me; i++) lo += d.c[i]; return lo / d.n < 0.35; })();
     if(low) h += '<p class="hint" style="margin:8px 0 4px"><b>点数が届きにくいときは</b></p><ul class="advl"><li>昨年の入園者の中で、あなたの点数は低めの位置です。認可保育園だけでなく、認可外保育施設や小規模な園、病児・一時預かりも、同時に探しておくと安心です。</li></ul><button type="button" class="mini" id="advAz" style="margin-top:6px">預け先を探すを開く</button>';
     if(!h) h = '<p class="hint" style="margin:0">いまの入力では、ほかに加点できそうな項目は見つかりませんでした。</p>';
@@ -2815,6 +2815,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=171"></script>
+<script src="features.js?v=172"></script>
 </body>
 </html>
