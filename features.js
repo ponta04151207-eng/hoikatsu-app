@@ -127,6 +127,14 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+  '.srcl{margin:2px 0 4px!important; font-size:10.5px!important; font-weight:700; color:#0f6b5c; text-align:center}',
+  '.srcl.rs{margin:6px 0 0!important; text-align:left}',
+  '#distPanel .teaser{margin:4px 0 0; overflow:hidden}',
+  '#distPanel .teaser .tm{font-size:12px; font-weight:700; line-height:1.5; margin:0 0 6px}',
+  '#distPanel .teaser .blur{filter:blur(5px); pointer-events:none; user-select:none; opacity:.85; max-height:110px; overflow:hidden; position:relative; margin-bottom:0}',
+  '#distPanel .teaser .blur ul{margin:0!important}',
+  '#distPanel .teaser .lk{margin:-52px 0 14px; position:relative; text-align:center; font-size:12px; font-weight:700; color:#7a2a1f}',
+  '#viewIndex #s3 .shbtn{width:100%!important; min-height:36px!important; height:36px!important; font-size:12.5px!important; margin:0 0 8px!important}',
   '#secFind .bk{width:100%!important; margin-top:8px!important; min-height:30px!important; font-size:12px!important; font-weight:700!important; color:#0f6b5c!important; background:#e6f5ef!important; border:1.5px solid #9fd3c3!important; border-radius:999px!important; box-shadow:none!important}',
   '#secFind .bkp{margin-top:6px; padding:8px 10px; background:var(--surface); border:1.5px dashed #9fd3c3; border-radius:12px}',
   '#secFind .bkp .hint{margin:0 0 6px!important}',
@@ -1842,7 +1850,39 @@ function syJoin(code, manual){
   var h2 = dp.querySelector('h2'); if(h2 && !h2.querySelector('svg.cr')) h2.insertAdjacentHTML('afterbegin', CR + ' ');
   if(PREMIUM) return;
   Array.prototype.forEach.call(dp.children, function(c){ if(c !== h2) c.hidden = true; });
-  var box = document.createElement('div'); box.innerHTML = '<p class="hint" style="margin:0">昨年入園した子の点数の分布と、自分の点数の位置は、有料版の機能です。</p>' + buyHtml();
+  var box = document.createElement('div'); box.innerHTML = buyHtml();
   dp.appendChild(box);
+})();
+
+/* ===== 結果の画面: 無料版のお試し表示、友達に教えるボタン、出典 ===== */
+(function(){
+  var s3 = document.getElementById('s3'), dp = document.getElementById('distPanel'); if(!s3 || !dp) return;
+  /* 友達に教える */
+  var sh = document.createElement('button'); sh.type = 'button'; sh.className = 'shbtn'; sh.textContent = '💌 ママ友・パパ友にも教える';
+  sh.addEventListener('click', function(){
+    var txt = '保活アプリ(世田谷区の保育園の申込みを手伝うアプリ)。点数が計算できて、昨年の倍率も見られます。';
+    if(navigator.share) navigator.share({title: '保活アプリ', text: txt, url: APP_URL}).catch(function(){});
+    else copy(txt + '\n' + APP_URL, function(ok){ sh.textContent = ok ? 'アドレスをコピーしました。LINEなどに貼ってください' : APP_URL; });
+  });
+  s3.insertBefore(sh, dp);
+  /* 出典(結果の画面) */
+  var src = document.createElement('p'); src.className = 'srcl rs'; src.textContent = '✔ 世田谷区の令和8年4月の公表資料をもとにしています';
+  dp.appendChild(src);
+  if(PREMIUM) return;
+  /* 無料版: 自分の区分だけ見せて、残りはぼかす */
+  var box = document.createElement('div'); box.className = 'teaser'; box.hidden = true;
+  box.innerHTML = '<p class="tm"></p><div class="blur"></div><p class="lk">🔒 続きは有料版で見られます</p>';
+  dp.insertBefore(box, dp.querySelector('h2').nextSibling);
+  var ds = document.getElementById('dSummary'), db = document.getElementById('dBars');
+  function upd(){
+    var t = (ds.textContent || '').split('。')[0];
+    if(!t){ box.hidden = true; return; }
+    box.querySelector('.tm').textContent = 'あなたの' + t.replace(/^予想点数/, '予想点数') + '。昨年の入園者の中での位置と、希望園ごとの入りやすさは、有料版で見られます。';
+    box.querySelector('.blur').innerHTML = '<ul class="dist">' + db.innerHTML + '</ul>';
+    box.hidden = false;
+  }
+  new MutationObserver(upd).observe(db, {childList: true, subtree: true});
+  new MutationObserver(upd).observe(ds, {childList: true, subtree: true, characterData: true});
+  upd();
 })();
 })();
