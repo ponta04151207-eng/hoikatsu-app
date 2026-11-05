@@ -127,10 +127,10 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
-  '.feat .fh2{display:flex!important; align-items:center; justify-content:center; gap:8px; margin:0 0 8px!important; font-size:15px!important; font-weight:800!important; letter-spacing:.04em; color:#0f6b5c!important}',
-  '.feat .fh2::before,.feat .fh2::after{content:"";flex:1; max-width:46px; height:3px; border-radius:3px; background:linear-gradient(90deg,#ffd36b,#f29a3d)}',
+  '.feat .fh2{display:flex!important; align-items:center; justify-content:center; gap:5px; margin:0 0 8px!important; font-size:clamp(12px,3.6vw,14px)!important; font-weight:800!important; letter-spacing:0; white-space:nowrap; overflow:hidden; color:#0f6b5c!important}',
+  '.feat .fh2::before,.feat .fh2::after{content:"";flex:1; max-width:40px; min-width:6px; height:3px; border-radius:3px; background:linear-gradient(90deg,#ffd36b,#f29a3d)}',
   '.feat .fh2::before{background:linear-gradient(270deg,#ffd36b,#f29a3d)}',
-  '.feat .fh2 .ac{font-size:16px; line-height:1}',
+  '.feat .fh2 .ac{font-size:14px; line-height:1; flex:none}.feat .fh2 > span:not(.ac){white-space:nowrap; flex:none}',
   '.srcl{display:block; margin:6px auto 6px!important; padding:5px 4px!important; width:calc(100% - 20px); max-width:none; text-indent:0; overflow:hidden; box-sizing:border-box; font-size:clamp(9.5px,2.8vw,11px)!important; letter-spacing:-0.04em; white-space:nowrap; font-weight:800!important; line-height:1.4; color:#0b5e50!important; background:#e3f6ee; border:1.5px solid #3fa88e; border-radius:999px; text-align:center}',
   '.srcl.rs{margin:10px 0 0!important; width:100%; max-width:100%; border-radius:12px; white-space:normal}',
   '#distPanel .teaser{margin:4px 0 0; overflow:hidden}',
