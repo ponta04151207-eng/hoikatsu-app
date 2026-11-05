@@ -2027,7 +2027,7 @@ function syJoin(code, manual){
     h += '<p class="hint" style="margin:0 0 8px"><b>空きが変わると、ここに出ます</b><br>① トップの上に「🔔空きが変わった園があります」と出ます。<br>② この画面に「◯◯園(1歳児): 0人 → 2人」と出ます。<br>メールや通知は送りません。アプリを開いたときに出ます。</p>';
     if(!ws.length) h += '<p class="hint">見学メモに園を入れると、ここで空きの変化を見られます。</p>';
     else if(!snap.d || !Object.keys(snap.d).length) h += '<p class="hint">いまの空きを記録しました。次に区の空き表が更新されたとき、変わった園をお知らせします。</p>';
-    if(changes.length) h += '<ul class="advl">' + changes.map(function(c){ return '<li><b>' + esc(c.v.name) + '</b>(' + c.c + '歳児): ' + fmt(c.a) + ' → <b>' + fmt(c.b) + '</b>' + ((c.b || 0) > (c.a || 0) ? ' 空きが増えました' : ' 空きが減りました') + '</li>'; }).join('') + '</ul><button type="button" class="mini" id="hkWok" style="margin-top:6px">確認した</button>';
+    if(changes.length) h += '<ul class="advl">' + changes.map(function(c){ return '<li><b>' + esc(c.v.name) + '</b>(' + c.c + '歳児): ' + fmt(c.a) + ' → <b>' + fmt(c.b) + '</b>' + (c.a == null ? ' 空き表に載りました' : c.b == null ? ' 空き表から消えました' : c.b > c.a ? ' 空きが増えました' : ' 空きが減りました') + '</li>'; }).join('') + '</ul><button type="button" class="mini" id="hkWok" style="margin-top:6px">確認した</button>';
     else if(ws.length && snap.d && Object.keys(snap.d).length) h += '<p class="hint">前に見たときから、変わった園はありません(空き表の確認日 ' + esc(NOW.checkedOn) + ')。</p>';
     h += '<p style="margin:10px 0 4px"><b>カレンダーで思い出す</b></p><p class="hint" style="margin:0 0 6px">毎月1日と15日に「空きを確認」の予定を入れます。区の空き表は月ごとに更新されます。</p><button type="button" id="hkWcal" style="width:100%">📅 カレンダーに入れる(毎月1日・15日)</button>';
     box.innerHTML = h;
