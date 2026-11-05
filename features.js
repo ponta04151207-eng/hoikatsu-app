@@ -127,6 +127,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '#viewDocs a.olink{display:block; margin:8px 0 2px; padding:9px 12px; border-radius:999px; background:#0f8a7a; color:#fff!important; text-align:center; font-size:13px; font-weight:800; text-decoration:none!important; box-shadow:0 2px 0 #0a6b5e}',
     '.feat li.fpd{display:flex!important; align-items:center; gap:8px; margin:12px 0 4px!important; padding:6px 10px!important; border:1.5px solid #e8c15a!important; border-radius:10px; background:linear-gradient(135deg,#fff6d6,#fffaf0); list-style:none; font-size:13px; font-weight:800; color:#8a5a00}',
     '.feat .fbd{display:inline-block; margin-left:6px; padding:0 8px; border-radius:999px; font-size:11px; font-weight:800; line-height:1.6; vertical-align:1px; white-space:nowrap}',
     '.feat .fbd.top{background:linear-gradient(135deg,#ff6b4a,#ff9a3c); color:#fff; box-shadow:0 1px 0 #c94a2a}',
@@ -1129,7 +1130,7 @@ function renderDocs(){
   var dl = dd.way === 'mail' ? evDate('first-mail') : evDate('first-visit');
   var k = daysLeft(dl);
   var h = '<section class="panel"><h2>💻 オンラインで申込む</h2><p class="hint" style="margin:0 0 8px">区の電子申請なら、スマホから申込めます。印刷も郵送もいりません。締切は、郵送と同じ' + md(evDate('first-mail')) + 'です(あと' + Math.max(0, daysLeft(evDate('first-mail'))) + '日)。ログインや入力は、区のページで、ご自身でしてください。</p><a class="primary" href="' + ONLINE + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:14px; border-radius:999px; font-weight:700">区の電子申請のページを開く</a><p class="hint" style="margin:8px 0 0">先に、下の書類リストで、必要な書類をそろえて、写真かPDFにしておくと、早く進みます。申込書の様式は <a href="' + FORM_PDF + '" target="_blank" rel="noopener">PDF</a>・<a href="' + FORM_XLS + '" target="_blank" rel="noopener">Excel</a> です。</p></section>';
-  h += '<section class="panel"><h2 style="display:flex; align-items:center; gap:8px; margin:0">' + CR + '<span style="line-height:1.35">提出前チェック<br>書類リスト</span></h2><p style="margin:2px 0 8px; font-size:12px; font-weight:700; color:var(--accent)">令和9年4月入園(認可保育園)</p><p class="hint" style="margin:0">申込みに必要な書類を、状況に合わせて一覧にします。<br>出典: <a href="' + DSRC.url + '" target="_blank" rel="noopener">' + esc(DSRC.name) + '</a>(確認日 ' + esc(DSRC.checked) + ')。<br>人によって増える書類もあるので、出す前に区のページでも確認してください。</p></section>';
+  h += '<section class="panel"><h2 style="display:flex; align-items:center; gap:8px; margin:0">' + CR + '<span style="line-height:1.35">提出前チェック<br>書類リスト</span></h2><p style="margin:2px 0 8px; font-size:12px; font-weight:700; color:var(--accent)">令和9年4月入園(認可保育園)</p><p class="hint" style="margin:0">申込みに必要な書類を、状況に合わせて一覧にします。<br>出典: <a href="' + DSRC.url + '" target="_blank" rel="noopener">' + esc(DSRC.name) + '</a>(確認日 ' + esc(DSRC.checked) + ')。<br>人によって増える書類もあるので、出す前に区のページでも確認してください。</p><a class="olink" href="' + ONLINE + '" target="_blank" rel="noopener">💻 オンライン申請のページを開く(区の電子申請) ›</a></section>';
   h += '<section class="panel"><h2>1. あてはまる状況を選ぶ</h2>'
     + '<label class="field" for="hkDa">保護者1の状況</label>' + selHtml('hkDa', dd.a, false)
     + '<label class="field" for="hkDb">保護者2の状況</label>' + selHtml('hkDb', dd.b, true);
@@ -1155,6 +1156,7 @@ function renderDocs(){
     ['web', '(オンラインのとき)申請者IDとパスワードを控えた', '申請したあとの確認のたびに必要です。添付ファイルが読み取れないと、郵送での提出を求められることがあります。']
   ];
   h += '<section class="panel"><h2>4. 出す前の最終チェック</h2>';
+  h += '<a class="olink" href="' + ONLINE + '" target="_blank" rel="noopener">💻 オンライン申請のページを開く ›</a>';
   CHK.forEach(function(c){ h += dRow('z' + c[0], c[1], c[2], false); });
   h += '</section>';
   h += '<section class="panel"><p class="hint" style="margin:0">この一覧は、区の公開資料をもとにした目安です。申込みのルールや必要書類は、区が決めたものが正しいので、出す前に必ず区のページか窓口で確認してください。</p></section>';
