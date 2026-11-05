@@ -2371,6 +2371,18 @@ window.SHISUU_DIST.r8 = {
   var CLS_SHORT = ['0歳児','1歳児','2歳児','3歳児','4歳児','5歳児'];
   function bandOf(total){ for(var i = 0; i < DIST.bands.length; i++){ var b = DIST.bands[i]; if(total >= b.lo && total <= b.hi) return i; } return 0; }
   function pct(x){ return (Math.round(x * 10) / 10).toFixed(1) + '%'; }
+  /* 合格しやすさの目安(昨年の入園者の点数分布 + 昨年の倍率。約束ではありません) */
+  function ease(f){
+    if(!DIST || !DIST.data[f[0]]) return null;
+    var d = DIST.data[f[0]][cls], q = stat(f, cls), me = bandOf(calc().total), i, lo = 0, pp = null, pts = 0, known = 0;
+    if(q.vac === 0) return {k:'hard', l:'厳しい', why:'昨年は' + cls + '歳児の空きが0人でした', pp:null};
+    if(d && d.c){ for(i = 0; i < me; i++) lo += d.c[i]; pp = (lo + d.c[me] / 2) / d.n; pts += pp >= 0.6 ? 2 : pp >= 0.35 ? 1 : 0; known++; }
+    if(q.r2 !== null && q.r2 !== undefined){ pts += q.r2 <= 2 ? 2 : q.r2 <= 4 ? 1 : 0; known++; }
+    if(!known) return null;
+    var sc = known === 2 ? pts : pts * 2;
+    var k = sc >= 3 ? 'easy' : sc <= 1 ? 'hard' : 'mid';
+    return {k:k, l:{easy:'入りやすい',mid:'ふつう',hard:'厳しい'}[k], pp:pp, r2:q.r2, why:(pp !== null ? 'あなたの点数は昨年の入園者の中で' + (pp >= 0.6 ? '高め' : pp >= 0.35 ? '真ん中あたり' : '低め') : '点数の分布なし') + (q.r2 ? '、昨年の全希望は' + times(q.r2) : '')};
+  }
   function renderDist(total){
     if(!DIST){ $('distPanel').hidden = true; return; }
     if(total === undefined) total = calc().total;
@@ -2452,6 +2464,7 @@ window.SHISUU_DIST.r8 = {
     facMap: facMap, stat: stat, times: times, cls: function(){ return cls; }, esc: esc,
     grade: grade, gbadge: gbadge, items: V_ITEMS, status: V_STATUS, counts: counts, tab: tab,
     renderFind: function(){ renderFind(); },
+    ease: ease, total: function(){ return calc().total; },
     setSort: function(v){ fSort = v; $('fSort').value = v; fShown = 15; }
   };
 })();
@@ -2772,6 +2785,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=155"></script>
+<script src="features.js?v=157"></script>
 </body>
 </html>

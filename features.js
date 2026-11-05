@@ -127,6 +127,9 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '.ezb{display:inline-block; font-size:11px; font-weight:700; padding:1px 7px; border-radius:99px; margin-left:4px; vertical-align:1px}',
+    '.ez-easy{background:#dff3e4; color:#1d6b35}.ez-mid{background:#fff1cc; color:#8a5a00}.ez-hard{background:#fde0df; color:#a3281f}',
+    '.ezbox{display:flex; flex-direction:column; gap:2px; margin-top:10px; padding:8px 10px; border:1px solid #e6d7a8; border-radius:10px; background:#fffaf0; font-size:13px}',
   '#viewAzuke button[data-azm]{font-size:12px!important; padding:0 4px!important; letter-spacing:-0.02em}',
   '.hkb .bmsg{display:block; width:100%; margin:5px 0 0!important; padding:5px 8px!important; min-height:0!important; height:auto!important; font-size:clamp(9.5px,2.8vw,11px)!important; font-weight:800!important; line-height:1.35!important; letter-spacing:-0.02em; color:#fff!important; background:#d93a2f!important; border:0!important; border-radius:999px!important; box-shadow:none!important; text-align:center}',
   '.feat .fh2{display:flex!important; align-items:center; justify-content:center; gap:5px; margin:0 0 8px!important; font-size:clamp(12px,3.6vw,14px)!important; font-weight:800!important; letter-spacing:0; white-space:nowrap; overflow:hidden; color:#0f6b5c!important}',
@@ -902,9 +905,12 @@ function renderWish(){
   h += '<p class="hint" style="margin:0 0 8px">区は「希望する園の数や順位で、有利・不利にはならない」と説明しています(出典: <a href="' + WSRC.url + '" target="_blank" rel="noopener">' + esc(WSRC.name) + '</a>、区の更新 ' + esc(WSRC.upd) + '、確認日 ' + esc(WSRC.checked) + ')。選考は点数の高い順です。だから、順位は<b>行きたい順</b>で大丈夫です。このリストは、考えを整理して、申込書に写すためのものです。</p>';
   h += '<p style="margin:0 0 8px"><b>' + wish.length + ' / 10園</b>(第10希望まで書けます)</p>';
   if(!wish.length) h += '<p class="hint">下から園を追加してください。見学メモに入れた園が出ます。</p>';
+  var EZ = {easy:0, mid:0, hard:0, none:0};
+  function ezOf(v){ var f = v.fac && HK.facMap[v.fac]; return f && HK.ease ? HK.ease(f) : null; }
   wish.forEach(function(id, i){
-    var v = wVisit(id), s = vst(v), r = wR2(v);
-    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + esc(v.name) + '</b><small>' + esc(v.area || '') + ' / 総合評価 ' + HK.grade(v).l + ' / ' + (s && s.vac !== null ? '入園可能 ' + s.vac + '人・全希望の倍率 ' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small></span>'
+    var v = wVisit(id), s = vst(v), r = wR2(v), ez = ezOf(v);
+    if(ez) EZ[ez.k]++; else EZ.none++;
+    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + esc(v.name) + '</b>' + (ez ? ' <span class="ezb ez-' + ez.k + '" title="' + esc(ez.why) + '">' + ez.l + '</span>' : '') + '<small>' + esc(v.area || '') + ' / 総合評価 ' + HK.grade(v).l + ' / ' + (s && s.vac !== null ? '入園可能 ' + s.vac + '人・全希望の倍率 ' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small></span>'
       + '<span style="display:flex; gap:4px; flex:none"><button type="button" data-w="up" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0" aria-label="外す">✕</button></span></div>';
   });
   var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
@@ -915,6 +921,15 @@ function renderWish(){
   }
   if(wish.length > 1){
     h += '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px"><button type="button" id="hkWs1" style="flex:1">倍率が低い順に並べる</button><button type="button" id="hkWs2" style="flex:1">評価が高い順に並べる</button></div>';
+  }
+  if(wish.length){
+    var bal = [];
+    h += '<div class="ezbox"><b>合格しやすさの目安</b><span>入りやすい ' + EZ.easy + '園 / ふつう ' + EZ.mid + '園 / 厳しい ' + EZ.hard + '園</span></div>';
+    if(EZ.easy === 0 && wish.length >= 2) bal.push('「入りやすい」目安の園がありません。通える範囲で、倍率の低い園も1〜2園入れると安心です。');
+    if(EZ.hard === wish.length) bal.push('すべて「厳しい」目安です。認可外や一時預かりなど、ほかの預け先も同時に探しておくと安心です。');
+    if(EZ.easy === wish.length && wish.length >= 3) bal.push('入りやすい園だけです。行きたい園があれば、上の方に入れても大丈夫です。区は順位で不利にならないと説明しています。');
+    if(!bal.length && wish.length >= 2) bal.push('入りやすい園と厳しい園がバランスよく入っています。');
+    h += '<ul class="hint" style="margin:6px 0 0; padding-left:1.2em; display:grid; gap:4px">' + bal.map(function(n){ return '<li>' + esc(n) + '</li>'; }).join('') + '<li>目安は、昨年の入園者の点数分布と昨年の倍率から出した参考です。合格を約束するものではありません。</li></ul>';
   }
   /* ひとこと */
   var notes = [], withR = wish.map(function(id){ return wR2(wVisit(id)); }).filter(function(x){ return x !== null; });
