@@ -1971,7 +1971,7 @@ function syJoin(code, manual){
   var changes = [];
   function render(){
     var ws = watched(), h = '';
-    h += '<p class="hint" style="margin:0 0 8px">見学メモに入れた園の「いま入れる空き」を、前に見たときと比べてお知らせします。区の空き表が更新されて、アプリに反映されると表示されます。スマホの通知やメールは送りません。アプリを開いたときに出ます。</p>';
+    h += '<p class="hint" style="margin:0 0 8px"><b>空きが変わると、ここに出ます</b><br>① トップの上に「🔔空きが変わった園があります」と出ます。<br>② この画面に「◯◯園(1歳児): 0人 → 2人」と出ます。<br>メールや通知は送りません。アプリを開いたときに出ます。</p>';
     if(!ws.length) h += '<p class="hint">見学メモに園を入れると、ここで空きの変化を見られます。</p>';
     else if(!snap.d || !Object.keys(snap.d).length) h += '<p class="hint">いまの空きを記録しました。次に区の空き表が更新されたとき、変わった園をお知らせします。</p>';
     if(changes.length) h += '<ul class="advl">' + changes.map(function(c){ return '<li><b>' + esc(c.v.name) + '</b>(' + c.c + '歳児): ' + fmt(c.a) + ' → <b>' + fmt(c.b) + '</b>' + ((c.b || 0) > (c.a || 0) ? ' 空きが増えました' : ' 空きが減りました') + '</li>'; }).join('') + '</ul><button type="button" class="mini" id="hkWok" style="margin-top:6px">確認した</button>';
