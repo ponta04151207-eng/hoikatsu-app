@@ -127,6 +127,9 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '.vmic{display:inline-flex; align-items:center; gap:4px; margin:4px 0 0; min-height:30px!important; padding:2px 12px!important; font-size:12px!important; font-weight:700; border-radius:999px; border:1.5px solid #bfe3d8; background:#f1faf7; color:#1d6b5c; box-shadow:none!important}',
+    '.vmic.on{background:#fde0df; border-color:#e9a29e; color:#a3281f}',
+    '.vmsg{display:block; font-size:11px; color:#a3281f; margin-top:3px}',
     '#hkWish .mysc{display:flex; align-items:baseline; justify-content:space-between; margin:6px 0; padding:8px 14px; border-radius:12px; background:linear-gradient(135deg,#e8f6f1,#fffaf0); border:1.5px solid #bfe3d8}',
     '#hkWish .mysc span{font-size:13px; font-weight:700; color:#2f6f60}',
     '#hkWish .mysc b{font-size:28px; line-height:1; color:#0f8a7a}#hkWish .mysc b small{font-size:13px; margin-left:2px}',
@@ -2027,5 +2030,35 @@ function syJoin(code, manual){
     }
   }
   setTimeout(init, 400);
+})();
+/* ===== 見学メモの入力欄に「声で入力」ボタン ===== */
+(function(){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition, cur = null;
+  ['v-good', 'v-bad', 'v-ask', 'v-memo'].forEach(function(id){
+    var ta = document.getElementById(id); if(!ta || ta.parentNode.querySelector('.vmic[data-for="' + id + '"]')) return;
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'vmic'; b.setAttribute('data-for', id);
+    b.innerHTML = '🎤 声で入力する';
+    var msg = document.createElement('span'); msg.className = 'vmsg'; msg.setAttribute('role', 'status');
+    ta.insertAdjacentElement('afterend', msg); ta.insertAdjacentElement('afterend', b);
+    function stop(){ if(cur){ try{ cur.rec.stop(); }catch(e){} } }
+    b.addEventListener('click', function(){
+      if(!SR){ msg.textContent = 'このブラウザは、声の入力に対応していません。スマホのキーボードにあるマイク(🎤)を使ってください。'; return; }
+      if(cur && cur.btn === b){ stop(); return; }
+      stop();
+      var rec = new SR(), base = ta.value, fin = '';
+      rec.lang = 'ja-JP'; rec.interimResults = true; rec.continuous = true;
+      cur = {rec: rec, btn: b};
+      b.classList.add('on'); b.innerHTML = '⏹ 止める(聞いています…)'; msg.textContent = '';
+      rec.onresult = function(e){
+        var tmp = '';
+        for(var i = e.resultIndex; i < e.results.length; i++){ if(e.results[i].isFinal) fin += e.results[i][0].transcript; else tmp += e.results[i][0].transcript; }
+        ta.value = base + (base && !/\n$/.test(base) ? '\n' : '') + fin + tmp;
+        ta.dispatchEvent(new Event('input', {bubbles: true}));
+      };
+      rec.onerror = function(e){ msg.textContent = (e.error === 'not-allowed' || e.error === 'service-not-allowed') ? 'マイクが許可されていません。ブラウザの設定でマイクを許可してください。' : '聞き取れませんでした。もう一度、押してください。'; };
+      rec.onend = function(){ b.classList.remove('on'); b.innerHTML = '🎤 声で入力する'; if(cur && cur.btn === b) cur = null; ta.dispatchEvent(new Event('change', {bubbles: true})); };
+      try{ rec.start(); }catch(e){ msg.textContent = '始められませんでした。もう一度、押してください。'; b.classList.remove('on'); b.innerHTML = '🎤 声で入力する'; cur = null; }
+    });
+  });
 })();
 })();
