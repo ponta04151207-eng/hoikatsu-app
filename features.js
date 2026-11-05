@@ -1899,7 +1899,7 @@ function syJoin(code, manual){
   mk('tabDist', '📊', '各園の点数比較', '自分の点数での入りやすさ', function(){ document.getElementById('tabFind').click(); window.scrollTo(0, 0); });
   mk('tabAdv', '📈', '点数アップ', 'アドバイス', function(){ document.getElementById('tabIndex').click(); setTimeout(function(){ var t = document.getElementById('advPanel'); if(t) t.scrollIntoView(); }, 150); });
   mk('tabEase', '🎯', '合格しやすさ', '希望園ごとの目安', function(){ document.getElementById('tabVisit').click(); setTimeout(function(){ var d = document.getElementById('hkD6'); if(d){ d.open = true; d.scrollIntoView(); } }, 150); });
-  mk('tabAlert', '🔔', '空きアラート', '空きが変わったらお知らせ', function(){ document.getElementById('tabVisit').click(); setTimeout(function(){ var d = document.getElementById('hkD7'); if(d){ d.open = true; d.scrollIntoView(); } }, 150); });
+  mk('tabAlert', '🔔', '空きアラート', '園の空き状況が<br>変更されたらお知らせ', function(){ document.getElementById('tabVisit').click(); setTimeout(function(){ var d = document.getElementById('hkD7'); if(d){ d.open = true; d.scrollIntoView(); } }, 150); });
   var pd = document.getElementById('tabPaid'); if(pd) nav.appendChild(pd);
 })();
 
