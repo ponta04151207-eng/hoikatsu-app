@@ -127,6 +127,8 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '.tabs button.hero > span:nth-child(2) > span > span:last-child{font-size:14px!important; font-weight:900!important; color:#6b3f00!important; -webkit-text-stroke:.3px #6b3f00}',
+    '.feat li.fpd ~ li .ft b{font-size:15.5px!important; font-weight:900!important; color:#0b5f52!important; -webkit-text-stroke:.3px #0b5f52; letter-spacing:.01em}',
     '#viewDocs a.olink{display:block; margin:8px 0 2px; padding:9px 12px; border-radius:999px; background:#0f8a7a; color:#fff!important; text-align:center; font-size:13px; font-weight:800; text-decoration:none!important; box-shadow:0 2px 0 #0a6b5e}',
     '.feat li.fpd{display:flex!important; align-items:center; gap:8px; margin:12px 0 4px!important; padding:6px 10px!important; border:1.5px solid #e8c15a!important; border-radius:10px; background:linear-gradient(135deg,#fff6d6,#fffaf0); list-style:none; font-size:13px; font-weight:800; color:#8a5a00}',
     '.feat .fbd{display:inline-block; margin-left:6px; padding:0 8px; border-radius:999px; font-size:11px; font-weight:800; line-height:1.6; vertical-align:1px; white-space:nowrap}',
