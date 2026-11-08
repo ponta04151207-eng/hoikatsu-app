@@ -362,7 +362,7 @@ css.textContent = [
   '#vForm .nav{margin-top:10px!important; gap:8px!important}#vForm .nav button{min-height:36px!important; height:36px!important; font-size:13px!important; padding:0 14px!important}',
   '#vForm #vItems *{font-size:12.5px!important}',
   '.tabs .tgl{grid-column:span 12!important; font-size:11px; font-weight:700; color:var(--muted); display:flex; align-items:center; gap:6px; margin:2px 2px 0; line-height:1.2}.tabs .tgl::after{content:""; flex:1; height:1px; background:var(--line)}.tabs .tgl.pd{color:#a8730a; margin-top:6px}.tabs .tgl.pd::after{background:#f0d9a0}',
-  '#tabIndex{order:2}#tabAzuke{order:3}#tabFind{order:4}#tabCmp{order:5}#tabVisit{order:6}#tabAbout{order:7}#tabSet{order:8}#tabAlert{order:10}#tabSched{order:11}#tabDocs{order:12}#tabDist{order:13}#tabCmp3{order:14}#tabEase{order:15}#tabAdv{order:16}#tabWish{order:17}#tabPlus{order:18}#tabPaid{order:19}.tabs .tgl.fr{order:1}.tabs .tgl.pd{order:9}',
+  '#tabIndex{order:2}#tabAzuke{order:3}#tabFind{order:4}#tabCmp{order:5}#tabVisit{order:6}#tabAbout{order:7}#tabSet{order:8}#tabAlert{order:10}#tabCmp3{order:11}#tabEase{order:12}#tabWish{order:13}#tabDist{order:14}#tabSched{order:15}#tabPlus{order:16}#tabDocs{order:17}#tabAdv{order:18}#tabPaid{order:19}.tabs .tgl.fr{order:1}.tabs .tgl.pd{order:9}',
   '#tabIndex,#tabAzuke,#tabAbout,#tabSet,#tabSched,#tabDocs{grid-column:span 6!important}#tabFind,#tabCmp,#tabVisit{grid-column:span 4!important}#tabPlus,#tabCmp3,#tabWish,#tabDist,#tabAdv,#tabEase,#tabAlert,#tabPaid{grid-column:span 6!important}',
   '#tabSched:not([aria-selected="true"]),#tabDocs:not([aria-selected="true"]),#tabPlus,#tabCmp3,#tabDist,#tabPaid:not([aria-selected="true"]),#tabAdv,#tabEase,#tabAlert,#tabWish{background:#fffaf0!important; border-color:#f0d9a0!important}',
   '.tabs button.hero svg.cr,.tabs button.hero .ti svg,.tabs button svg.cr,.tabs button.hero span svg{width:12px!important; height:12px!important; flex:none}',
@@ -1231,15 +1231,15 @@ var viewP = document.createElement('div'); viewP.id = 'viewPaid'; viewP.hidden =
 view.parentNode.insertBefore(viewP, view);
 function hidePaid(){ viewP.hidden = true; tbP.setAttribute('aria-selected', 'false'); if(typeof viewS !== 'undefined' && viewS){ viewS.hidden = true; tbS.setAttribute('aria-selected', 'false'); } }
 var PAID = [
-  ['sched', 'スケジュール', '区の申込みの日程と、やることリスト。締切が近づくと、画面の上にお知らせが出ます。カレンダーにも入れられます。'],
-  ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
+  ['watch', '空きアラート', '見学メモの園の空きが変わったら、アプリを開いたときにお知らせ(メールなし)。毎月1日・15日のカレンダー予定も入れられます。'],
   ['cmp3', '園を比べる(2園から有料)', '無料で見られるのは1園までです。2園以上を並べて比べられます。'],
-  ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。'],
-  ['dist', '各園の点数比較', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!※高い方でも確実に入れるわけではありません。ご了承ください。無料版は、1園だけ見られます。', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">分布でわかること・わからないこと</b></summary><ul class="hint" style="margin:6px 0 0; padding-left:1.2em"><li><b>わかる</b>: 自分の点数が、昨年入園した人の中で高い方か低い方か。「園を探す」の各園カードに、地域ごとの分布とあなたの位置を出します。</li><li><b>わかる</b>: 同じ点数の人が多い区分は、ほかの人と並びやすいということ。並んだ場合は、区の同点時の順位で決まります。</li><li><b>わからない</b>: 入れるかどうか。入園は、点数の高い順に、希望した園の空きへ入っていく形で決まるため、人気の園は高い点数が必要になります。点数が分布の上の方でも、希望が人気の園だけなら入れないことがあります。</li><li><b>わからない</b>: 今年の申込者数。令和9年は、申込者数や点数表が変わる可能性があります。</li><li>見方のコツ: 点数が高いほど有利です。第1希望の倍率が低めの園も混ぜて、希望を多めに書くのが基本です(希望園の数の制限は区に確認してください)。</li></ul></details>' + '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。<br>実際は、令和8年(2026年)4月に入園した児童の点数の分布(区の公表資料)と、あなたの予想点数(令和9年4月入園の申込み想定)を並べます。</small></details>'],
-  ['wish', '希望園を並べる', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。'],
   ['ease', '合格しやすさの目安(園を並べる)', '希望園ごとに「入りやすい・ふつう・厳しい」の目安が出ます。10園のバランスの提案つき。合格の約束ではありません。'],
-  ['adv', '点数アップのアドバイス', 'まだ使っていない加点や、点数が届きにくいときの別の預け先を提案します。'],
-  ['watch', '空きアラート', '見学メモの園の空きが変わったら、アプリを開いたときにお知らせ(メールなし)。毎月1日・15日のカレンダー予定も入れられます。']
+  ['wish', '希望園を並べる', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。'],
+  ['dist', '各園の点数比較', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!※高い方でも確実に入れるわけではありません。ご了承ください。無料版は、1園だけ見られます。', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">分布でわかること・わからないこと</b></summary><ul class="hint" style="margin:6px 0 0; padding-left:1.2em"><li><b>わかる</b>: 自分の点数が、昨年入園した人の中で高い方か低い方か。「園を探す」の各園カードに、地域ごとの分布とあなたの位置を出します。</li><li><b>わかる</b>: 同じ点数の人が多い区分は、ほかの人と並びやすいということ。並んだ場合は、区の同点時の順位で決まります。</li><li><b>わからない</b>: 入れるかどうか。入園は、点数の高い順に、希望した園の空きへ入っていく形で決まるため、人気の園は高い点数が必要になります。点数が分布の上の方でも、希望が人気の園だけなら入れないことがあります。</li><li><b>わからない</b>: 今年の申込者数。令和9年は、申込者数や点数表が変わる可能性があります。</li><li>見方のコツ: 点数が高いほど有利です。第1希望の倍率が低めの園も混ぜて、希望を多めに書くのが基本です(希望園の数の制限は区に確認してください)。</li></ul></details>' + '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。<br>実際は、令和8年(2026年)4月に入園した児童の点数の分布(区の公表資料)と、あなたの予想点数(令和9年4月入園の申込み想定)を並べます。</small></details>'],
+  ['sched', 'スケジュール', '区の申込みの日程と、やることリスト。締切が近づくと、画面の上にお知らせが出ます。カレンダーにも入れられます。'],
+  ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。'],
+  ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
+  ['adv', '点数アップのアドバイス', 'まだ使っていない加点や、点数が届きにくいときの別の預け先を提案します。']
 ];
 function planHtml(){
   var P = [
