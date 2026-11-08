@@ -68,20 +68,16 @@ var TASKS = [
 
 /* ===== 見学メモ プラス: 質問リスト ===== */
 var QUESTIONS = [
-  '定員、クラスの人数、先生の人数',
+  'クラスの人数と、先生の人数(1人の先生が何人みるか)',
   '慣らし保育の期間と進め方',
-  '延長保育の時間と料金',
-  '持ち物(布団・おむつ・着替え)と、名前つけの量',
-  '給食、アレルギー対応、離乳食の進め方',
   '発熱時のお迎えの目安と、病児・病後児保育の使い方',
-  '午睡(お昼寝)の時間と方法',
-  '外遊び・散歩の回数と、園庭の使い方',
+  '給食、アレルギー対応、離乳食の進め方',
+  '持ち物(布団・おむつ・着替え)と、名前つけの量',
+  '延長保育の時間と料金',
   '送迎の時間帯、駐輪場、きょうだいがいる場合の配慮',
   '保育料のほかにかかる費用(用品代・行事費など)',
-  '担任の決め方と、先生の入れ替わりの様子',
-  '行事の数と、保護者が参加するもの',
-  '連絡帳(紙・アプリ)と、保護者への連絡の方法',
-  '地震・火事・不審者のときの避難と対策'
+  '先生の入れ替わりの様子',
+  '連絡帳(紙・アプリ)と、保護者への連絡の方法'
 ];
 
 
@@ -127,6 +123,10 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '.vph{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:6px 0 0}',
+    '.vph .vphb{min-height:28px!important; padding:1px 10px!important; font-size:12px!important}',
+    '.vph .vphi{width:40px; height:40px; object-fit:cover; border-radius:8px; border:1px solid #d8e3e8}',
+    '.vph .vphm{font-size:11px; color:#a3281f}',
     '.feat li.fpd ~ li .ft b{font-size:15.5px!important; font-weight:900!important; color:#0b5f52!important; -webkit-text-stroke:.3px #0b5f52; letter-spacing:.01em}',
     '#viewDocs a.olink{display:block; margin:8px 0 2px; padding:9px 12px; border-radius:999px; background:#0f8a7a; color:#fff!important; text-align:center; font-size:13px; font-weight:800; text-decoration:none!important; box-shadow:0 2px 0 #0a6b5e}',
     '.feat li.fpd{display:flex!important; align-items:center; gap:8px; margin:12px 0 4px!important; padding:6px 10px!important; border:1.5px solid #e8c15a!important; border-radius:10px; background:linear-gradient(135deg,#fff6d6,#fffaf0); list-style:none; font-size:13px; font-weight:800; color:#8a5a00}',
@@ -2096,5 +2096,47 @@ function syJoin(code, manual){
       try{ rec.start(); }catch(e){ msg.textContent = '始められませんでした。もう一度、押してください。'; b.classList.remove('on'); b.innerHTML = '🎤 声で入力する'; cur = null; }
     });
   });
+})();
+/* ===== 見学した園のカードに「写真」(見学メモ プラスの写真に入ります) ===== */
+(function(){
+  var list = document.getElementById('vList'); if(!list) return;
+  var busy = false;
+  function getAll(){
+    return new Promise(function(res){
+      try{
+        var r = indexedDB.open('hoikatsu-photos', 1);
+        r.onupgradeneeded = function(){ r.result.createObjectStore('p', {keyPath: 'k'}); };
+        r.onsuccess = function(){ try{ var q = r.result.transaction('p', 'readonly').objectStore('p').getAll(); q.onsuccess = function(){ res(q.result || []); }; q.onerror = function(){ res([]); }; }catch(e){ res([]); } };
+        r.onerror = function(){ res([]); };
+      }catch(e){ res([]); }
+    });
+  }
+  function decorate(){
+    if(busy) return; busy = true;
+    var btns = list.querySelectorAll('[data-act="edit"]'), need = [];
+    Array.prototype.forEach.call(btns, function(b){ var c = b.closest('th'); if(c && !c.querySelector('.vph')) need.push({c: c, id: b.getAttribute('data-id')}); });
+    if(!need.length){ busy = false; return; }
+    getAll().then(function(all){
+      need.forEach(function(n){
+        if(n.c.querySelector('.vph')) return;
+        var ps = all.filter(function(p){ return p.v === n.id; }).sort(function(a, b){ return a.t - b.t; });
+        var d = document.createElement('div'); d.className = 'vph';
+        d.innerHTML = '<button type="button" class="mini vphb" data-id="' + n.id + '">📷 写真' + (PREMIUM ? (ps.length ? '(' + ps.length + '枚)' : 'をつける') : '(有料)') + '</button>'
+          + (PREMIUM ? ps.slice(0, 4).map(function(p){ return '<img src="' + p.d + '" alt="見学の写真" class="vphi">'; }).join('') : '') + '<span class="vphm"></span>';
+        n.c.appendChild(d);
+      });
+      busy = false;
+    });
+  }
+  list.addEventListener('click', function(e){
+    var b = e.target.closest('.vphb'), im = e.target.closest('.vphi'); if(!b && !im) return;
+    var c = (b || im).closest('th'), id = c.querySelector('[data-act="edit"]').getAttribute('data-id');
+    if(!PREMIUM){ c.querySelector('.vphm').innerHTML = ' 写真は、有料の「見学メモ プラス」で使えます。'; return; }
+    var s = document.getElementById('hkSel'); if(!s) return;
+    s.value = id; s.dispatchEvent(new Event('change', {bubbles: true}));
+    var d = document.getElementById('hkD1'); if(d){ d.open = true; setTimeout(function(){ d.scrollIntoView({block: 'start'}); }, 80); }
+  });
+  new MutationObserver(function(){ setTimeout(decorate, 50); }).observe(list, {childList: true});
+  setTimeout(decorate, 500);
 })();
 })();

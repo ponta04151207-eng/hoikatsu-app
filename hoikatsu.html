@@ -1917,16 +1917,16 @@ window.SHISUU_DIST.r8 = {
 
   /* ---- 見学メモ(記録はこのブラウザのlocalStorageに保存。使えない環境では画面を閉じるまでだけ保持) ---- */
   var V_ITEMS = [
-    {id:'policy',  l:'保育方針・1日の流れ'},
-    {id:'teacher', l:'先生の雰囲気・子どもへの声かけ'},
-    {id:'yard',    l:'園庭・室内の広さと清潔さ'},
-    {id:'lunch',   l:'給食(自園調理・アレルギー対応)'},
-    {id:'hours',   l:'開所時間・延長保育'},
-    {id:'route',   l:'送迎の動線・駐輪場'},
-    {id:'goods',   l:'おむつ・布団など持ち物の負担'},
+    {id:'teacher', l:'先生の人数・雰囲気'},
     {id:'nareshi', l:'慣らし保育の期間と進め方'},
-    {id:'sick',    l:'発熱時の対応・病児保育'}
+    {id:'sick',    l:'発熱時のお迎え・病児保育'},
+    {id:'lunch',   l:'給食・アレルギー対応'},
+    {id:'goods',   l:'持ち物(布団・おむつ)の負担'},
+    {id:'hours',   l:'延長保育・開所時間'},
+    {id:'route',   l:'送迎・駐輪場'},
+    {id:'cost',    l:'保育料以外の費用(用品代・行事費)'}
   ];
+
   var V_AREAS = ['世田谷','北沢','玉川','砧','烏山'];
   var V_STATUS = {g:{t:'良い', s:'○'}, w:{t:'気になる', s:'△'}, q:{t:'聞き忘れ', s:'？'}};
   var CLASSES = [
@@ -2081,7 +2081,7 @@ window.SHISUU_DIST.r8 = {
       : '「比べる」にチェックを入れた園が並びます(3園まで)。4園以上は、「見学メモ プラス」の「すべての園を並べて比べる」で見られます。';
     var sel = all.slice(0, cmpMax());
     if(sel.length < (window.HK_PREMIUM === false ? 1 : 2)){ $('vCmp').innerHTML = '<p class="hint">'+(window.HK_PREMIUM === false ? '1園' : '2園以上')+'にチェックを入れると、比較表が出ます。</p>'; return; }
-    var SHORTL = {'先生の雰囲気・子どもへの声かけ':'先生の雰囲気','園庭・室内の広さと清潔さ':'園庭・室内','送迎の動線・駐輪場':'送迎・駐輪場','おむつ・布団など持ち物の負担':'持ち物の負担','慣らし保育の期間と進め方':'慣らし保育','発熱時の対応・病児保育':'発熱時の対応','保育方針・1日の流れ':'保育方針','開所時間・延長保育':'開所時間','給食(自園調理・アレルギー対応)':'給食'};
+    var SHORTL = {'先生の人数・雰囲気':'先生の人数・雰囲気','慣らし保育の期間と進め方':'慣らし保育','発熱時のお迎え・病児保育':'発熱時の対応','給食・アレルギー対応':'給食','持ち物(布団・おむつ)の負担':'持ち物の負担','延長保育・開所時間':'延長保育','送迎・駐輪場':'送迎・駐輪場','保育料以外の費用(用品代・行事費)':'保育料以外の費用'};
     function lab2(l){ return '<span title="' + esc(l) + '">' + esc(SHORTL[l] || l) + '</span>'; }
     function row(label, fn, sub){ return '<tr><th scope="row">' + lab2(label, sub) + '</th>' + sel.map(function(v){ return '<td>' + fn(v) + '</td>'; }).join('') + '</tr>'; }
     function num(fn){ return function(v){ var s = sv(v); var x = s ? fn(s) : null; return x === null || x === undefined ? '―' : x; }; }
@@ -2815,6 +2815,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=185"></script>
+<script src="features.js?v=187"></script>
 </body>
 </html>
