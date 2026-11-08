@@ -1233,7 +1233,7 @@ function hidePaid(){ viewP.hidden = true; tbP.setAttribute('aria-selected', 'fal
 var PAID = [
   ['sched', 'スケジュール', '区の申込みの日程と、やることリスト。締切が近づくと、画面の上にお知らせが出ます。カレンダーにも入れられます。'],
   ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
-  ['cmp3', '園を比べる(3園から有料)', '無料で比べられるのは2園までです。3園以上を並べて比べられます。'],
+  ['cmp3', '園を比べる(2園から有料)', '無料で見られるのは1園までです。2園以上を並べて比べられます。'],
   ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。'],
   ['dist', '各園の点数比較', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!※高い方でも確実に入れるわけではありません。ご了承ください。無料版は、1園だけ見られます。', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">分布でわかること・わからないこと</b></summary><ul class="hint" style="margin:6px 0 0; padding-left:1.2em"><li><b>わかる</b>: 自分の点数が、昨年入園した人の中で高い方か低い方か。「園を探す」の各園カードに、地域ごとの分布とあなたの位置を出します。</li><li><b>わかる</b>: 同じ点数の人が多い区分は、ほかの人と並びやすいということ。並んだ場合は、区の同点時の順位で決まります。</li><li><b>わからない</b>: 入れるかどうか。入園は、点数の高い順に、希望した園の空きへ入っていく形で決まるため、人気の園は高い点数が必要になります。点数が分布の上の方でも、希望が人気の園だけなら入れないことがあります。</li><li><b>わからない</b>: 今年の申込者数。令和9年は、申込者数や点数表が変わる可能性があります。</li><li>見方のコツ: 点数が高いほど有利です。第1希望の倍率が低めの園も混ぜて、希望を多めに書くのが基本です(希望園の数の制限は区に確認してください)。</li></ul></details>' + '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。<br>実際は、令和8年(2026年)4月に入園した児童の点数の分布(区の公表資料)と、あなたの予想点数(令和9年4月入園の申込み想定)を並べます。</small></details>'],
   ['wish', '希望園を並べる', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。'],
@@ -1272,7 +1272,7 @@ function renderPaid(){
   PAID.forEach(function(x){
     h += '<div class="ev"><div class="d">' + CR + ' ' + esc(x[1]) + ' <span class="badge" style="font-size:12px; font-weight:700; background:var(--pop-soft); color:var(--minus); border-radius:999px; padding:1px 10px">' + st + '</span></div><div class="n">' + esc(x[2]) + '</div>' + (x[3] || '') + '<button type="button" data-p="' + x[0] + '" style="width:max-content; min-height:40px; padding:0 18px; margin-top:4px">開く</button></div>';
   });
-  h += '<p class="hint" style="margin:10px 0 0">無料のまま使えるもの: 点数シミュレーター、園を探す、園を比べる、見学メモ、園を比べる(2園まで)。</p></section>';
+  h += '<p class="hint" style="margin:10px 0 0">無料のまま使えるもの: 点数シミュレーター、園を探す、園を比べる、見学メモ、園を比べる(1園まで)。</p></section>';
   h += '<section class="panel"><h2>' + CR + ' 料金プラン</h2>' + planHtml() + '</section>';
   viewP.innerHTML = h;
 }
@@ -1916,10 +1916,10 @@ function syJoin(code, manual){
     setTimeout(function(){ var t = document.getElementById('hkPlus'); if(t) t.scrollIntoView(); }, 150);
   });
   var c = document.getElementById('tabCmp');
-  if(c){ var sp = c.querySelectorAll('span')[1]; if(sp){ sp.insertAdjacentHTML('afterend', '<small style="display:inline-flex; align-items:center; gap:2px; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap">(' + CR + '3園から有料)</small>'); } }
+  if(c){ var sp = c.querySelectorAll('span')[1]; if(sp){ sp.insertAdjacentHTML('afterend', '<small style="display:inline-flex; align-items:center; gap:2px; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap">(' + CR + '2園から有料)</small>'); } }
 })();
 
-/* ===== 有料タブに「園を比べる(3園から)」「各園の点数比較」を追加 ===== */
+/* ===== 有料タブに「園を比べる(2園から)」「各園の点数比較」を追加 ===== */
 (function(){
   var nav = document.querySelector('.tabs'); if(!nav || document.getElementById('tabCmp3')) return;
   function mk(id, ico, t1, t2, go){
@@ -1927,7 +1927,7 @@ function syJoin(code, manual){
     b.innerHTML = '<span class="ti">' + ico + '</span><span style="text-align:left"><span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap!important">' + CR + '<span>' + t1 + '</span></span><small style="display:block; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap!important; letter-spacing:-0.03em; padding-left:13px">' + t2 + '</small></span>';
     nav.appendChild(b); b.addEventListener('click', go);
   }
-  mk('tabCmp3', '⚖️', '園を比べる', '(3園から有料)', function(){ document.getElementById('tabCmp').click(); window.scrollTo(0, 0); });
+  mk('tabCmp3', '⚖️', '園を比べる', '(2園から有料)', function(){ document.getElementById('tabCmp').click(); window.scrollTo(0, 0); });
   mk('tabWish', '🏁', '園を並べる', '第10希望まで', function(){ document.getElementById('tabVisit').click(); setTimeout(function(){ var d = document.getElementById('hkD6'); if(d){ d.open = true; d.scrollIntoView(); } }, 150); });
   mk('tabDist', '📊', '各園の点数比較', '自分の点数での入りやすさ', function(){ document.getElementById('tabFind').click(); window.scrollTo(0, 0); });
   mk('tabAdv', '📈', '点数アップ', 'アドバイス', function(){ document.getElementById('tabIndex').click(); setTimeout(function(){ var t = document.getElementById('advPanel'); if(t) t.scrollIntoView(); }, 150); });
@@ -1936,11 +1936,11 @@ function syJoin(code, manual){
   var pd = document.getElementById('tabPaid'); if(pd) nav.appendChild(pd);
 })();
 
-/* ===== 園を比べるのタイトルの「(3園から有料)」に王冠 ===== */
+/* ===== 園を比べるのタイトルの「(2園から有料)」に王冠 ===== */
 (function(){
   var t = document.getElementById('cmpPaidTag'); if(!t) return;
   t.style.display = 'inline-flex'; t.style.alignItems = 'center'; t.style.gap = '2px'; t.style.verticalAlign = 'middle';
-  t.innerHTML = '(' + CR + '<span>3園から有料</span>)';
+  t.innerHTML = '(' + CR + '<span>2園から有料</span>)';
   var sv = t.querySelector('svg'); if(sv){ sv.setAttribute('width', '13'); sv.setAttribute('height', '13'); sv.style.verticalAlign = 'middle'; }
 })();
 
