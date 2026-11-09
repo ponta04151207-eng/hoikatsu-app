@@ -179,6 +179,10 @@ textarea{min-height:100px; resize:vertical}
 .seg span{display:block; text-align:center; min-height:48px; line-height:44px; border:2px solid var(--line); border-radius:999px; font-size:15px; color:var(--muted); background:var(--field)}
 .seg input:checked + span.g{background:var(--accent-soft); color:var(--plus); border-color:var(--plus); font-weight:700}
 .seg input:checked + span.w{background:var(--pop-soft); color:var(--minus); border-color:var(--minus); font-weight:700}
+.seg input:checked + span.b{background:#fde8e8; color:#b3261e; border-color:#b3261e; font-weight:700}
+.cusn{flex:1; min-width:0; font-size:13px; padding:4px 8px; border:1.5px dashed var(--line); border-radius:8px}
+.rs{display:block; font-size:11px; font-weight:400; margin-top:2px}.rs .g{color:var(--plus)}.rs .w{color:var(--minus)}.rs .b{color:#b3261e}
+.cmp .s.b{color:#b3261e}.vtbl .cnt .b{color:#b3261e}
 .seg input:checked + span.q{background:var(--note); color:var(--note-fg); border-color:var(--note-fg); font-weight:700}
 .seg input:focus-visible + span{outline:3px solid var(--pop); outline-offset:2px}
 .tblwrap{overflow-x:auto; margin-top:8px; border-radius:16px}
@@ -532,7 +536,7 @@ img{max-width:100%}
       </div>
       <div id="vRateBox">
       <h3 class="grp" style="margin-top:18px">確認した項目</h3>
-      <p class="hint" style="margin:0 0 6px"><b>○</b> 良い　<b>△</b> 気になる　<b>？</b> 聞き忘れ。聞けなかった項目は「？」のままにすると、次の見学や問い合わせで確認できます。</p>
+      <p class="hint" style="margin:0 0 6px"><b>○</b> よい　<b>△</b> ふつう　<b>✕</b> いまいち。もう一度押すと未評価にもどります。下の2つは自分で項目名を決められます。</p>
       <div id="vItems"></div>
       <div id="vGrade" class="gradebox" aria-live="polite"></div>
       </div>
@@ -1928,7 +1932,15 @@ window.SHISUU_DIST.r8 = {
   ];
 
   var V_AREAS = ['世田谷','北沢','玉川','砧','烏山'];
-  var V_STATUS = {g:{t:'良い', s:'○'}, w:{t:'気になる', s:'△'}, q:{t:'聞き忘れ', s:'？'}};
+  var V_STATUS = {g:{t:'良い', s:'○'}, w:{t:'ふつう', s:'△'}, b:{t:'いまいち', s:'✕'}, q:{t:'未評価', s:'―'}};
+  /* 自分で考えた項目(2つまで。名前はこの端末に保存。全部の園で共通) */
+  var CUS_KEY = 'hoikatsu-vitems-v1', V_CORE = V_ITEMS.length, cusNames = ['', ''];
+  try{ var cj = JSON.parse(localStorage.getItem(CUS_KEY) || 'null'); if(cj && cj.length) cusNames = [String(cj[0] || ''), String(cj[1] || '')]; }catch(e){}
+  function syncCus(){
+    V_ITEMS.length = V_CORE;
+    cusNames.forEach(function(n, i){ if(n.trim()) V_ITEMS.push({id:'c' + (i + 1), l:n.trim(), cus:true}); });
+  }
+  syncCus();
   var CLASSES = [
     '0歳児クラス(令和8年4月2日以降生まれ)',
     '1歳児クラス(令和7年4月2日〜令和8年4月1日生まれ)',
@@ -1972,7 +1984,7 @@ window.SHISUU_DIST.r8 = {
   var cls = 1;
   try{ var cs0 = localStorage.getItem(C_KEY); if(cs0 !== null && +cs0 >= 0 && +cs0 <= 5) cls = +cs0; }catch(e){}
 
-  function pack(str){ var o = {}; V_ITEMS.forEach(function(it, i){ o[it.id] = str.charAt(i) || 'q'; }); return o; }
+  function pack(str){ var o = {}; V_ITEMS.forEach(function(it, i){ o[it.id] = (it.cus ? '' : str.charAt(i)) || 'q'; }); return o; }
   function vLoad(){
     try{ var s = localStorage.getItem(V_KEY); if(s !== null) return JSON.parse(s); }catch(e){}
     return null;
@@ -2025,11 +2037,11 @@ window.SHISUU_DIST.r8 = {
     vSave();
   }
 
-  function counts(v){ var c = {g:0, w:0, q:0}; V_ITEMS.forEach(function(it){ c[v.st[it.id] || 'q']++; }); return c; }
+  function counts(v){ var c = {g:0, w:0, b:0, q:0}; V_ITEMS.forEach(function(it){ var k = v.st[it.id]; c[c.hasOwnProperty(k) ? k : 'q']++; }); return c; }
   function rk(v){ var s = sv(v); return (s && s.r2 !== null) ? s.r2 : 1e9; }
   /* 総合評価: ○と△の数から自動で出す。確認できた項目(○+△)が3つ未満のときは出さない。A=○が8割以上 B=5割以上 C=それ未満 */
   function grade(v){
-    var c = counts(v), n = c.g + c.w;
+    var c = counts(v), n = c.g + c.w + c.b;
     if(n < 3) return {l:'―', k:'n', s:0, c:c, n:n};
     var p = c.g / n, l = p >= 0.8 ? 'A' : p >= 0.5 ? 'B' : 'C';
     return {l:l, k:l.toLowerCase(), s:(l === 'A' ? 3 : l === 'B' ? 2 : 1) + p / 10, c:c, n:n, p:p};
@@ -2059,7 +2071,7 @@ window.SHISUU_DIST.r8 = {
           ? '<button type="button" class="mini" data-act="delok" data-id="'+v.id+'" style="color:var(--minus)">削除する</button><button type="button" class="mini" data-act="delno" data-id="'+v.id+'">やめる</button>'
           : '<button type="button" class="mini" data-act="edit" data-id="'+v.id+'">編集</button><button type="button" class="mini" data-act="del" data-id="'+v.id+'">削除</button>';
         var meta = esc(v.area) + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + '';
-        return '<tr><th scope="row"><span class="fn">' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</span><small>' + meta + '</small>'
+        return '<tr><th scope="row"><span class="fn">' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</span><small>' + meta + '</small>' + rsum(v)
           + ((v.good || v.bad || v.ask || v.memo) ? '<details class="vmemo"><summary>📝 メモあり<span>▼ 見る</span></summary>'
             + (v.good ? '<p><b>👍 良かったところ</b>' + esc(v.good) + '</p>' : '') + (v.bad ? '<p><b>⚠ 気になったところ</b>' + esc(v.bad) + '</p>' : '') + (v.ask ? '<p><b>❓ 次に聞くこと</b>' + esc(v.ask) + '</p>' : '') + (v.memo ? '<p><b>📝 そのほかのメモ</b>' + esc(v.memo) + '</p>' : '') + '</details>' : '')
           + '<span class="vb">' + btns + '</span></th>'
@@ -2072,6 +2084,7 @@ window.SHISUU_DIST.r8 = {
     renderCmp();
   }
 
+  function rsum(v){ var c = counts(v); return (c.g + c.w + c.b) ? '<small class="rs"><b class="g">○' + c.g + '</b> <b class="w">△' + c.w + '</b> <b class="b">✕' + c.b + '</b></small>' : ''; }
   function cmpMax(){ return window.HK_PREMIUM === false ? 1 : 3; }
   var CMP_FREE_MSG = '無料で見られるのは1園までです。2園から並べて比べるのは有料版(王冠のマーク)です。';
   function renderCmp(){
@@ -2086,8 +2099,8 @@ window.SHISUU_DIST.r8 = {
     function row(label, fn, sub){ return '<tr><th scope="row">' + lab2(label, sub) + '</th>' + sel.map(function(v){ return '<td>' + fn(v) + '</td>'; }).join('') + '</tr>'; }
     function num(fn){ return function(v){ var s = sv(v); var x = s ? fn(s) : null; return x === null || x === undefined ? '―' : x; }; }
     var h = '<table class="cmp"><thead><tr><th scope="col">項目</th>'
-      + sel.map(function(v){ return '<th scope="col"><button type="button" class="cmpname" data-cmpedit="' + v.id + '" aria-label="' + esc(v.name) + 'を編集">' + esc(v.name) + '<span class="ce">✏ 編集</span></button></th>'; }).join('') + '</tr></thead><tbody>';
-    h += row('総合評価', function(v){ var g = grade(v); return gbadge(v) + '<small class="gs">○' + g.c.g + ' △' + g.c.w + ' ？' + g.c.q + '</small>'; });
+      + sel.map(function(v){ return '<th scope="col"><button type="button" class="cmpname" data-cmpedit="' + v.id + '" aria-label="' + esc(v.name) + 'を編集">' + esc(v.name) + '<span class="ce">✏ 編集</span></button>' + rsum(v) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    h += row('総合評価', function(v){ var g = grade(v); return gbadge(v) + '<small class="gs">○' + g.c.g + ' △' + g.c.w + ' ✕' + g.c.b + '</small>'; });
     h += row('入園可能数', num(function(s){ return s.vac === null ? null : s.vac + '人'; }));
     h += row('第1希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r1 === null ? null : times(s.r1)); }), '');
     h += row('全希望の倍率', num(function(s){ return s.vac === 0 ? '入園可能0' : (s.r2 === null ? null : times(s.r2)); }), '');
@@ -2097,8 +2110,7 @@ window.SHISUU_DIST.r8 = {
         return '<span class="s ' + s + '" role="img" aria-label="' + V_STATUS[s].t + '">' + V_STATUS[s].s + '</span>';
       });
     });
-    h += row('聞き忘れの数', function(v){ return counts(v).q + ' 項目'; }, '');
-    $('vCmp').innerHTML = h + '</tbody></table><p class="hint">○ 良い / △ 気になる / ？ 聞き忘れ / ― 数字なし。<br>入園可能数と倍率は、' + cls + '歳児クラスの数字です(入園可能数は' + (overlay ? VAC.short : '昨年') + '分)。' + (overlay ? '<br>倍率は、昨年の申込数を今年の入園可能数で割った数字です。' : '') + '</p>';
+    $('vCmp').innerHTML = h + '</tbody></table><p class="hint">○よい △ふつう ✕いまいち ―未評価・数字なし。<br>入園可能数と倍率は、' + cls + '歳児クラスの数字です(入園可能数は' + (overlay ? VAC.short : '昨年') + '分)。' + (overlay ? '<br>倍率は、昨年の申込数を今年の入園可能数で割った数字です。' : '') + '</p>';
   }
 
   /* 園を探す(昨年の倍率の一覧) */
@@ -2197,11 +2209,13 @@ window.SHISUU_DIST.r8 = {
   }
 
   function buildItems(){
-    $('vItems').innerHTML = V_ITEMS.map(function(it){
-      var seg = ['g','w','q'].map(function(k){
+    var ALL = V_ITEMS.slice(0, V_CORE).concat([{id:'c1', cus:1}, {id:'c2', cus:1}]);
+    $('vItems').innerHTML = ALL.map(function(it, i){
+      var seg = ['g','w','b'].map(function(k){
         return '<label><input type="radio" name="st-'+it.id+'" value="'+k+'"><span class="'+k+'" title="'+V_STATUS[k].t+'">'+V_STATUS[k].s+'<i class="sr">'+V_STATUS[k].t+'</i></span></label>';
       }).join('');
-      return '<div class="item" role="group" aria-label="'+esc(it.l)+'"><span class="il">'+esc(it.l)+'</span><div class="seg">'+seg+'</div></div>';
+      var lab = it.cus ? '<input type="text" class="cusn" data-cus="' + (it.id === 'c1' ? 0 : 1) + '" maxlength="20" placeholder="自分で考えた項目' + (it.id === 'c1' ? '①' : '②') + '(例: 園庭)" value="' + esc(cusNames[it.id === 'c1' ? 0 : 1]) + '" aria-label="自分で考えた項目">' : '<span class="il">'+esc(it.l)+'</span>';
+      return '<div class="item" role="group">' + lab + '<div class="seg">'+seg+'</div></div>';
     }).join('');
     var rs = '<option value="0">未評価</option>' + [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+' / 5</option>'; }).join('');
     $('v-area').innerHTML = V_AREAS.map(function(a){ return '<option value="'+a+'">'+a+'</option>'; }).join('');
@@ -2239,9 +2253,22 @@ window.SHISUU_DIST.r8 = {
   function showGrade(){
     var st = {}; V_ITEMS.forEach(function(it){ var r = document.querySelector('input[name="st-' + it.id + '"]:checked'); st[it.id] = r ? r.value : 'q'; });
     var g = grade({st: st}), el = $('vGrade'); if(!el) return;
-    el.innerHTML = '<span class="gl">総合評価(自動)</span><span class="gb big ' + g.k + '">' + g.l + '</span><span class="gd">○' + g.c.g + ' △' + g.c.w + ' ？' + g.c.q + (g.l === '―' ? '<br>○か△を3項目以上つけると出ます' : '<br>' + {A:'○が8割以上', B:'○が5割以上', C:'○が5割未満'}[g.l] + '(？は数えません)') + '</span>';
+    el.innerHTML = '<span class="gl">総合評価(自動)</span><span class="gb big ' + g.k + '">' + g.l + '</span><span class="gd">○' + g.c.g + ' △' + g.c.w + ' ✕' + g.c.b + (g.l === '―' ? '<br>○△✕を3項目以上つけると出ます' : '<br>' + {A:'○が8割以上', B:'○が5割以上', C:'○が5割未満'}[g.l] + '(？は数えません)') + '</span>';
   }
   document.addEventListener('change', function(e){ if(e.target && e.target.name && e.target.name.indexOf('st-') === 0) showGrade(); });
+  /* もう一度押すと未評価にもどる */
+  document.addEventListener('click', function(e){
+    var i = e.target; if(!i || i.type !== 'radio' || !i.name || i.name.indexOf('st-') !== 0) return;
+    if(i.dataset.was === '1'){ i.checked = false; i.dataset.was = '0'; }
+    else { Array.prototype.forEach.call(document.getElementsByName(i.name), function(o){ o.dataset.was = '0'; }); i.dataset.was = '1'; }
+    showGrade();
+  });
+  document.addEventListener('input', function(e){
+    var t = e.target; if(!t || !t.classList || !t.classList.contains('cusn')) return;
+    cusNames[+t.getAttribute('data-cus')] = t.value;
+    try{ localStorage.setItem(CUS_KEY, JSON.stringify(cusNames)); }catch(x){}
+    syncCus(); showGrade();
+  });
   var VIS_FREE_MSG = '無料版で記録できるのは2園までです。3園からは有料版(王冠のマーク)です。';
   function visFull(){ return window.HK_PREMIUM === false && visits.filter(function(v){ return !v.ex; }).length >= 2; }
   function visBlock(){ var m = $('vLimit'); if(m){ m.textContent = '※' + VIS_FREE_MSG + 'ここを増やすには、「削除」で1園をはずしてください。'; m.scrollIntoView({block:'center'}); } }
@@ -2254,8 +2281,12 @@ window.SHISUU_DIST.r8 = {
     $('v-memo').value = v.memo || ''; $('v-good').value = v.good || ''; $('v-bad').value = v.bad || ''; $('v-ask').value = v.ask || '';
     $('vNoteBox').hidden = (mode === 'rate'); $('vRateBox').hidden = (mode !== 'rate');
     $('h-vf').textContent = mode === 'rate' ? '評価を入れる(園を比べる用)' : '見学メモ';
+    Array.prototype.forEach.call(document.querySelectorAll('#vItems input[type=radio]'), function(r){ r.checked = false; r.dataset.was = '0'; });
+    Array.prototype.forEach.call(document.querySelectorAll('#vItems .cusn'), function(t){ t.value = cusNames[+t.getAttribute('data-cus')]; });
+    ['c1', 'c2'].forEach(function(id){ var k = v.st[id]; if(k && k !== 'q'){ var r = document.querySelector('input[name="st-'+id+'"][value="'+k+'"]'); if(r) r.checked = true; } });
     V_ITEMS.forEach(function(it){
-      document.querySelector('input[name="st-'+it.id+'"][value="'+(v.st[it.id] || 'q')+'"]').checked = true;
+      var k = v.st[it.id]; if(!k || k === 'q') return;
+      var r = document.querySelector('input[name="st-'+it.id+'"][value="'+k+'"]'); if(r){ r.checked = true; r.dataset.was = '1'; }
     });
     $('vErr').hidden = true; linkHint(); showGrade();
     $('vForm').hidden = false;
@@ -2282,7 +2313,7 @@ window.SHISUU_DIST.r8 = {
     rec.date = $('v-date').value;
     rec.memo = $('v-memo').value.trim(); rec.good = $('v-good').value.trim(); rec.bad = $('v-bad').value.trim(); rec.ask = $('v-ask').value.trim(); rec.ex = false;
     rec.st = {};
-    V_ITEMS.forEach(function(it){ rec.st[it.id] = document.querySelector('input[name="st-'+it.id+'"]:checked').value; });
+    V_ITEMS.forEach(function(it){ var r = document.querySelector('input[name="st-'+it.id+'"]:checked'); rec.st[it.id] = r ? r.value : 'q'; });
     if(!editing) visits.push(rec);
     vSave(); $('vForm').hidden = true; renderVisit();
     $('vList').scrollIntoView({block:'start'});
@@ -2815,6 +2846,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=198"></script>
+<script src="features.js?v=199"></script>
 </body>
 </html>
