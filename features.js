@@ -1960,20 +1960,29 @@ function syJoin(code, manual){
   }).observe(document.body, {childList: true, subtree: true, characterData: false});
 })();
 
-/* ===== 端末の「戻る」で、トップ(点数シミュレーター)に戻る ===== */
+/* ===== 端末の「戻る」で、1つ前に開いていたタブ・位置に戻る ===== */
 (function(){
-  var nav = document.querySelector('.tabs'); if(!nav || !window.history || !history.pushState) return;
-  var popping = false;
-  nav.addEventListener('click', function(e){
-    var b = e.target.closest ? e.target.closest('button[role=tab]') : null; if(!b || popping) return;
-    var onState = history.state && history.state.hkTab;
-    if(b.id === 'tabIndex'){ if(onState){ popping = true; history.back(); setTimeout(function(){ popping = false; }, 400); } return; }
-    if(!onState){ try{ history.pushState({hkTab: 1}, '', location.href); }catch(_){ } }
-  });
-  window.addEventListener('popstate', function(){
-    if(popping){ popping = false; return; }
-    var t = document.getElementById('tabIndex');
-    if(t && t.getAttribute('aria-selected') !== 'true'){ popping = true; t.click(); popping = false; window.scrollTo(0, 0); }
+  var nav = document.querySelector('.tabs'); if(!nav || !window.history || !history.pushState || !window.MutationObserver) return;
+  var cur = 'tabIndex', lastY = 0, popping = false;
+  function selId(){ var b = nav.querySelector('button[role=tab][aria-selected=true]'); return b ? b.id : null; }
+  window.addEventListener('scroll', function(){ if(!popping) lastY = window.pageYOffset; }, {passive: true});
+  try{ history.replaceState({hk: 1, tab: 'tabIndex', y: 0}, '', location.href); }catch(_){ return; }
+  new MutationObserver(function(){
+    if(popping) return;
+    var id = selId(); if(!id || id === cur) return;
+    try{
+      history.replaceState({hk: 1, tab: cur, y: lastY}, '', location.href);
+      history.pushState({hk: 1, tab: id, y: 0}, '', location.href);
+    }catch(_){ }
+    cur = id; lastY = 0;
+  }).observe(nav, {attributes: true, attributeFilter: ['aria-selected'], subtree: true});
+  window.addEventListener('popstate', function(e){
+    var st = e.state; if(!st || !st.hk) st = {tab: 'tabIndex', y: 0};
+    var t = document.getElementById(st.tab); if(!t) return;
+    popping = true;
+    if(selId() !== st.tab) t.click();
+    cur = st.tab;
+    setTimeout(function(){ window.scrollTo(0, st.y || 0); lastY = st.y || 0; popping = false; }, 60);
   });
 })();
 
