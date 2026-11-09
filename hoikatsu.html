@@ -2253,7 +2253,7 @@ window.SHISUU_DIST.r8 = {
     $('v-name').value = v.name; $('v-date').value = v.date || '';
     $('v-memo').value = v.memo || ''; $('v-good').value = v.good || ''; $('v-bad').value = v.bad || ''; $('v-ask').value = v.ask || '';
     $('vNoteBox').hidden = (mode === 'rate'); $('vRateBox').hidden = (mode !== 'rate');
-    $('h-vf').textContent = mode === 'rate' ? '評価を入れる(園を比べる用)' : '見学の気づきを書く';
+    $('h-vf').textContent = mode === 'rate' ? '評価を入れる(園を比べる用)' : '見学メモ';
     V_ITEMS.forEach(function(it){
       document.querySelector('input[name="st-'+it.id+'"][value="'+(v.st[it.id] || 'q')+'"]').checked = true;
     });
@@ -2815,6 +2815,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=195"></script>
+<script src="features.js?v=196"></script>
 </body>
 </html>
