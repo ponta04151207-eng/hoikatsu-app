@@ -524,8 +524,15 @@ img{max-width:100%}
       <p class="hint" id="vLink"></p>
       <label class="field" for="v-date">見学日</label>
       <input type="date" id="v-date">
+      <div id="vRateBox">
+      <h3 class="grp" style="margin-top:18px">① 確認した項目</h3>
+      <p class="hint" style="margin:0 0 6px"><b>○</b> よい　<b>△</b> ふつう　<b>✕</b> いまいち。もう一度押すと未評価にもどります。下の2つは自分で項目名を決められます。</p>
+      <div id="vItems"></div>
+      <div id="vGrade" class="gradebox" aria-live="polite"></div>
+      </div>
+      <div id="hkQslot"></div>
       <div id="vNoteBox">
-        <h3 class="grp" style="margin-top:18px">見学の気づき</h3>
+        <h3 class="grp" style="margin-top:18px">③ 見学メモ</h3>
         <p class="hint" style="margin:0 0 4px">見たこと・聞いたことを、自分の言葉で書き留めます。</p>
         <label class="field" for="v-good">👍 良かったところ</label>
         <textarea id="v-good" rows="2" placeholder="例: 園庭が広い、先生が明るい"></textarea>
@@ -535,14 +542,6 @@ img{max-width:100%}
         <textarea id="v-ask" rows="2" placeholder="例: 延長保育の時間、アレルギー対応"></textarea>
         <label class="field" for="v-memo">そのほかのメモ</label>
         <textarea id="v-memo"></textarea>
-      </div>
-      <div id="vRateBox">
-      <h3 class="grp" style="margin-top:18px">確認した項目</h3>
-      <p class="hint" style="margin:0 0 6px"><b>○</b> よい　<b>△</b> ふつう　<b>✕</b> いまいち。もう一度押すと未評価にもどります。下の2つは自分で項目名を決められます。</p>
-      <div id="vItems"></div>
-      <div id="vGrade" class="gradebox" aria-live="polite"></div>
-      <label class="field" for="v-rmemo">フリーメモ</label>
-      <textarea id="v-rmemo" rows="2" placeholder="気づいたことを自由に"></textarea>
       </div>
       <p class="err" id="vErr" hidden></p>
       <div class="nav" style="margin-top:16px">
@@ -2282,9 +2281,9 @@ window.SHISUU_DIST.r8 = {
     var v = id ? vFind(id) : {name:(pre && pre.name) || '', area:(pre && pre.area) || V_AREAS[0], date:today(), st:pack(''), ra:0, rb:0, memo:''};
     $('v-area').value = v.area; fillNames();
     $('v-name').value = v.name; $('v-date').value = v.date || '';
-    $('v-memo').value = v.memo || ''; $('v-rmemo').value = v.memo || ''; $('v-good').value = v.good || ''; $('v-bad').value = v.bad || ''; $('v-ask').value = v.ask || '';
-    $('vNoteBox').hidden = (mode === 'rate'); $('vRateBox').hidden = (mode !== 'rate');
-    $('h-vf').textContent = mode === 'rate' ? '評価を入れる(園を比べる用)' : '見学メモ';
+    $('v-memo').value = v.memo || ''; $('v-good').value = v.good || ''; $('v-bad').value = v.bad || ''; $('v-ask').value = v.ask || '';
+    $('vNoteBox').hidden = false; $('vRateBox').hidden = false;
+    $('h-vf').textContent = '見学メモ';
     Array.prototype.forEach.call(document.querySelectorAll('#vItems input[type=radio]'), function(r){ r.checked = false; r.dataset.was = '0'; });
     Array.prototype.forEach.call(document.querySelectorAll('#vItems .cusn'), function(t){ t.value = cusNames[+t.getAttribute('data-cus')]; });
     ['c1', 'c2'].forEach(function(id){ var k = v.st[id]; if(k && k !== 'q'){ var r = document.querySelector('input[name="st-'+id+'"][value="'+k+'"]'); if(r) r.checked = true; } });
@@ -2319,7 +2318,7 @@ window.SHISUU_DIST.r8 = {
     var f = matchFac(name);
     rec.name = name; rec.area = f ? f[0] : $('v-area').value; rec.fac = f ? f[0] + '|' + f[1] : null;
     rec.date = $('v-date').value;
-    rec.memo = (!$('vRateBox').hidden ? $('v-rmemo') : $('v-memo')).value.trim(); rec.good = $('v-good').value.trim(); rec.bad = $('v-bad').value.trim(); rec.ask = $('v-ask').value.trim(); rec.ex = false;
+    rec.memo = $('v-memo').value.trim(); rec.good = $('v-good').value.trim(); rec.bad = $('v-bad').value.trim(); rec.ask = $('v-ask').value.trim(); rec.ex = false;
     rec.st = {};
     V_ITEMS.forEach(function(it){ var r = document.querySelector('input[name="st-'+it.id+'"]:checked'); rec.st[it.id] = r ? r.value : 'q'; });
     if(!editing) visits.push(rec);
@@ -2856,6 +2855,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=223"></script>
+<script src="features.js?v=224"></script>
 </body>
 </html>
