@@ -181,6 +181,7 @@ textarea{min-height:100px; resize:vertical}
 .seg input:checked + span.w{background:var(--pop-soft); color:var(--minus); border-color:var(--minus); font-weight:700}
 .seg input:checked + span.b{background:#fde8e8; color:#b3261e; border-color:#b3261e; font-weight:700}
 .cusn{flex:1; min-width:0; font-size:13px; padding:4px 8px; border:1.5px dashed var(--line); border-radius:8px}
+.wmap{display:inline-block; margin-top:3px; font-size:12.5px; font-weight:700; color:var(--accent,#2a9d8f); text-decoration:none}
 .rs{display:block; font-size:11px; font-weight:400; margin-top:2px}.rs .g{color:var(--plus)}.rs .w{color:var(--minus)}.rs .b{color:#b3261e}
 .cmp .s.b{color:#b3261e}.vtbl .cnt .b{color:#b3261e}
 .seg input:checked + span.q{background:var(--note); color:var(--note-fg); border-color:var(--note-fg); font-weight:700}
@@ -2071,7 +2072,7 @@ window.SHISUU_DIST.r8 = {
           ? '<button type="button" class="mini" data-act="delok" data-id="'+v.id+'" style="color:var(--minus)">削除する</button><button type="button" class="mini" data-act="delno" data-id="'+v.id+'">やめる</button>'
           : '<button type="button" class="mini" data-act="edit" data-id="'+v.id+'">編集</button><button type="button" class="mini" data-act="del" data-id="'+v.id+'">削除</button>';
         var meta = esc(v.area) + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + '';
-        return '<tr><th scope="row"><span class="fn">' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</span><small>' + meta + '</small>' + rsum(v)
+        return '<tr><th scope="row"><span class="fn">' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</span><small>' + meta + '</small>' + rsum(v) + (v.ex ? '' : '<a class="wmap" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' 保育園 世田谷区') + '" target="_blank" rel="noopener">🗺️ 地図・写真を見る</a>')
           + ((v.good || v.bad || v.ask || v.memo) ? '<details class="vmemo"><summary>📝 メモあり<span>▼ 見る</span></summary>'
             + (v.good ? '<p><b>👍 良かったところ</b>' + esc(v.good) + '</p>' : '') + (v.bad ? '<p><b>⚠ 気になったところ</b>' + esc(v.bad) + '</p>' : '') + (v.ask ? '<p><b>❓ 次に聞くこと</b>' + esc(v.ask) + '</p>' : '') + (v.memo ? '<p><b>📝 そのほかのメモ</b>' + esc(v.memo) + '</p>' : '') + '</details>' : '')
           + '<span class="vb">' + btns + '</span></th>'
@@ -2846,6 +2847,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=203"></script>
+<script src="features.js?v=204"></script>
 </body>
 </html>
