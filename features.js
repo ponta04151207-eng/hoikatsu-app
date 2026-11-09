@@ -135,6 +135,7 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '.vmemo .vml{margin:2px 0 6px; padding-left:1.1em; font-size:12px; line-height:1.5}',
     '#viewVisit #vForm{padding:11px 12px 10px!important}',
     '#viewVisit #vForm h2{font-size:15px!important; margin:0 0 4px!important; line-height:1.35!important}',
     '#viewVisit #vForm h3.grp{font-size:12.5px!important; margin:8px 0 2px!important; padding:2px 10px!important}',
@@ -850,7 +851,7 @@ function renderQ(){
       var r = a[q.id] || {};
       return '<div class="qk"><label><input type="checkbox" data-q="' + esc(q.id) + '"' + (r.d ? ' checked' : '') + '><span>' + esc(q.t) + '</span></label>' + qAns(q, r) + '</div>';
     }).join('')
-    + '<div class="addtk"><label class="field" for="hkQn" style="margin:0">自分の質問を足す(全部の園に入ります)</label><input id="hkQn" type="text"><button type="button" class="primary" id="hkQa">追加する</button></div>';
+    + '';
   Array.prototype.forEach.call(box.querySelectorAll('input[data-q]'), function(c){
     c.addEventListener('change', function(){ (a[c.dataset.q] = a[c.dataset.q] || {}).d = c.checked; qSave(); renderQ(); renderAll(); });
   });
@@ -862,10 +863,6 @@ function renderQ(){
   });
   Array.prototype.forEach.call(box.querySelectorAll('input[data-n]'), function(c){
     c.addEventListener('change', function(){ (a[c.dataset.n] = a[c.dataset.n] || {}).n = c.value; qSave(); });
-  });
-  $('hkQa').addEventListener('click', function(){
-    var t = $('hkQn').value.trim(); if(!t) return;
-    qd.custom.push({id: 'u' + Date.now(), t: t}); qSave(); renderQ();
   });
 }
 function askedCount(v){ var a = qd.a[v.id] || {}; return allQ().filter(function(q){ return a[q.id] && a[q.id].d; }).length; }
@@ -2240,5 +2237,40 @@ function syJoin(code, manual){
   });
   new MutationObserver(function(){ setTimeout(decorate, 50); }).observe(list, {childList: true});
   setTimeout(decorate, 500);
+})();
+/* ===== 「メモあり」をタップすると、保存した内容を全部見られる(気づき・○△？・質問の答え) ===== */
+(function(){
+  var list = document.getElementById('vList'); if(!list) return;
+  function qa(id){
+    var d = lsGet('hoikatsu-q-v1', {custom: [], a: {}}), a = (d.a && d.a[id]) || {}, out = [];
+    QUESTIONS.concat((d.custom || []).map(function(c){ return c.t; })).forEach(function(t, i){
+      var r = a['q' + i] || ((d.custom || [])[i - QUESTIONS.length] && a[(d.custom[i - QUESTIONS.length]).id]) || null;
+      if(r && (r.d || r.n)) out.push('<li>' + esc(t) + (r.n ? ': <b>' + esc(r.n) + '</b>' : ' ✔') + '</li>');
+    });
+    return out;
+  }
+  function fill(){
+    var vs = HK.getVisits();
+    Array.prototype.forEach.call(list.querySelectorAll('[data-act="edit"]'), function(b){
+      var th = b.closest('th'), id = b.getAttribute('data-id'); if(!th || th.getAttribute('data-full') === '1') return;
+      var v = vs.filter(function(x){ return x.id === id; })[0]; if(!v) return;
+      var s = v.st || {}, marks = HK.items.filter(function(it){ return s[it.id] && s[it.id] !== 'q'; }).map(function(it){ return '<li>' + HK.status[s[it.id]].s + ' ' + esc(it.l) + '</li>'; });
+      var q = qa(id), has = v.good || v.bad || v.ask || v.memo || marks.length || q.length;
+      var det = th.querySelector('.vmemo');
+      if(!has){ th.setAttribute('data-full', '1'); return; }
+      if(!det){
+        det = document.createElement('details'); det.className = 'vmemo';
+        det.innerHTML = '<summary>📝 メモあり<span>▼ 見る</span></summary>';
+        var vb = th.querySelector('.vb'); th.insertBefore(det, vb);
+      }
+      var extra = '';
+      if(marks.length) extra += '<p><b>✅ 確認した項目(○良い △気になる)</b></p><ul class="vml">' + marks.join('') + '</ul>';
+      if(q.length) extra += '<p><b>❓ 質問リスト</b></p><ul class="vml">' + q.join('') + '</ul>';
+      det.insertAdjacentHTML('beforeend', extra);
+      th.setAttribute('data-full', '1');
+    });
+  }
+  new MutationObserver(function(){ setTimeout(fill, 60); }).observe(list, {childList: true});
+  setTimeout(fill, 600);
 })();
 })();
