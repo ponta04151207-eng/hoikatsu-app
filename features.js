@@ -223,7 +223,7 @@ css.textContent = [
     '#hkWish .tk .x b{font-size:14px!important; line-height:1.3!important}',
     '#hkWish .tk .x .wmap{display:inline-block; margin-top:3px; font-size:12.5px; font-weight:700; color:var(--accent,#2a9d8f); text-decoration:none}',
     '.vmemo .vtot{display:flex!important; align-items:center; gap:8px}.vmemo .vtot b{display:inline!important; margin:0!important}.vmemo .vtot span{font-size:13px; font-weight:700}',
-    '.vmemo li.qno{color:var(--muted)}.vmemo li .qa{display:block; margin-left:1.4em; color:var(--accent,#2a9d8f); font-size:13px}',
+    '.vmemo li.qno{color:var(--muted)}.vmemo li .qa{display:table; margin:3px 0 3px 1.4em; padding:2px 12px; border-radius:999px; background:#dff3ec; border:1.5px solid #9fd5c1; color:#0b5f52; font-size:15px; font-weight:800; line-height:1.5}',
     '#hkWish .tk .x .rs{font-size:12px!important; margin-top:2px!important}',
     '#hkWish .tk .x small{display:block; font-size:10.5px!important; line-height:1.35!important; margin-top:1px!important}',
     '#hkWish .tk .sc{font-size:10.5px!important; padding:0 6px!important; line-height:1.6!important}',
