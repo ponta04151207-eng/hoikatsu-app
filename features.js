@@ -143,7 +143,7 @@ css.textContent = [
     '#viewVisit #vForm label.field{font-size:11.5px!important; margin:6px 0 2px!important; line-height:1.3!important}',
     '#viewVisit #vForm select,#viewVisit #vForm input[type=text],#viewVisit #vForm input[type=date]{height:32px!important; min-height:32px!important; font-size:12.5px!important; padding:2px 10px!important; border-radius:10px!important}',
     '#viewVisit #vForm textarea{font-size:12.5px!important; min-height:40px!important; height:44px!important; padding:5px 10px!important; border-radius:10px!important; line-height:1.4!important}',
-    '#viewVisit #vForm textarea#v-memo{height:44px!important}',
+    '#viewVisit #vForm textarea#v-memo,#viewVisit #vForm textarea#v-rmemo{height:44px!important}',
     '#viewVisit #vForm .vmic{min-height:24px!important; padding:0 10px!important; font-size:11px!important; margin:3px 0 0!important}',
     '#viewVisit #vForm .vnote{font-size:10px!important; margin-left:4px!important; white-space:nowrap!important}',
     '#viewVisit #vForm .item{padding:3px 0!important; gap:6px!important; min-height:0!important}',
@@ -1109,8 +1109,8 @@ $('hkWish').addEventListener('click', function(e){
 (function(){
   var nb = $('vNoteBox'), fm = $('vForm'); if(!nb || !fm || $('hkQ')) return;
   var qb = document.createElement('div'); qb.id = 'hkQbox';
-  qb.innerHTML = '<h3 class="grp" style="margin-top:14px">② 質問リスト</h3><div id="hkQ"></div>';
-  var slot = $('hkQslot'); if(slot) slot.appendChild(qb); else nb.appendChild(qb);
+  qb.innerHTML = '<h3 class="grp" style="margin-top:14px">❓ 質問リスト</h3><div id="hkQ"></div>';
+  nb.appendChild(qb);
   new MutationObserver(function(){
     if(fm.hidden) return;
     if(!(HK.formId && HK.formId())){ qd.a.__new = {}; qSave(); }
@@ -1484,7 +1484,6 @@ function renderSet(){
     + row('share', 'このアプリを友達に教える')
     + row('mail', 'お問い合わせ')
     + row('code', '購入コードを入れる・課金でできること<small style="display:block; font-size:11px; font-weight:500; color:var(--muted); line-height:1.4; margin-top:2px">購入コード: 有料プランを買ったことを知らせる合言葉です。</small>')
-    + row('backup', 'データのバックアップ(書き出し・読み込み)') + '<div id="hkBkBox" hidden></div>'
     + row('lock', 'パスコードロック(' + (lkGet() ? 'オン' : 'オフ') + ')') + '<div id="hkLockBox" hidden></div>'
     + row('privacy', 'プライバシーポリシー')
     + row('terms', '利用規約')
@@ -1513,13 +1512,6 @@ viewS.addEventListener('click', function(e){
   }
   else if(k === 'mail') location.href = 'mailto:' + CONTACT + '?subject=' + encodeURIComponent('保活アプリについて');
   else if(k === 'code') showPaid();
-  else if(k === 'backup'){
-    var kb = $('hkBkBox'); kb.hidden = !kb.hidden; if(kb.hidden) return;
-    kb.innerHTML = '<div style="padding:10px 6px"><p class="hint" style="margin:0 0 8px">見学メモ・評価・希望園・チェックなど、このアプリのデータをファイルに書き出せます。機種変更やブラウザのデータ削除に備えて、ときどき保存してください。写真は含まれません。</p>'
-      + '<button type="button" class="primary" id="hkBkOut" style="width:100%">📤 データを書き出す</button>'
-      + '<p class="hint" style="margin:12px 0 6px">書き出したファイルから戻すときは、下で選びます。いまのデータは、ファイルの内容に置きかわります。</p>'
-      + '<input type="file" id="hkBkIn" accept=".json,application/json" style="width:100%"></div>';
-  }
   else if(k === 'lock'){
     var bx = $('hkLockBox'); bx.hidden = !bx.hidden; if(bx.hidden) return;
     var on = !!lkGet();
@@ -1530,33 +1522,8 @@ viewS.addEventListener('click', function(e){
   }
   else window.open(k + '.html', '_blank', 'noopener');
 });
-viewS.addEventListener('change', function(e){
-  if(e.target.id !== 'hkBkIn') return;
-  var f = e.target.files && e.target.files[0], m = $('hkSm'); if(!f) return;
-  var rd = new FileReader();
-  rd.onload = function(){
-    try{
-      var o = JSON.parse(rd.result);
-      if(!o || o.app !== 'hoikatsu' || !o.data) throw 0;
-      var n = Object.keys(o.data).filter(function(k){ return k.indexOf('hoikatsu-') === 0; });
-      if(!n.length) throw 0;
-      if(!confirm('いまのデータを、ファイルの内容に置きかえます(' + n.length + '件)。よろしいですか?')) { e.target.value = ''; return; }
-      n.forEach(function(k){ try{ localStorage.setItem(k, o.data[k]); }catch(x){} });
-      m.textContent = '読み込みました。画面を更新します。'; setTimeout(function(){ location.reload(); }, 700);
-    }catch(x){ m.textContent = 'このファイルは読み込めません。書き出したファイルを選んでください。'; }
-  };
-  rd.readAsText(f);
-});
 viewS.addEventListener('click', function(e){
   var id = e.target.id, m = $('hkSm');
-  if(id === 'hkBkOut'){
-    var d = {}; try{ for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k.indexOf('hoikatsu-') === 0 && k !== 'hoikatsu-lock-v1') d[k] = localStorage.getItem(k); } }catch(x){}
-    var blob = new Blob([JSON.stringify({app: 'hoikatsu', v: 1, at: new Date().toISOString(), data: d})], {type: 'application/json'});
-    var a = document.createElement('a'), u = URL.createObjectURL(blob), t = new Date();
-    a.href = u; a.download = 'hoikatsu-backup-' + t.getFullYear() + ('0' + (t.getMonth() + 1)).slice(-2) + ('0' + t.getDate()).slice(-2) + '.json';
-    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); }, 1500);
-    m.textContent = 'データを書き出しました。ファイルは、大切に保管してください。';
-  }
   if(id === 'hkLkOn'){
     var a = $('hkLk1').value, b = $('hkLk2').value;
     if(!/^[0-9]{4,8}$/.test(a)){ m.textContent = '数字を4〜8けたで入れてください。'; return; }
@@ -2234,7 +2201,7 @@ function syJoin(code, manual){
 /* ===== 見学メモの入力欄に「声で入力」ボタン ===== */
 (function(){
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition, cur = null;
-  ['v-good', 'v-bad', 'v-ask', 'v-memo'].forEach(function(id){
+  ['v-good', 'v-bad', 'v-ask', 'v-memo', 'v-rmemo'].forEach(function(id){
     var ta = document.getElementById(id); if(!ta || ta.parentNode.querySelector('.vmic[data-for="' + id + '"]')) return;
     var b = document.createElement('button'); b.type = 'button'; b.className = 'vmic'; b.setAttribute('data-for', id);
     b.innerHTML = '🎤 声で入力する';
@@ -2370,42 +2337,4 @@ function syJoin(code, manual){
   document.addEventListener('visibilitychange', later);
   var sv = document.getElementById('vSave'); if(sv) sv.addEventListener('click', function(){ setTimeout(fill, 150); setTimeout(fill, 700); });
 })();
-})();
-
-/* ===== 画面を短くする(有料タブと説明の折りたたみ・下の点数の帯を小さく) ===== */
-(function(){
-  var st = document.createElement('style');
-  st.textContent = [
-    '.bar{padding-top:5px!important; padding-bottom:calc(5px + env(safe-area-inset-bottom,0px))!important; border-radius:14px 14px 0 0!important}',
-    '.bar .t{font-size:12px!important}',
-    '.bar .n{font-size:21px!important}',
-    '.tgl.pd{cursor:pointer; user-select:none}',
-    '.tgl.pd .tgm{margin-left:auto; font-size:12px; font-weight:700; color:#8a5a00}',
-    '.tabs.pdc #tabAlert,.tabs.pdc #tabCmp3,.tabs.pdc #tabEase,.tabs.pdc #tabWish,.tabs.pdc #tabDist,.tabs.pdc #tabSched,.tabs.pdc #tabPlus,.tabs.pdc #tabDocs,.tabs.pdc #tabAdv{display:none!important}',
-    '.feat:not(.po) li.fpd ~ li small,.feat:not(.po) li.fpd ~ li .dbx,.feat:not(.po) li.fpd ~ li br{display:none!important}',
-    '.feat:not(.po) li.fpd ~ li{padding-top:4px!important; padding-bottom:4px!important; min-height:0!important}',
-    '.feat li.fpd{cursor:pointer}',
-    '.feat li.fpd .fpm{margin-left:auto; font-size:12px; font-weight:700; color:#8a5a00; white-space:nowrap}'
-  ].join('\n');
-  document.head.appendChild(st);
-  function lg(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
-  function ls(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
-  var nav = document.querySelector('.tabs'), pd = nav && nav.querySelector('.tgl.pd');
-  if(nav && pd){
-    var m = document.createElement('span'); m.className = 'tgm'; pd.appendChild(m);
-    pd.removeAttribute('aria-hidden'); pd.setAttribute('role', 'button'); pd.tabIndex = 0;
-    function setT(c){ nav.classList.toggle('pdc', c); m.textContent = c ? '▼ 開く' : '▲ 閉じる'; pd.setAttribute('aria-expanded', c ? 'false' : 'true'); ls('hoikatsu-pdc-v1', c ? '1' : '0'); }
-    setT(lg('hoikatsu-pdc-v1') !== '0');
-    pd.addEventListener('click', function(){ setT(!nav.classList.contains('pdc')); });
-    pd.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pd.click(); } });
-  }
-  var feat = document.querySelector('.feat'), fp = feat && feat.querySelector('li.fpd');
-  if(feat && fp){
-    var fm = document.createElement('span'); fm.className = 'fpm'; fp.appendChild(fm);
-    fp.setAttribute('role', 'button'); fp.tabIndex = 0;
-    function setF(o){ feat.classList.toggle('po', o); fm.textContent = o ? '▲ 説明を閉じる' : '▼ 説明を見る'; }
-    setF(false);
-    fp.addEventListener('click', function(){ setF(!feat.classList.contains('po')); });
-    fp.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); fp.click(); } });
-  }
 })();
