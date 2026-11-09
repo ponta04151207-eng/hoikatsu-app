@@ -1098,7 +1098,11 @@ $('hkWish').addEventListener('click', function(e){
     var vs = vis(), last = vs[vs.length - 1];
     if(last && qd.a.__new){ qd.a[last.id] = qd.a.__new; delete qd.a.__new; qSave(); renderAll(); }
   });
-  $('vCancel').addEventListener('click', function(){ if(qd.a.__new){ delete qd.a.__new; qSave(); } });
+  $('vCancel').addEventListener('click', function(){
+    var fid = HK.formId && HK.formId();
+    if(fid && qd.a[fid] && !vis().some(function(v){ return v.id === fid; })){ delete qd.a[fid]; qSave(); }
+    if(qd.a.__new){ delete qd.a.__new; qSave(); }
+  });
 })();
 function refreshSel(){
   var s = $('hkSel'), keep = s.value;

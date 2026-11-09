@@ -1954,7 +1954,7 @@ window.SHISUU_DIST.r8 = {
     '5歳児クラス(令和3年4月2日〜令和4年4月1日生まれ)'
   ];
   var V_KEY = 'hoikatsu-visits-v1', C_KEY = 'hoikatsu-class-v1';
-  var editing = null, askDel = null, vSort = 'added';
+  var editing = null, newId = null, askDel = null, vSort = 'added';
   var fRegion = '', fMode = 'card', fSort = 'r2asc', fHide = true, fNow = false, fShown = 15, fRows = [];
 
   /* 園ごとの昨年の実績(data/facilities-*.js の新しい年度を使う) */
@@ -2278,7 +2278,7 @@ window.SHISUU_DIST.r8 = {
   function visBlock(){ var m = $('vLimit'); if(m){ m.textContent = '※' + VIS_FREE_MSG + 'ここを増やすには、「削除」で1園をはずしてください。'; m.scrollIntoView({block:'center'}); } }
   function openForm(id, pre, mode){
     if(!id && visFull()){ visBlock(); return; }
-    editing = id || null; mode = mode || 'memo';
+    editing = id || null; newId = id ? null : 'v' + Date.now() + Math.floor(Math.random() * 1000); mode = mode || 'memo';
     var v = id ? vFind(id) : {name:(pre && pre.name) || '', area:(pre && pre.area) || V_AREAS[0], date:today(), st:pack(''), ra:0, rb:0, memo:''};
     $('v-area').value = v.area; fillNames();
     $('v-name').value = v.name; $('v-date').value = v.date || '';
@@ -2311,7 +2311,7 @@ window.SHISUU_DIST.r8 = {
     if(!name){
       $('vErr').textContent = '園の名前を入力してください。'; $('vErr').hidden = false; $('v-name').focus(); return;
     }
-    var rec = editing ? vFind(editing) : {id:'v' + Date.now(), cmp: visits.filter(function(v){return v.cmp}).length < cmpMax()};
+    var rec = editing ? vFind(editing) : {id:newId || 'v' + Date.now(), cmp: visits.filter(function(v){return v.cmp}).length < cmpMax()};
     var f = matchFac(name);
     rec.name = name; rec.area = f ? f[0] : $('v-area').value; rec.fac = f ? f[0] + '|' + f[1] : null;
     rec.date = $('v-date').value;
@@ -2527,7 +2527,7 @@ window.SHISUU_DIST.r8 = {
     getVisits: function(){ return visits; }, rerender: function(){ renderVisit(); },
     setVisits: function(a){ visits = a; vSave(); renderVisit(); },
     facMap: facMap, stat: stat, times: times, cls: function(){ return cls; }, esc: esc,
-    formId: function(){ return editing; }, grade: grade, gbadge: gbadge, items: V_ITEMS, status: V_STATUS, counts: counts, tab: tab,
+    formId: function(){ return editing || newId; }, grade: grade, gbadge: gbadge, items: V_ITEMS, status: V_STATUS, counts: counts, tab: tab,
     renderFind: function(){ renderFind(); },
     ease: ease, total: function(){ return calc().total; },
     setSort: function(v){ fSort = v; $('fSort').value = v; fShown = 15; }
@@ -2850,6 +2850,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=211"></script>
+<script src="features.js?v=212"></script>
 </body>
 </html>
