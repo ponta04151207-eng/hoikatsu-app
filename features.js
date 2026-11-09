@@ -832,6 +832,26 @@ function renderPhotos(){
 var Q_KEY = 'hoikatsu-q-v1';
 var qd = lsGet(Q_KEY, {custom: [], a: {}});
 if(!qd.custom) qd.custom = []; if(!qd.a) qd.a = {};
+/* 同じ園が何件も入っていたら、1つにまとめる(いちばん内容が多いものを残す) */
+(function(){
+  try{
+    var vs = HK.getVisits(), g = {}, drop = {}, changed = false;
+    function score(v){ var a = qd.a[v.id] || {}, n = 0; Object.keys(v.st || {}).forEach(function(k){ if(v.st[k] && v.st[k] !== 'q') n++; }); Object.keys(a).forEach(function(k){ if(a[k] && (a[k].d || a[k].n)) n++; }); return n + (v.good ? 1 : 0) + (v.bad ? 1 : 0) + (v.ask ? 1 : 0) + (v.memo ? 1 : 0); }
+    vs.forEach(function(v){ if(v.ex) return; var k = v.area + '|' + v.name; (g[k] = g[k] || []).push(v); });
+    Object.keys(g).forEach(function(k){
+      var arr = g[k]; if(arr.length < 2) return;
+      var keep = arr.slice().sort(function(x, y){ return score(y) - score(x); })[0];
+      var ka = qd.a[keep.id] = qd.a[keep.id] || {};
+      arr.forEach(function(v){
+        if(v === keep) return;
+        var a = qd.a[v.id] || {}; Object.keys(a).forEach(function(q){ if(!(ka[q] && (ka[q].d || ka[q].n))) ka[q] = a[q]; });
+        if(v.cmp) keep.cmp = true; if(!keep.date && v.date) keep.date = v.date;
+        delete qd.a[v.id]; drop[v.id] = 1; changed = true;
+      });
+    });
+    if(changed){ lsSet(Q_KEY, qd); HK.setVisits(vs.filter(function(v){ return !drop[v.id]; })); }
+  }catch(e){}
+})();
 function qSave(){ lsSet(Q_KEY, qd); try{ document.dispatchEvent(new Event('hk-q')); }catch(e){} }
 function allQ(){ return QUESTIONS.map(function(t, i){ return {id: 'q' + i, t: t}; }).concat(qd.custom.map(function(c){ return {id: c.id, t: c.t}; })); }
 function qAns(q, r){
