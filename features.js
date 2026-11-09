@@ -220,6 +220,7 @@ css.textContent = [
     '#hkWish .tk .x{min-width:0; flex:1}',
     '#hkWish .tk .x b{font-size:14px!important; line-height:1.3!important}',
     '#hkWish .tk .x .wmap{display:inline-block; margin-top:3px; font-size:12.5px; font-weight:700; color:var(--accent,#2a9d8f); text-decoration:none}',
+    '.vmemo .vtot{display:flex!important; align-items:center; gap:8px}.vmemo .vtot b{display:inline!important; margin:0!important}.vmemo .vtot span{font-size:13px; font-weight:700}',
     '#hkWish .tk .x .rs{font-size:12px!important; margin-top:2px!important}',
     '#hkWish .tk .x small{display:block; font-size:10.5px!important; line-height:1.35!important; margin-top:1px!important}',
     '#hkWish .tk .sc{font-size:10.5px!important; padding:0 6px!important; line-height:1.6!important}',
@@ -2279,6 +2280,8 @@ function syJoin(code, manual){
       var extra = '';
       if(marks.length) extra += '<p><b>✅ 確認した項目(○よい △ふつう ✕いまいち)</b></p><ul class="vml">' + marks.join('') + '</ul>';
       extra += '<p><b>❓ 質問リスト</b></p>' + (q.length ? '<ul class="vml">' + q.join('') + '</ul>' : '<p><i class="none">未記入</i></p>');
+      var g = HK.grade(v), sm = det.querySelector('summary');
+      if(sm) sm.insertAdjacentHTML('afterend', '<p class="vtot"><b>総評</b>' + HK.gbadge(v) + '<span>○' + g.c.g + ' △' + g.c.w + ' ✕' + g.c.b + '</span></p>');
       det.insertAdjacentHTML('beforeend', extra);
       th.setAttribute('data-full', '1');
     });
