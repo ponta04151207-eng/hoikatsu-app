@@ -179,6 +179,8 @@ css.textContent = [
     '#viewDocs a.olink{display:block; margin:8px 0 2px; padding:9px 12px; border-radius:999px; background:#0f8a7a; color:#fff!important; text-align:center; font-size:13px; font-weight:800; text-decoration:none!important; box-shadow:0 2px 0 #0a6b5e}',
     '.feat li.fpd{display:flex!important; align-items:center; gap:8px; margin:12px 0 4px!important; padding:6px 10px!important; border:1.5px solid #e8c15a!important; border-radius:10px; background:linear-gradient(135deg,#fff6d6,#fffaf0); list-style:none; font-size:13px; font-weight:800; color:#8a5a00}',
     '.feat .fbd{display:inline-block; margin-left:6px; padding:0 8px; border-radius:999px; font-size:11px; font-weight:800; line-height:1.6; vertical-align:1px; white-space:nowrap}',
+    '.feat .fbd.free{background:#e3f4ec; color:#1d7a5f; border:1px solid #9fd5c1}',
+    '.feat .ffr{list-style:none; margin:2px 0 4px; padding:6px 12px; border-radius:12px; background:#e3f4ec; border:1.5px solid #9fd5c1; color:#1d7a5f; font-weight:800; font-size:13px; padding:6px 10px; border-radius:10px}',
     '.feat .fbd.top{background:linear-gradient(135deg,#ff6b4a,#ff9a3c); color:#fff; box-shadow:0 1px 0 #c94a2a}',
     '.feat .fbd.two{background:#fff1cc; color:#8a5a00; border:1px solid #e8c15a}',
     '#viewDocs a.primary{padding:8px 12px!important; font-size:13px!important; min-height:0!important; margin:4px 0!important; display:block!important; text-align:center!important}',
