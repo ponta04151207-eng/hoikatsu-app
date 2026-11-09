@@ -2311,6 +2311,10 @@ window.SHISUU_DIST.r8 = {
     if(!name){
       $('vErr').textContent = '園の名前を入力してください。'; $('vErr').hidden = false; $('v-name').focus(); return;
     }
+    if(!editing){
+      var f0 = matchFac(name), dupV = visits.filter(function(v){ return !v.ex && v.name === name && v.area === (f0 ? f0[0] : $('v-area').value); })[0];
+      if(dupV){ $('vErr').textContent = '「' + name + '」は、もう見学した園に入っています。下の一覧の「編集」から開いてください(同じ園が2つになるのを防いでいます)。'; $('vErr').hidden = false; return; }
+    }
     var rec = editing ? vFind(editing) : {id:newId || 'v' + Date.now(), cmp: visits.filter(function(v){return v.cmp}).length < cmpMax()};
     var f = matchFac(name);
     rec.name = name; rec.area = f ? f[0] : $('v-area').value; rec.fac = f ? f[0] + '|' + f[1] : null;
@@ -2425,6 +2429,8 @@ window.SHISUU_DIST.r8 = {
     }
     var b = e.target.closest('[data-fadd]'); if(!b) return;
     var x = fRows[+b.getAttribute('data-fadd')];
+    var dupF = visits.filter(function(v){ return !v.ex && v.name === x.f[1] && v.area === x.f[0]; })[0];
+    if(dupF){ tab('visit', 'secMemo'); openForm(dupF.id); return; }
     openForm(null, {name:x.f[1], area:x.f[0]});
   });
 
@@ -2850,6 +2856,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=215"></script>
+<script src="features.js?v=216"></script>
 </body>
 </html>
