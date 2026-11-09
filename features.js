@@ -79,6 +79,18 @@ var QUESTIONS = [
   '先生の入れ替わりの様子',
   '連絡帳(紙・アプリ)と連絡方法'
 ];
+var QOPT = {
+  q0: [{p:'クラスの人数', o:['〜10人','11〜15人','16〜20人','21人以上']}, {p:'先生1人あたり', o:['3人まで','4〜5人','6人以上']}],
+  q1: [{p:'期間', o:['1週間以内','2週間','3週間','1か月','1か月以上']}],
+  q2: [{p:'お迎えの熱', o:['37.5度以上','38度以上','38.5度以上','園の判断']}, {p:'病児保育', o:['使える','使えない','提携あり']}],
+  q3: [{p:'給食', o:['自園調理','外部搬入','お弁当']}, {p:'アレルギー', o:['除去食あり','相談して対応','対応なし']}],
+  q4: [{p:'持ち物', o:['少ない','ふつう','多い']}, {p:'名前つけ', o:['少ない','ふつう','多い']}],
+  q5: [{p:'終わる時間', o:['延長なし','18:30まで','19:00まで','19:30まで','20:00以降']}, {p:'料金', o:['無料','月1,000円まで','月3,000円まで','月5,000円まで','それ以上']}],
+  q6: [{p:'駐輪場', o:['あり','なし','台数少ない']}, {p:'きょうだい', o:['配慮あり','配慮なし']}],
+  q7: [{p:'月の費用', o:['0円','〜1,000円','〜3,000円','〜5,000円','5,000円以上']}],
+  q8: [{p:'入れ替わり', o:['少ない','ふつう','多い']}],
+  q9: [{p:'連絡方法', o:['紙の連絡帳','アプリ','両方']}]
+};
 
 
 /* ===== 有料版のカギ ===== */
@@ -123,6 +135,8 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '#hkD2 #hkQ .qsel{display:flex; gap:5px; margin:3px 0 0 21px}',
+    '#hkD2 #hkQ .qsel select{flex:1; min-width:0; height:27px!important; min-height:27px!important; font-size:11.5px!important; padding:0 22px 0 8px!important; border-radius:9px!important; letter-spacing:0!important; background-position:right 6px center!important}',
     '#hkD2 #hkQ .qk{padding:3px 0!important}',
     '#hkD2 #hkQ .qk label{font-size:clamp(10.5px,3.1vw,12px)!important; gap:6px!important; align-items:center!important; letter-spacing:0!important}',
     '#hkD2 #hkQ .qk label > span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}',
@@ -799,18 +813,32 @@ var qd = lsGet(Q_KEY, {custom: [], a: {}});
 if(!qd.custom) qd.custom = []; if(!qd.a) qd.a = {};
 function qSave(){ lsSet(Q_KEY, qd); }
 function allQ(){ return QUESTIONS.map(function(t, i){ return {id: 'q' + i, t: t}; }).concat(qd.custom.map(function(c){ return {id: c.id, t: c.t}; })); }
+function qAns(q, r){
+  var g = QOPT[q.id];
+  if(!g) return '<input type="text" data-n="' + esc(q.id) + '" value="' + esc(r.n || '') + '" placeholder="答えのメモ">';
+  var cur = String(r.n || '').split(' / ');
+  return '<div class="qsel">' + g.map(function(x, i){
+    return '<select data-sel="' + esc(q.id) + '" data-i="' + i + '" aria-label="' + esc(x.p) + '"><option value="">' + esc(x.p) + '</option>' + x.o.map(function(o){ return '<option' + (cur.indexOf(o) >= 0 ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>';
+  }).join('') + '</div>';
+}
 function renderQ(){
   var v = curVisit(), box = $('hkQ');
   if(!v){ box.innerHTML = '<p class="hint">先に、見学した園を追加してください。</p>'; return; }
   var a = qd.a[v.id] || (qd.a[v.id] = {}), qs = allQ(), n = qs.filter(function(q){ return a[q.id] && a[q.id].d; }).length;
-  box.innerHTML = '<p class="hint" style="margin:0 0 6px">' + esc(v.name) + ': 聞けた質問 ' + n + ' / ' + qs.length + '。聞けたらチェックして、答えをメモします。</p>'
+  box.innerHTML = '<p class="hint" style="margin:0 0 6px">' + esc(v.name) + ': 聞けた質問 ' + n + ' / ' + qs.length + '。聞けたらチェックして、答えを選びます。</p>'
     + qs.map(function(q){
       var r = a[q.id] || {};
-      return '<div class="qk"><label><input type="checkbox" data-q="' + esc(q.id) + '"' + (r.d ? ' checked' : '') + '><span>' + esc(q.t) + '</span></label><input type="text" data-n="' + esc(q.id) + '" value="' + esc(r.n || '') + '" placeholder="答えのメモ"></div>';
+      return '<div class="qk"><label><input type="checkbox" data-q="' + esc(q.id) + '"' + (r.d ? ' checked' : '') + '><span>' + esc(q.t) + '</span></label>' + qAns(q, r) + '</div>';
     }).join('')
     + '<div class="addtk"><label class="field" for="hkQn" style="margin:0">自分の質問を足す(全部の園に入ります)</label><input id="hkQn" type="text"><button type="button" class="primary" id="hkQa">追加する</button></div>';
   Array.prototype.forEach.call(box.querySelectorAll('input[data-q]'), function(c){
     c.addEventListener('change', function(){ (a[c.dataset.q] = a[c.dataset.q] || {}).d = c.checked; qSave(); renderQ(); renderAll(); });
+  });
+  Array.prototype.forEach.call(box.querySelectorAll('select[data-sel]'), function(c){
+    c.addEventListener('change', function(){
+      var id = c.dataset.sel, vals = Array.prototype.map.call(box.querySelectorAll('select[data-sel="' + id + '"]'), function(s){ return s.value; }).filter(Boolean);
+      (a[id] = a[id] || {}).n = vals.join(' / '); if(vals.length) a[id].d = true; qSave(); renderQ(); renderAll();
+    });
   });
   Array.prototype.forEach.call(box.querySelectorAll('input[data-n]'), function(c){
     c.addEventListener('change', function(){ (a[c.dataset.n] = a[c.dataset.n] || {}).n = c.value; qSave(); });
