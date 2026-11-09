@@ -2272,12 +2272,13 @@ function syJoin(code, manual){
       if(!has){ th.setAttribute('data-full', '1'); return; }
       if(!det){
         det = document.createElement('details'); det.className = 'vmemo';
-        det.innerHTML = '<summary>📝 メモあり<span>▼ 見る</span></summary>';
+        function fld(t, x){ return '<p><b>' + t + '</b>' + (x ? esc(x) : '<i class="none">未記入</i>') + '</p>'; }
+        det.innerHTML = '<summary>📝 メモあり<span>▼ 見る</span></summary>' + fld('👍 良かったところ', v.good) + fld('⚠ 気になったところ', v.bad) + fld('❓ 次に聞くこと', v.ask) + fld('📝 そのほかのメモ', v.memo);
         var vb = th.querySelector('.vb'); th.insertBefore(det, vb);
       }
       var extra = '';
       if(marks.length) extra += '<p><b>✅ 確認した項目(○よい △ふつう ✕いまいち)</b></p><ul class="vml">' + marks.join('') + '</ul>';
-      if(q.length) extra += '<p><b>❓ 質問リスト</b></p><ul class="vml">' + q.join('') + '</ul>';
+      extra += '<p><b>❓ 質問リスト</b></p>' + (q.length ? '<ul class="vml">' + q.join('') + '</ul>' : '<p><i class="none">未記入</i></p>');
       det.insertAdjacentHTML('beforeend', extra);
       th.setAttribute('data-full', '1');
     });
