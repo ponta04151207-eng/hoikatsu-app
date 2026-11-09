@@ -1030,7 +1030,7 @@ function renderWish(){
   wish.forEach(function(id, i){
     var v = wVisit(id), s = vst(v), r = wR2(v), ez = ezOf(v);
     if(ez) EZ[ez.k]++; else EZ.none++;
-    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</b><small>' + esc(v.area || '') + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + '</small>' + wsum(v) + '<small>' + (ez ? '<span class="ezb ez-' + ez.k + '" title="' + esc(ez.why) + '">あなたの点:' + ez.l + '</span> ' : '') + (s && s.vac !== null ? '空き' + s.vac + '人・倍率' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small>' + (v.ex ? '' : '<a class="wmap" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' 保育園 世田谷区') + '" target="_blank" rel="noopener">🗺️ 地図・写真を見る</a>') + '</span>'
+    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</b><small>' + esc(v.area || '') + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + '</small>' + wsum(v) + '<small>' + (ez ? '<span class="ezb ez-' + ez.k + '" title="' + esc(ez.why) + '">あなたの点:' + ez.l + '</span> ' : '') + (s && s.vac !== null ? '空き' + s.vac + '人・倍率' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small>' + (v.ex ? '' : '<a class="wmap" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' 保育園 世田谷区') + '" target="_blank" rel="noopener">🗺️ 地図・写真を見る(タップ)</a>') + '</span>'
       + '<span style="display:flex; gap:4px; flex:none"><button type="button" data-w="up" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0" aria-label="外す">✕</button></span></div>';
   });
   var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
@@ -1538,7 +1538,7 @@ function decorateFind(){
     var nm = (c.querySelector('.fn') || {}).textContent || '', ar = (c.querySelector('.area') || {}).textContent || '';
     var strip = document.createElement('div'); strip.className = 'fimg';
     var q = encodeURIComponent(nm + ' 保育園 世田谷区');
-    strip.innerHTML = '<span class="fpic">' + FIMG + '</span><span class="ftx"><small class="fcap">イラスト(見学の写真があると、ここに出ます)</small><a href="https://www.google.com/maps/search/?api=1&query=' + q + '" target="_blank" rel="noopener">🗺️ 地図・写真を見る</a></span>';
+    strip.innerHTML = '<span class="fpic">' + FIMG + '</span><span class="ftx"><small class="fcap">イラスト(見学の写真があると、ここに出ます)</small><a href="https://www.google.com/maps/search/?api=1&query=' + q + '" target="_blank" rel="noopener">🗺️ 地図・写真を見る(タップ)</a></span>';
     var fs = c.querySelector('.fs'); c.insertBefore(strip, fs);
     if(photoLookup) photoLookup(ar + '|' + nm).then(function(d){
       if(d){ strip.querySelector('.fpic').innerHTML = '<img src="' + d + '" alt="見学の写真" style="width:72px; height:56px; object-fit:cover; border-radius:12px; display:block">'; strip.querySelector('.fcap').textContent = '見学で撮った写真'; }
