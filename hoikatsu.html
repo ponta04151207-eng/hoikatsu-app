@@ -540,6 +540,8 @@ img{max-width:100%}
       <p class="hint" style="margin:0 0 6px"><b>○</b> よい　<b>△</b> ふつう　<b>✕</b> いまいち。もう一度押すと未評価にもどります。下の2つは自分で項目名を決められます。</p>
       <div id="vItems"></div>
       <div id="vGrade" class="gradebox" aria-live="polite"></div>
+      <label class="field" for="v-rmemo">フリーメモ</label>
+      <textarea id="v-rmemo" rows="2" placeholder="気づいたことを自由に"></textarea>
       </div>
       <p class="err" id="vErr" hidden></p>
       <div class="nav" style="margin-top:16px">
@@ -2254,7 +2256,7 @@ window.SHISUU_DIST.r8 = {
   function showGrade(){
     var st = {}; V_ITEMS.forEach(function(it){ var r = document.querySelector('input[name="st-' + it.id + '"]:checked'); st[it.id] = r ? r.value : 'q'; });
     var g = grade({st: st}), el = $('vGrade'); if(!el) return;
-    el.innerHTML = '<span class="gl">総合評価(自動)</span><span class="gb big ' + g.k + '">' + g.l + '</span><span class="gd">○' + g.c.g + ' △' + g.c.w + ' ✕' + g.c.b + (g.l === '―' ? '<br>○△✕を3項目以上つけると出ます' : '<br>' + {A:'○が8割以上', B:'○が5割以上', C:'○が5割未満'}[g.l] + '(？は数えません)') + '</span>';
+    el.innerHTML = '<span class="gl">総合評価(自動)</span><span class="gb big ' + g.k + '">' + g.l + '</span><span class="gd">○' + g.c.g + ' △' + g.c.w + ' ✕' + g.c.b + (g.l === '―' ? '<br>○△✕を3項目以上つけると出ます' : '<br>' + {A:'○が8割以上', B:'○が5割以上', C:'○が5割未満'}[g.l] + '(未評価は数えません)') + '</span>';
   }
   document.addEventListener('change', function(e){ if(e.target && e.target.name && e.target.name.indexOf('st-') === 0) showGrade(); });
   /* もう一度押すと未評価にもどる */
@@ -2279,7 +2281,7 @@ window.SHISUU_DIST.r8 = {
     var v = id ? vFind(id) : {name:(pre && pre.name) || '', area:(pre && pre.area) || V_AREAS[0], date:today(), st:pack(''), ra:0, rb:0, memo:''};
     $('v-area').value = v.area; fillNames();
     $('v-name').value = v.name; $('v-date').value = v.date || '';
-    $('v-memo').value = v.memo || ''; $('v-good').value = v.good || ''; $('v-bad').value = v.bad || ''; $('v-ask').value = v.ask || '';
+    $('v-memo').value = v.memo || ''; $('v-rmemo').value = v.memo || ''; $('v-good').value = v.good || ''; $('v-bad').value = v.bad || ''; $('v-ask').value = v.ask || '';
     $('vNoteBox').hidden = (mode === 'rate'); $('vRateBox').hidden = (mode !== 'rate');
     $('h-vf').textContent = mode === 'rate' ? '評価を入れる(園を比べる用)' : '見学メモ';
     Array.prototype.forEach.call(document.querySelectorAll('#vItems input[type=radio]'), function(r){ r.checked = false; r.dataset.was = '0'; });
@@ -2312,7 +2314,7 @@ window.SHISUU_DIST.r8 = {
     var f = matchFac(name);
     rec.name = name; rec.area = f ? f[0] : $('v-area').value; rec.fac = f ? f[0] + '|' + f[1] : null;
     rec.date = $('v-date').value;
-    rec.memo = $('v-memo').value.trim(); rec.good = $('v-good').value.trim(); rec.bad = $('v-bad').value.trim(); rec.ask = $('v-ask').value.trim(); rec.ex = false;
+    rec.memo = (!$('vRateBox').hidden ? $('v-rmemo') : $('v-memo')).value.trim(); rec.good = $('v-good').value.trim(); rec.bad = $('v-bad').value.trim(); rec.ask = $('v-ask').value.trim(); rec.ex = false;
     rec.st = {};
     V_ITEMS.forEach(function(it){ var r = document.querySelector('input[name="st-'+it.id+'"]:checked'); rec.st[it.id] = r ? r.value : 'q'; });
     if(!editing) visits.push(rec);
@@ -2847,6 +2849,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=205"></script>
+<script src="features.js?v=207"></script>
 </body>
 </html>
