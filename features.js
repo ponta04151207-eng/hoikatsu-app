@@ -733,7 +733,7 @@ plus.className = 'panel'; plus.id = 'hkPlus';
 vSec.parentNode.insertBefore(plus, vSec.nextSibling);
 var CROWN = '<span class="hi" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 11l6 5 6-9 6 9 6-5-3 15H7z" fill="#ffd36b" stroke="#f0b429" stroke-width="1.5" stroke-linejoin="round"/><circle cx="4" cy="11" r="2" fill="#ff7b6b"/><circle cx="16" cy="6" r="2" fill="#ff7b6b"/><circle cx="28" cy="11" r="2" fill="#ff7b6b"/></svg></span>';
 if(!PREMIUM){
-  plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge" style="font-size:12px">有料版</span></h2><p class="hint" style="margin:0">写真、質問リスト、すべての園を並べて比べる、PDF、家族での共有、希望園を並べるは、有料版の機能です。</p>' + buyHtml();
+  plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge" style="font-size:12px">有料版</span></h2><p class="hint" style="margin:0">すべての園を並べて比べる、PDF・印刷、夫婦の同期は、有料版の機能です。</p>' + buyHtml();
 } else {
   plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge">有料版・お試し中</span></h2>'
   + '<p class="hint" style="margin:0 0 6px">いまは、お試しで全員が使えます。有料になるときは、先にお知らせします。</p>'
@@ -1317,7 +1317,7 @@ var PAID = [
   ['wish', '希望園を並べる', '第10希望までのリストを作って並べ替え。昨年の倍率と見学の評価を見ながら考えられます。'],
   ['dist', '各園の点数比較', 'あなたの希望の園の入りやすさと、自分の点数の位置がわかります!※高い方でも確実に入れるわけではありません。ご了承ください。無料版は、1園だけ見られます。', '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">分布でわかること・わからないこと</b></summary><ul class="hint" style="margin:6px 0 0; padding-left:1.2em"><li><b>わかる</b>: 自分の点数が、昨年入園した人の中で高い方か低い方か。「園を探す」の各園カードに、地域ごとの分布とあなたの位置を出します。</li><li><b>わかる</b>: 同じ点数の人が多い区分は、ほかの人と並びやすいということ。並んだ場合は、区の同点時の順位で決まります。</li><li><b>わからない</b>: 入れるかどうか。入園は、点数の高い順に、希望した園の空きへ入っていく形で決まるため、人気の園は高い点数が必要になります。点数が分布の上の方でも、希望が人気の園だけなら入れないことがあります。</li><li><b>わからない</b>: 今年の申込者数。令和9年は、申込者数や点数表が変わる可能性があります。</li><li>見方のコツ: 点数が高いほど有利です。第1希望の倍率が低めの園も混ぜて、希望を多めに書くのが基本です(希望園の数の制限は区に確認してください)。</li></ul></details>' + '<details class="dbx" style="margin:6px 0"><summary><b style="display:inline">例: ひまわり保育園(仮)・1歳児</b></summary><div class="dbc"><b>1歳児</b> <small style="display:inline">昨年100人(仮の数字)</small><div class="dbar"><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:5"></i><i class="qlo" style="flex:50"></i><i class="qlo" style="flex:10"></i><i class="qme" style="flex:10"></i><i class="qhi" style="flex:20"></i></div><div>最多は<b>105点</b>(50%)。あなたの107点は<b>真ん中あたり</b></div><div class="lgs"><span class="lg qlo">あなたより低い 70%(青)</span><span class="lg qme">あなたと同じ 10%(緑)</span><span class="lg qhi">あなたより高い 20%(橙)</span></div></div><small>これは仕組みを見せるための仮の例で、実際の園ではありません。<br>実際は、令和8年(2026年)4月に入園した児童の点数の分布(区の公表資料)と、あなたの予想点数(令和9年4月入園の申込み想定)を並べます。</small></details>'],
   ['sched', 'スケジュール', '区の申込みの日程と、やることリスト。締切が近づくと、画面の上にお知らせが出ます。カレンダーにも入れられます。'],
-  ['plus', '見学メモ プラス', '写真、質問リスト、すべての園を並べて比べる、PDF・印刷、夫婦の自動同期。'],
+  ['plus', '見学メモ プラス', 'すべての園を並べて比べる、PDF・印刷、夫婦の同期。'],
   ['docs', '提出前チェックと書類リスト', '状況に合わせた必要書類の一覧、出す前の最終チェック、書き写しメモ、勤務先への依頼文。'],
   ['adv', '点数アップのアドバイス', 'まだ使っていない加点や、点数が届きにくいときの別の預け先を提案します。']
 ];
@@ -1998,7 +1998,7 @@ function syJoin(code, manual){
 (function(){
   var nav = document.querySelector('.tabs'); if(!nav || document.getElementById('tabPlus')) return;
   var b = document.createElement('button'); b.type = 'button'; b.id = 'tabPlus'; b.className = 'hero';
-  b.innerHTML = '<span class="ti">📷</span><span style="text-align:left"><span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap!important">' + CR + '<span>見学メモ プラス</span></span><small style="display:block; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap!important; letter-spacing:-0.03em; padding-left:13px">写真・共有・PDF</small></span>';
+  b.innerHTML = '<span class="ti">📷</span><span style="text-align:left"><span style="display:inline-flex; align-items:center; gap:3px; white-space:nowrap!important">' + CR + '<span>見学メモ プラス</span></span><small style="display:block; font-size:10px; font-weight:500; line-height:1.2; white-space:nowrap!important; letter-spacing:-0.03em; padding-left:13px">園を比較・PDF・同期</small></span>';
   nav.appendChild(b);
   b.addEventListener('click', function(){
     document.getElementById('tabVisit').click();
@@ -2242,7 +2242,7 @@ function syJoin(code, manual){
     var ed = th.querySelector('[data-act="edit"]'); var id = ed && ed.getAttribute('data-id');
     if(x){ var k = x.closest('.vphg').getAttribute('data-k'); tx('readwrite', function(s){ return s.delete(k); }).then(function(){ refresh(th, id); }, function(){ refresh(th, id); }); return; }
     if(im){ im.closest('.vphg').classList.toggle('big'); return; }
-    if(b && !PREMIUM){ th.querySelector('.vphm').textContent = ' 写真は、有料の「見学メモ プラス」で使えます。'; }
+    if(b && !PREMIUM){ th.querySelector('.vphm').textContent = ' 写真は、有料版で使えます。'; }
   });
   new MutationObserver(function(){ setTimeout(decorate, 50); }).observe(list, {childList: true});
   setTimeout(decorate, 500);
