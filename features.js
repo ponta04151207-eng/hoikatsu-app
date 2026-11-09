@@ -123,9 +123,12 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
-    '.vph{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:6px 0 0}',
-    '.vph .vphb{min-height:28px!important; padding:1px 10px!important; font-size:12px!important}',
-    '.vph .vphi{width:40px; height:40px; object-fit:cover; border-radius:8px; border:1px solid #d8e3e8}',
+    '.vph{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:6px 0 0; font-weight:400}',
+    '.vph .vphb{display:inline-flex; align-items:center; min-height:28px!important; padding:1px 10px!important; font-size:12px!important; border-radius:999px; border:1.5px solid #bfe3d8; background:#f1faf7; color:#1d6b5c; font-weight:700; cursor:pointer}',
+    '.vph .vphg{position:relative; margin:0}',
+    '.vph .vphg img{width:52px; height:52px; object-fit:cover; border-radius:8px; border:1px solid #d8e3e8; display:block}',
+    '.vph .vphg.big{flex-basis:100%}.vph .vphg.big img{width:100%; height:auto; max-height:70vh; object-fit:contain}',
+    '.vph .vphx{position:absolute; top:-5px; right:-5px; width:20px!important; height:20px!important; min-height:0!important; min-width:0!important; padding:0!important; border-radius:50%!important; font-size:11px!important; line-height:1; background:#fff; border:1px solid #c9d6dc!important}',
     '.vph .vphm{font-size:11px; color:#a3281f}',
     '.feat li.fpd ~ li .ft b{font-size:15.5px!important; font-weight:900!important; color:#0b5f52!important; -webkit-text-stroke:.3px #0b5f52; letter-spacing:.01em}',
     '#viewDocs a.olink{display:block; margin:8px 0 2px; padding:9px 12px; border-radius:999px; background:#0f8a7a; color:#fff!important; text-align:center; font-size:13px; font-weight:800; text-decoration:none!important; box-shadow:0 2px 0 #0a6b5e}',
@@ -2097,44 +2100,64 @@ function syJoin(code, manual){
     });
   });
 })();
-/* ===== 見学した園のカードに「写真」(見学メモ プラスの写真に入ります) ===== */
+/* ===== 見学した園のカードの中に、写真を入れる(見学メモ プラスの写真と同じ場所に保存) ===== */
 (function(){
   var list = document.getElementById('vList'); if(!list) return;
-  var busy = false;
-  function getAll(){
-    return new Promise(function(res){
-      try{
-        var r = indexedDB.open('hoikatsu-photos', 1);
-        r.onupgradeneeded = function(){ r.result.createObjectStore('p', {keyPath: 'k'}); };
-        r.onsuccess = function(){ try{ var q = r.result.transaction('p', 'readonly').objectStore('p').getAll(); q.onsuccess = function(){ res(q.result || []); }; q.onerror = function(){ res([]); }; }catch(e){ res([]); } };
-        r.onerror = function(){ res([]); };
-      }catch(e){ res([]); }
+  var dbp = null;
+  function db(){
+    if(dbp) return dbp;
+    dbp = new Promise(function(res, rej){
+      try{ var r = indexedDB.open('hoikatsu-photos', 1); r.onupgradeneeded = function(){ r.result.createObjectStore('p', {keyPath: 'k'}); }; r.onsuccess = function(){ res(r.result); }; r.onerror = function(){ rej(r.error); }; }catch(e){ rej(e); }
     });
+    return dbp;
+  }
+  function tx(mode, fn){ return db().then(function(d){ return new Promise(function(res, rej){ var t = d.transaction('p', mode), o = fn(t.objectStore('p')); t.oncomplete = function(){ res(o ? o.result : undefined); }; t.onerror = function(){ rej(t.error); }; }); }); }
+  function getAll(){ return tx('readonly', function(s){ return s.getAll(); }).then(function(a){ return a || []; }, function(){ return []; }); }
+  function shrink(file, cb){
+    var img = new Image(), url = URL.createObjectURL(file);
+    img.onload = function(){ var k = Math.min(1, 900 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); cb(c.toDataURL('image/jpeg', 0.72)); };
+    img.onerror = function(){ URL.revokeObjectURL(url); cb(null); };
+    img.src = url;
+  }
+  function esc2(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var busy = false;
+  function paint(th, id, ps){
+    var d = th.querySelector('.vph'); if(!d){ d = document.createElement('div'); d.className = 'vph'; th.appendChild(d); }
+    if(!PREMIUM){ d.innerHTML = '<button type="button" class="mini vphb" data-id="' + id + '">📷 写真(有料)</button><span class="vphm"></span>'; return; }
+    d.innerHTML = '<label class="mini vphb vphl">📷 写真を入れる' + (ps.length ? '(' + ps.length + '枚)' : '') + '<input type="file" accept="image/*" multiple class="vphf" data-id="' + id + '" hidden></label>'
+      + ps.map(function(p){ return '<figure class="vphg" data-k="' + esc2(p.k) + '"><img src="' + p.d + '" alt="見学の写真"><button type="button" class="vphx" aria-label="写真を削除">✕</button></figure>'; }).join('') + '<span class="vphm"></span>';
   }
   function decorate(){
     if(busy) return; busy = true;
-    var btns = list.querySelectorAll('[data-act="edit"]'), need = [];
-    Array.prototype.forEach.call(btns, function(b){ var c = b.closest('th'); if(c && !c.querySelector('.vph')) need.push({c: c, id: b.getAttribute('data-id')}); });
-    if(!need.length){ busy = false; return; }
+    var ths = [];
+    Array.prototype.forEach.call(list.querySelectorAll('[data-act="edit"]'), function(b){ var th = b.closest('th'); if(th && !th.querySelector('.vph')) ths.push({th: th, id: b.getAttribute('data-id')}); });
+    if(!ths.length){ busy = false; return; }
     getAll().then(function(all){
-      need.forEach(function(n){
-        if(n.c.querySelector('.vph')) return;
-        var ps = all.filter(function(p){ return p.v === n.id; }).sort(function(a, b){ return a.t - b.t; });
-        var d = document.createElement('div'); d.className = 'vph';
-        d.innerHTML = '<button type="button" class="mini vphb" data-id="' + n.id + '">📷 写真' + (PREMIUM ? (ps.length ? '(' + ps.length + '枚)' : 'をつける') : '(有料)') + '</button>'
-          + (PREMIUM ? ps.slice(0, 4).map(function(p){ return '<img src="' + p.d + '" alt="見学の写真" class="vphi">'; }).join('') : '') + '<span class="vphm"></span>';
-        n.c.appendChild(d);
-      });
+      ths.forEach(function(n){ if(n.th.querySelector('.vph')) return; paint(n.th, n.id, all.filter(function(p){ return p.v === n.id; }).sort(function(a, b){ return a.t - b.t; })); });
       busy = false;
     });
   }
+  function refresh(th, id){
+    getAll().then(function(all){
+      paint(th, id, all.filter(function(p){ return p.v === id; }).sort(function(a, b){ return a.t - b.t; }));
+      var s = document.getElementById('hkSel'); if(s && s.value === id) s.dispatchEvent(new Event('change', {bubbles: true}));
+    });
+  }
+  list.addEventListener('change', function(e){
+    var t = e.target; if(!t.classList || !t.classList.contains('vphf')) return;
+    var id = t.getAttribute('data-id'), th = t.closest('th'), fs = Array.prototype.slice.call(t.files || []), left = fs.length;
+    if(!left) return;
+    var m = th.querySelector('.vphm'); if(m) m.textContent = ' 保存しています…';
+    var done = function(){ if(--left === 0) refresh(th, id); };
+    fs.forEach(function(f, i){ shrink(f, function(d){ if(!d){ done(); return; } tx('readwrite', function(s){ return s.put({k: id + ':' + Date.now() + ':' + i, v: id, t: Date.now() + i, d: d}); }).then(done, done); }); });
+  });
   list.addEventListener('click', function(e){
-    var b = e.target.closest('.vphb'), im = e.target.closest('.vphi'); if(!b && !im) return;
-    var c = (b || im).closest('th'), id = c.querySelector('[data-act="edit"]').getAttribute('data-id');
-    if(!PREMIUM){ c.querySelector('.vphm').innerHTML = ' 写真は、有料の「見学メモ プラス」で使えます。'; return; }
-    var s = document.getElementById('hkSel'); if(!s) return;
-    s.value = id; s.dispatchEvent(new Event('change', {bubbles: true}));
-    var d = document.getElementById('hkD1'); if(d){ d.open = true; setTimeout(function(){ d.scrollIntoView({block: 'start'}); }, 80); }
+    var x = e.target.closest('.vphx'), im = e.target.closest('.vphg img'), b = e.target.closest('.vphb');
+    var th = e.target.closest('th'); if(!th) return;
+    var ed = th.querySelector('[data-act="edit"]'); var id = ed && ed.getAttribute('data-id');
+    if(x){ var k = x.closest('.vphg').getAttribute('data-k'); tx('readwrite', function(s){ return s.delete(k); }).then(function(){ refresh(th, id); }, function(){ refresh(th, id); }); return; }
+    if(im){ im.closest('.vphg').classList.toggle('big'); return; }
+    if(b && !PREMIUM){ th.querySelector('.vphm').textContent = ' 写真は、有料の「見学メモ プラス」で使えます。'; }
   });
   new MutationObserver(function(){ setTimeout(decorate, 50); }).observe(list, {childList: true});
   setTimeout(decorate, 500);
