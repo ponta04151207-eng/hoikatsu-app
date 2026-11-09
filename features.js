@@ -1484,6 +1484,7 @@ function renderSet(){
     + row('share', 'このアプリを友達に教える')
     + row('mail', 'お問い合わせ')
     + row('code', '購入コードを入れる・課金でできること<small style="display:block; font-size:11px; font-weight:500; color:var(--muted); line-height:1.4; margin-top:2px">購入コード: 有料プランを買ったことを知らせる合言葉です。</small>')
+    + row('backup', 'データのバックアップ(書き出し・読み込み)') + '<div id="hkBkBox" hidden></div>'
     + row('lock', 'パスコードロック(' + (lkGet() ? 'オン' : 'オフ') + ')') + '<div id="hkLockBox" hidden></div>'
     + row('privacy', 'プライバシーポリシー')
     + row('terms', '利用規約')
@@ -1512,6 +1513,13 @@ viewS.addEventListener('click', function(e){
   }
   else if(k === 'mail') location.href = 'mailto:' + CONTACT + '?subject=' + encodeURIComponent('保活アプリについて');
   else if(k === 'code') showPaid();
+  else if(k === 'backup'){
+    var kb = $('hkBkBox'); kb.hidden = !kb.hidden; if(kb.hidden) return;
+    kb.innerHTML = '<div style="padding:10px 6px"><p class="hint" style="margin:0 0 8px">見学メモ・評価・希望園・チェックなど、このアプリのデータをファイルに書き出せます。機種変更やブラウザのデータ削除に備えて、ときどき保存してください。写真は含まれません。</p>'
+      + '<button type="button" class="primary" id="hkBkOut" style="width:100%">📤 データを書き出す</button>'
+      + '<p class="hint" style="margin:12px 0 6px">書き出したファイルから戻すときは、下で選びます。いまのデータは、ファイルの内容に置きかわります。</p>'
+      + '<input type="file" id="hkBkIn" accept=".json,application/json" style="width:100%"></div>';
+  }
   else if(k === 'lock'){
     var bx = $('hkLockBox'); bx.hidden = !bx.hidden; if(bx.hidden) return;
     var on = !!lkGet();
@@ -1522,8 +1530,33 @@ viewS.addEventListener('click', function(e){
   }
   else window.open(k + '.html', '_blank', 'noopener');
 });
+viewS.addEventListener('change', function(e){
+  if(e.target.id !== 'hkBkIn') return;
+  var f = e.target.files && e.target.files[0], m = $('hkSm'); if(!f) return;
+  var rd = new FileReader();
+  rd.onload = function(){
+    try{
+      var o = JSON.parse(rd.result);
+      if(!o || o.app !== 'hoikatsu' || !o.data) throw 0;
+      var n = Object.keys(o.data).filter(function(k){ return k.indexOf('hoikatsu-') === 0; });
+      if(!n.length) throw 0;
+      if(!confirm('いまのデータを、ファイルの内容に置きかえます(' + n.length + '件)。よろしいですか?')) { e.target.value = ''; return; }
+      n.forEach(function(k){ try{ localStorage.setItem(k, o.data[k]); }catch(x){} });
+      m.textContent = '読み込みました。画面を更新します。'; setTimeout(function(){ location.reload(); }, 700);
+    }catch(x){ m.textContent = 'このファイルは読み込めません。書き出したファイルを選んでください。'; }
+  };
+  rd.readAsText(f);
+});
 viewS.addEventListener('click', function(e){
   var id = e.target.id, m = $('hkSm');
+  if(id === 'hkBkOut'){
+    var d = {}; try{ for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k.indexOf('hoikatsu-') === 0 && k !== 'hoikatsu-lock-v1') d[k] = localStorage.getItem(k); } }catch(x){}
+    var blob = new Blob([JSON.stringify({app: 'hoikatsu', v: 1, at: new Date().toISOString(), data: d})], {type: 'application/json'});
+    var a = document.createElement('a'), u = URL.createObjectURL(blob), t = new Date();
+    a.href = u; a.download = 'hoikatsu-backup-' + t.getFullYear() + ('0' + (t.getMonth() + 1)).slice(-2) + ('0' + t.getDate()).slice(-2) + '.json';
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); }, 1500);
+    m.textContent = 'データを書き出しました。ファイルは、大切に保管してください。';
+  }
   if(id === 'hkLkOn'){
     var a = $('hkLk1').value, b = $('hkLk2').value;
     if(!/^[0-9]{4,8}$/.test(a)){ m.textContent = '数字を4〜8けたで入れてください。'; return; }
