@@ -479,7 +479,7 @@ img{max-width:100%}
         <li><b>昨年入園した子の点数を見る</b><span>地域とクラスごとに、昨年入園した子の点数の分布を表示します。自分の点数がどこに当たるかが分かります。</span></li>
         <li><b>いまの空きを見る</b><span>区が毎月更新している、各園の空き数(予定)を、0〜5歳のクラスごとに見られます。空きがある園だけに絞ることもできます。</span></li>
         <li><b>園ごとに倍率を比べる</b><span>令和9年4月の入園可能数と、昨年の申込数から、園ごとの倍率を並べます。縦の表と横の表を切り替えられます。</span></li>
-        <li><b>見学メモをつける(無料は1園まで)</b><span>良かったところ・気になったところ・次に聞くこと、○△✕の評価、質問リスト、写真を記録します。声でも入力できます。同じ園は1つにまとまります。</span></li>
+        <li><b>見学メモをつける(無料は1園まで)</b><span>○△✕の評価、質問リスト、写真を記録します。声でも入力できます。同じ園は1つにまとまります。</span></li>
         <li><b>スケジュールを見る</b><span>区の申込みの日程と、やることリストを見られます。締切が近いとお知らせが出ます。カレンダーにも入れられます。</span></li>
         <li><b>提出前チェックと書類リスト</b><span>状況に合わせて、必要書類を一覧にします。出す前の最終チェックと、書き写しメモ、勤務先への依頼文もあります。</span></li>
         <li><b>有料の機能(お試し中)</b><span>空きアラート、2園以上の見学メモと比較、合格しやすさの目安、希望園を並べる、見学メモ プラス(PDF・印刷、夫婦の同期)などです。</span></li>
@@ -532,15 +532,10 @@ img{max-width:100%}
       </div>
       <div id="hkQslot"></div>
       <div id="vNoteBox">
-        <h3 class="grp" style="margin-top:18px">③ 見学メモ</h3>
-        <p class="hint" style="margin:0 0 4px">見たこと・聞いたことを、自分の言葉で書き留めます。</p>
-        <label class="field" for="v-good">👍 良かったところ</label>
-        <textarea id="v-good" rows="2" placeholder="例: 園庭が広い、先生が明るい"></textarea>
-        <label class="field" for="v-bad">⚠ 気になったところ</label>
-        <textarea id="v-bad" rows="2" placeholder="例: 駐輪場が狭い"></textarea>
-        <label class="field" for="v-ask">❓ 次に聞くこと</label>
-        <textarea id="v-ask" rows="2" placeholder="例: 延長保育の時間、アレルギー対応"></textarea>
-        <label class="field" for="v-memo">そのほかのメモ</label>
+        <h3 class="grp" style="margin-top:18px">③ フリーメモ</h3>
+        <p class="hint" style="margin:0 0 4px">上の項目に入らないことを、自由に書き留めます。</p>
+        <textarea id="v-good" hidden></textarea><textarea id="v-bad" hidden></textarea><textarea id="v-ask" hidden></textarea>
+        
         <textarea id="v-memo"></textarea>
       </div>
       <p class="err" id="vErr" hidden></p>
@@ -2281,7 +2276,7 @@ window.SHISUU_DIST.r8 = {
     var v = id ? vFind(id) : {name:(pre && pre.name) || '', area:(pre && pre.area) || V_AREAS[0], date:today(), st:pack(''), ra:0, rb:0, memo:''};
     $('v-area').value = v.area; fillNames();
     $('v-name').value = v.name; $('v-date').value = v.date || '';
-    $('v-memo').value = v.memo || ''; $('v-good').value = v.good || ''; $('v-bad').value = v.bad || ''; $('v-ask').value = v.ask || '';
+    $('v-memo').value = [v.memo, v.good ? '良かったところ: ' + v.good : '', v.bad ? '気になったところ: ' + v.bad : '', v.ask ? '次に聞くこと: ' + v.ask : ''].filter(Boolean).join('\n'); $('v-good').value = ''; $('v-bad').value = ''; $('v-ask').value = '';
     $('vNoteBox').hidden = false; $('vRateBox').hidden = false;
     $('h-vf').textContent = '見学メモ';
     Array.prototype.forEach.call(document.querySelectorAll('#vItems input[type=radio]'), function(r){ r.checked = false; r.dataset.was = '0'; });
@@ -2855,6 +2850,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=225"></script>
+<script src="features.js?v=226"></script>
 </body>
 </html>

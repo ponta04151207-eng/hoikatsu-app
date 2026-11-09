@@ -143,7 +143,7 @@ css.textContent = [
     '#viewVisit #vForm label.field{font-size:11.5px!important; margin:6px 0 2px!important; line-height:1.3!important}',
     '#viewVisit #vForm select,#viewVisit #vForm input[type=text],#viewVisit #vForm input[type=date]{height:32px!important; min-height:32px!important; font-size:12.5px!important; padding:2px 10px!important; border-radius:10px!important}',
     '#viewVisit #vForm textarea{font-size:12.5px!important; min-height:40px!important; height:44px!important; padding:5px 10px!important; border-radius:10px!important; line-height:1.4!important}',
-    '#viewVisit #vForm textarea#v-memo{height:44px!important}',
+    '#viewVisit #vForm textarea#v-memo{height:90px!important}',
     '#viewVisit #vForm .vmic{min-height:24px!important; padding:0 10px!important; font-size:11px!important; margin:3px 0 0!important}',
     '#viewVisit #vForm .vnote{font-size:10px!important; margin-left:4px!important; white-space:nowrap!important}',
     '#viewVisit #vForm .item{padding:3px 0!important; gap:6px!important; min-height:0!important}',
@@ -412,7 +412,7 @@ css.textContent = [
   '#vForm h3.grp{font-size:13px!important; margin:10px 0 3px!important; padding:2px 10px!important}',
   '#vForm label.field{font-size:11.5px!important; margin:8px 0 3px!important}',
   '#vForm input[type=text],#vForm input[type=date],#vForm select{font-size:13px!important; min-height:34px!important; height:34px!important; padding:0 10px!important; border-radius:12px!important}',
-  '#vForm textarea{display:block!important; margin:0!important; resize:none; height:48px!important}#vForm textarea#v-memo{height:48px!important}',
+  '#vForm textarea{display:block!important; margin:0!important; resize:none; height:48px!important}#vForm textarea#v-memo{height:90px!important}#vForm textarea[hidden]{display:none!important}',
   '#vForm textarea{font-size:13px!important; min-height:0!important; padding:6px 10px!important; border-radius:12px!important; line-height:1.4!important}',
   '#vForm .hint{font-size:10.5px!important; line-height:1.45!important; margin:3px 0 0!important}',
   '#vForm .nav{margin-top:10px!important; gap:8px!important}#vForm .nav button{min-height:36px!important; height:36px!important; font-size:13px!important; padding:0 14px!important}',
@@ -2234,7 +2234,7 @@ function syJoin(code, manual){
 /* ===== 見学メモの入力欄に「声で入力」ボタン ===== */
 (function(){
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition, cur = null;
-  ['v-good', 'v-bad', 'v-ask', 'v-memo'].forEach(function(id){
+  ['v-memo'].forEach(function(id){
     var ta = document.getElementById(id); if(!ta || ta.parentNode.querySelector('.vmic[data-for="' + id + '"]')) return;
     var b = document.createElement('button'); b.type = 'button'; b.className = 'vmic'; b.setAttribute('data-for', id);
     b.innerHTML = '🎤 声で入力する';
