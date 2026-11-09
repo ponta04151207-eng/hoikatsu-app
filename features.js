@@ -135,6 +135,22 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '#viewVisit #vForm{padding:11px 12px 10px!important}',
+    '#viewVisit #vForm h2{font-size:15px!important; margin:0 0 4px!important; line-height:1.35!important}',
+    '#viewVisit #vForm h3.grp{font-size:12.5px!important; margin:8px 0 2px!important; padding:2px 10px!important}',
+    '#viewVisit #vForm .hint{font-size:10.5px!important; line-height:1.4!important; margin:2px 0 3px!important}',
+    '#viewVisit #vForm label.field{font-size:11.5px!important; margin:6px 0 2px!important; line-height:1.3!important}',
+    '#viewVisit #vForm select,#viewVisit #vForm input[type=text],#viewVisit #vForm input[type=date]{height:32px!important; min-height:32px!important; font-size:12.5px!important; padding:2px 10px!important; border-radius:10px!important}',
+    '#viewVisit #vForm textarea{font-size:12.5px!important; min-height:40px!important; height:44px!important; padding:5px 10px!important; border-radius:10px!important; line-height:1.4!important}',
+    '#viewVisit #vForm textarea#v-memo{height:44px!important}',
+    '#viewVisit #vForm .vmic{min-height:24px!important; padding:0 10px!important; font-size:11px!important; margin:3px 0 0!important}',
+    '#viewVisit #vForm .vnote{font-size:10px!important; margin-left:4px!important; white-space:nowrap!important}',
+    '#viewVisit #vForm .item{padding:3px 0!important; gap:6px!important; min-height:0!important}',
+    '#viewVisit #vForm .item .il{font-size:12px!important; line-height:1.3!important}',
+    '#viewVisit #vForm .seg label span{min-width:34px!important; height:28px!important; min-height:28px!important; font-size:13px!important; line-height:28px!important; padding:0 6px!important}',
+    '#viewVisit #vForm .gradebox{font-size:12px!important; padding:6px 10px!important; margin-top:6px!important}',
+    '#viewVisit #vForm .nav{margin-top:10px!important; gap:8px!important}',
+    '#viewVisit #vForm .nav button{min-height:36px!important; padding:3px 14px!important; font-size:13px!important}',
     '#hkD2 #hkQ .qsel{display:flex; gap:5px; margin:3px 0 0 21px}',
     '#hkD2 #hkQ .qsel select{flex:1; min-width:0; height:27px!important; min-height:27px!important; font-size:11.5px!important; padding:0 22px 0 8px!important; border-radius:9px!important; letter-spacing:0!important; background-position:right 6px center!important}',
     '#hkD2 #hkQ .qk{padding:3px 0!important}',
@@ -2119,7 +2135,7 @@ function syJoin(code, manual){
     var b = document.createElement('button'); b.type = 'button'; b.className = 'vmic'; b.setAttribute('data-for', id);
     b.innerHTML = '🎤 声で入力する';
     var msg = document.createElement('span'); msg.className = 'vmsg'; msg.setAttribute('role', 'status');
-    var nt = document.createElement('span'); nt.className = 'vnote'; nt.textContent = 'お子さんを抱っこしたままでも、声でメモできます。';
+    var nt = document.createElement('span'); nt.className = 'vnote'; nt.textContent = '抱っこしたままでも、声でメモできます。';
     ta.insertAdjacentElement('afterend', msg); ta.insertAdjacentElement('afterend', nt); ta.insertAdjacentElement('afterend', b);
     function stop(){ if(cur){ try{ cur.rec.stop(); }catch(e){} } }
     b.addEventListener('click', function(){
