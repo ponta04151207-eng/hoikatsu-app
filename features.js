@@ -2278,7 +2278,7 @@ function syJoin(code, manual){
       var old = th.querySelector('.vmemo[data-mine="1"]'), wasOpen = !!(old && old.open); if(old) old.remove();
       var v = vs.filter(function(x){ return x.id === id; })[0]; if(!v) return;
       var q = qa(id), s = v.st || {}, marks = HK.items.map(function(it){ var k = HK.status[s[it.id]] ? s[it.id] : 'q', ans = q.by[it.id]; return '<li' + (k === 'q' && !ans ? ' class="qno"' : '') + '>' + HK.status[k].s + ' ' + esc(it.l) + (ans ? ' <b class="qa">' + esc(ans) + '</b>' : '') + '</li>'; });
-      var has = v.good || v.bad || v.ask || v.memo || marks.some(function(m){ return m.indexOf('qno') < 0; }) || q.extra.length;
+      var has = v.good || v.bad || v.ask || v.memo || marks.some(function(m){ return m.indexOf('qno') < 0; });
       var det = th.querySelector('.vmemo');
       if(!has) return;
       if(!det){
@@ -2289,7 +2289,7 @@ function syJoin(code, manual){
       }
       var extra = '';
       if(marks.length) extra += '<p><b>✅ 確認した項目と聞いた答え(○よい △ふつう ✕いまいち)</b></p><ul class="vml">' + marks.join('') + '</ul>';
-      if(q.extra.length) extra += '<p><b>❓ そのほか聞いたこと</b></p><ul class="vml">' + q.extra.join('') + '</ul>';
+      
       var g = HK.grade(v), sm = det.querySelector('summary');
       if(sm) sm.insertAdjacentHTML('afterend', '<p class="vtot"><b>総評</b>' + HK.gbadge(v) + '<span>○' + g.c.g + ' △' + g.c.w + ' ✕' + g.c.b + '</span></p>');
       det.insertAdjacentHTML('beforeend', '<div class="vfull">' + extra + '</div>');
