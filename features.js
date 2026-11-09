@@ -232,7 +232,8 @@ css.textContent = [
     '#hkWish .hint{font-size:11px!important; line-height:1.45!important}',
     '#hkWish .ezb{font-size:11px!important; padding:0 7px!important; margin:0 3px 0 0!important; white-space:nowrap}',
     '#hkWish .ezbox{padding:6px 9px!important; font-size:12px!important}',
-    '.wtop{display:block; width:100%; margin:6px 0; padding:8px 10px; font-size:13px; font-weight:700; border-radius:10px; border:1px solid #e6d7a8; background:#fffaf0; color:#7a4a00; text-align:center}',
+    '.wtop{display:block!important; width:100%; margin:8px 0!important; padding:12px 14px!important; border-radius:14px!important; border:2px solid #ff8a3c!important; background:linear-gradient(135deg,#fff0d6,#ffe0c2)!important; color:#8a3a00!important; text-align:left!important; font-size:14px!important; box-shadow:0 3px 0 #e8863a; animation:wpulse 2s ease-in-out infinite}.wtop .wh{display:block; font-size:16px; font-weight:900}.wtop .wl{display:block; font-size:14px; margin-top:3px}.wtop .wgo{display:block; margin-top:5px; font-size:13px; font-weight:800; color:#c2410c}.wtop .wdm{display:inline-block; font-style:normal; font-size:11px; font-weight:800; background:#8a3a00; color:#fff; border-radius:999px; padding:0 8px; margin-bottom:4px}@keyframes wpulse{0%,100%{box-shadow:0 3px 0 #e8863a}50%{box-shadow:0 3px 0 #e8863a,0 0 0 4px rgba(255,138,60,.25)}}',
+    '.wtop-old{display:block; width:100%; margin:6px 0; padding:8px 10px; font-size:13px; font-weight:700; border-radius:10px; border:1px solid #e6d7a8; background:#fffaf0; color:#7a4a00; text-align:center}',
     '.advl{margin:0; padding-left:1.2em; display:grid; gap:4px; font-size:13px; line-height:1.6}',
     '.ezb{display:inline-block; font-size:11px; font-weight:700; padding:1px 7px; border-radius:99px; margin-left:4px; vertical-align:1px}',
     '.ez-easy{background:#dff3e4; color:#1d6b35}.ez-mid{background:#fff1cc; color:#8a5a00}.ez-hard{background:#fde0df; color:#a3281f}',
@@ -2150,6 +2151,7 @@ function syJoin(code, manual){
     if(changes.length) h += '<ul class="advl">' + changes.map(function(c){ return '<li><b>' + esc(c.v.name) + '</b>(' + c.c + '歳児): ' + fmt(c.a) + ' → <b>' + fmt(c.b) + '</b>' + (c.a == null ? ' 空き表に載りました' : c.b == null ? ' 空き表から消えました' : c.b > c.a ? ' 空きが増えました' : ' 空きが減りました') + '</li>'; }).join('') + '</ul><button type="button" class="mini" id="hkWok" style="margin-top:6px">確認した</button>';
     else if(ws.length && snap.d && Object.keys(snap.d).length) h += '<p class="hint">前に見たときから、変わった園はありません(空き表の確認日 ' + esc(NOW.checkedOn) + ')。</p>';
     h += '<p style="margin:10px 0 4px"><b>カレンダーで思い出す</b></p><p class="hint" style="margin:0 0 6px">毎月1日と15日に「空きを確認」の予定を入れます。区の空き表は月ごとに更新されます。</p><button type="button" id="hkWcal" style="width:100%">📅 カレンダーに入れる(毎月1日・15日)</button>';
+    h += '<button type="button" id="hkWdemo" style="width:100%; margin-top:8px">🔔 お知らせの出かたを見る(見本)</button>';
     box.innerHTML = h;
   }
   function ics(){
@@ -2176,13 +2178,24 @@ function syJoin(code, manual){
     if(!snap.d) save();
     render();
     if(!PREMIUM){ var d7 = document.getElementById('hkD7'); if(d7) d7.querySelector('div').innerHTML = '<p class="hint" style="margin:0">この機能は、有料版です。</p>' + buyHtml(); return; }
-    if(changes.length){
-      top = document.createElement('button'); top.type = 'button'; top.className = 'wtop';
-      top.textContent = '🔔 空きが変わった園があります(' + changes.length + '園) ›';
-      top.onclick = function(){ var d = document.getElementById('hkD7'); document.getElementById('tabVisit').click(); setTimeout(function(){ if(d){ d.open = true; d.scrollIntoView(); } }, 150); };
-      var tabsEl = document.querySelector('.tabs'); if(tabsEl) tabsEl.parentNode.insertBefore(top, tabsEl);
-    }
+    if(changes.length) showTop(changes.map(function(c){ return {name: c.v.name, c: c.c, a: c.a, b: c.b}; }), false);
   }
+  function showTop(items, demo){
+    if(top){ top.remove(); top = null; }
+    top = document.createElement('button'); top.type = 'button'; top.className = 'wtop' + (demo ? ' demo' : '');
+    var lines = items.slice(0, 3).map(function(c){ return '<span class="wl"><b>' + esc(c.name) + '</b>(' + c.c + '歳児) ' + fmt(c.a) + ' → <b>' + fmt(c.b) + '</b></span>'; }).join('');
+    top.innerHTML = (demo ? '<i class="wdm">表示の見本(仮)</i>' : '') + '<span class="wh">🔔 空きが変わった園があります(' + items.length + '園)</span>' + lines + (items.length > 3 ? '<span class="wl">ほか' + (items.length - 3) + '園</span>' : '') + '<span class="wgo">タップして見る ›</span>';
+    top.onclick = function(){ var d = document.getElementById('hkD7'); document.getElementById('tabVisit').click(); setTimeout(function(){ if(d){ d.open = true; d.scrollIntoView(); } }, 150); };
+    var h1 = document.querySelector('h1'), host = h1 && h1.parentNode;
+    if(host && host.firstElementChild) host.insertBefore(top, host.firstElementChild); else { var tabsEl = document.querySelector('.tabs'); if(tabsEl) tabsEl.parentNode.insertBefore(top, tabsEl); }
+  }
+  box.addEventListener('click', function(e){
+    if(e.target.id !== 'hkWdemo') return;
+    if(top && top.classList.contains('demo')){ top.remove(); top = null; e.target.textContent = '🔔 お知らせの出かたを見る(見本)'; return; }
+    var ws = watched(), nm0 = ws.length ? ws[0].name : '(例)サンプル第一保育園';
+    showTop([{name: nm0, c: HK.cls(), a: 0, b: 2}], true);
+    e.target.textContent = '見本を消す'; window.scrollTo(0, 0);
+  });
   setTimeout(init, 400);
 })();
 /* ===== 見学メモの入力欄に「声で入力」ボタン ===== */
