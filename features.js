@@ -123,6 +123,15 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '#hkQ .hint{font-size:11px!important; line-height:1.4!important; margin:0 0 4px!important}',
+    '#hkQ .qk{padding:5px 0!important; display:block!important; border-top:1px dotted #d3dfe5!important}',
+    '#hkQ .qk label{display:flex!important; align-items:flex-start!important; gap:7px!important; min-height:0!important; font-size:12.5px!important; line-height:1.4!important; font-weight:700!important}',
+    '#hkQ .qk input[type=checkbox]{width:17px!important; height:17px!important; min-width:17px!important; min-height:0!important; margin:1px 0 0!important; flex:none}',
+    '#hkQ .qk input[type=text]{height:30px!important; min-height:30px!important; margin:4px 0 0 24px!important; width:calc(100% - 24px)!important; font-size:12px!important; padding:2px 10px!important; border-radius:9px!important}',
+    '#hkQ .addtk{margin-top:8px!important; display:flex!important; flex-wrap:wrap; gap:5px!important; align-items:center}',
+    '#hkQ .addtk label{font-size:11.5px!important; flex:1 0 100%; margin:0!important}',
+    '#hkQ .addtk input[type=text]{height:30px!important; min-height:30px!important; flex:1; min-width:0; font-size:12px!important; padding:2px 10px!important}',
+    '#hkQ .addtk button{min-height:30px!important; padding:2px 12px!important; font-size:12px!important}',
     '.vph{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:6px 0 0; font-weight:400}',
     '.vph .vphb{display:inline-flex; align-items:center; min-height:28px!important; padding:1px 10px!important; font-size:12px!important; border-radius:999px; border:1.5px solid #bfe3d8; background:#f1faf7; color:#1d6b5c; font-weight:700; cursor:pointer}',
     '.vph .vphg{position:relative; margin:0}',
