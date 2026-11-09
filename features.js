@@ -68,16 +68,16 @@ var TASKS = [
 
 /* ===== 見学メモ プラス: 質問リスト ===== */
 var QUESTIONS = [
-  'クラスの人数と、先生の人数(1人の先生が何人みるか)',
+  'クラスの人数と先生の人数',
   '慣らし保育の期間と進め方',
-  '発熱時のお迎えの目安と、病児・病後児保育の使い方',
-  '給食、アレルギー対応、離乳食の進め方',
-  '持ち物(布団・おむつ・着替え)と、名前つけの量',
+  '発熱時のお迎え・病児保育の使い方',
+  '給食・アレルギー対応・離乳食',
+  '持ち物(布団・おむつ)と名前つけ',
   '延長保育の時間と料金',
-  '送迎の時間帯、駐輪場、きょうだいがいる場合の配慮',
-  '保育料のほかにかかる費用(用品代・行事費など)',
+  '送迎の時間帯・駐輪場・きょうだい配慮',
+  '保育料以外の費用(用品代・行事費)',
   '先生の入れ替わりの様子',
-  '連絡帳(紙・アプリ)と、保護者への連絡の方法'
+  '連絡帳(紙・アプリ)と連絡方法'
 ];
 
 
@@ -123,6 +123,11 @@ document.addEventListener('click', function(e){
 /* ===== 見た目 ===== */
 var css = document.createElement('style');
 css.textContent = [
+    '#hkD2 #hkQ .qk{padding:3px 0!important}',
+    '#hkD2 #hkQ .qk label{font-size:clamp(10.5px,3.1vw,12px)!important; gap:6px!important; align-items:center!important; letter-spacing:0!important}',
+    '#hkD2 #hkQ .qk label > span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}',
+    '#hkD2 #hkQ .qk input[type=checkbox]{width:15px!important; height:15px!important; min-width:15px!important; margin:0!important}',
+    '#hkD2 #hkQ .qk input[type=text]{height:26px!important; min-height:26px!important; margin:3px 0 0 21px!important; width:calc(100% - 21px)!important; font-size:11.5px!important; padding:1px 9px!important}',
     '#hkQ .hint{font-size:11px!important; line-height:1.4!important; margin:0 0 4px!important}',
     '#hkQ .qk{padding:5px 0!important; display:block!important; border-top:1px dotted #d3dfe5!important}',
     '#hkQ .qk label{display:flex!important; align-items:flex-start!important; gap:7px!important; min-height:0!important; font-size:12.5px!important; line-height:1.4!important; font-weight:700!important}',
