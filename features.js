@@ -221,7 +221,7 @@ css.textContent = [
     '#hkWish .tk .x b{font-size:14px!important; line-height:1.3!important}',
     '#hkWish .tk .x .wmap{display:inline-block; margin-top:3px; font-size:12.5px; font-weight:700; color:var(--accent,#2a9d8f); text-decoration:none}',
     '.vmemo .vtot{display:flex!important; align-items:center; gap:8px}.vmemo .vtot b{display:inline!important; margin:0!important}.vmemo .vtot span{font-size:13px; font-weight:700}',
-    '.vmemo li.qno{color:var(--muted)}',
+    '.vmemo li.qno{color:var(--muted)}.vmemo li .qa{display:block; margin-left:1.4em; color:var(--accent,#2a9d8f); font-size:13px}',
     '#hkWish .tk .x .rs{font-size:12px!important; margin-top:2px!important}',
     '#hkWish .tk .x small{display:block; font-size:10.5px!important; line-height:1.35!important; margin-top:1px!important}',
     '#hkWish .tk .sc{font-size:10.5px!important; padding:0 6px!important; line-height:1.6!important}',
@@ -2259,13 +2259,16 @@ function syJoin(code, manual){
 /* ===== 「メモあり」をタップすると、保存した内容を全部見られる(気づき・○△？・質問の答え) ===== */
 (function(){
   var list = document.getElementById('vList'); if(!list) return;
+  var QMAP = {q0:'teacher', q1:'nareshi', q2:'sick', q3:'lunch', q4:'goods', q5:'hours', q6:'route', q7:'cost'};
   function qa(id){
-    var d = lsGet('hoikatsu-q-v1', {custom: [], a: {}}), a = (d.a && d.a[id]) || {}, out = [];
+    var d = lsGet('hoikatsu-q-v1', {custom: [], a: {}}), a = (d.a && d.a[id]) || {}, byItem = {}, extra = [];
     QUESTIONS.concat((d.custom || []).map(function(c){ return c.t; })).forEach(function(t, i){
       var r = a['q' + i] || ((d.custom || [])[i - QUESTIONS.length] && a[(d.custom[i - QUESTIONS.length]).id]) || null;
-      if(r && (r.d || r.n)) out.push('<li>✔ ' + esc(t) + (r.n ? ': <b>' + esc(r.n) + '</b>' : '') + '</li>');
+      if(!(r && (r.d || r.n))) return;
+      if(QMAP['q' + i]) byItem[QMAP['q' + i]] = r.n ? String(r.n) : '聞いた';
+      else extra.push('<li>✔ ' + esc(t) + (r.n ? ': <b>' + esc(r.n) + '</b>' : '') + '</li>');
     });
-    return out;
+    return {by: byItem, extra: extra};
   }
   function fill(){
     var vs = HK.getVisits();
@@ -2274,8 +2277,8 @@ function syJoin(code, manual){
       Array.prototype.forEach.call(th.querySelectorAll('.vfull, .vtot'), function(n){ n.remove(); });
       var old = th.querySelector('.vmemo[data-mine="1"]'), wasOpen = !!(old && old.open); if(old) old.remove();
       var v = vs.filter(function(x){ return x.id === id; })[0]; if(!v) return;
-      var s = v.st || {}, marks = HK.items.map(function(it){ var k = HK.status[s[it.id]] ? s[it.id] : 'q'; return '<li' + (k === 'q' ? ' class="qno"' : '') + '>' + HK.status[k].s + ' ' + esc(it.l) + '</li>'; });
-      var q = qa(id), has = v.good || v.bad || v.ask || v.memo || marks.some(function(m){ return m.indexOf('qno') < 0; }) || q.some(function(m){ return m.indexOf('qno') < 0; });
+      var q = qa(id), s = v.st || {}, marks = HK.items.map(function(it){ var k = HK.status[s[it.id]] ? s[it.id] : 'q', ans = q.by[it.id]; return '<li' + (k === 'q' && !ans ? ' class="qno"' : '') + '>' + HK.status[k].s + ' ' + esc(it.l) + (ans ? ' <b class="qa">' + esc(ans) + '</b>' : '') + '</li>'; });
+      var has = v.good || v.bad || v.ask || v.memo || marks.some(function(m){ return m.indexOf('qno') < 0; }) || q.extra.length;
       var det = th.querySelector('.vmemo');
       if(!has) return;
       if(!det){
@@ -2285,8 +2288,8 @@ function syJoin(code, manual){
         var vb = th.querySelector('.vb'); th.insertBefore(det, vb);
       }
       var extra = '';
-      if(marks.length) extra += '<p><b>✅ 確認した項目(○よい △ふつう ✕いまいち)</b></p><ul class="vml">' + marks.join('') + '</ul>';
-      if(q.length) extra += '<p><b>❓ 聞いたこと</b></p><ul class="vml">' + q.join('') + '</ul>';
+      if(marks.length) extra += '<p><b>✅ 確認した項目と聞いた答え(○よい △ふつう ✕いまいち)</b></p><ul class="vml">' + marks.join('') + '</ul>';
+      if(q.extra.length) extra += '<p><b>❓ そのほか聞いたこと</b></p><ul class="vml">' + q.extra.join('') + '</ul>';
       var g = HK.grade(v), sm = det.querySelector('summary');
       if(sm) sm.insertAdjacentHTML('afterend', '<p class="vtot"><b>総評</b>' + HK.gbadge(v) + '<span>○' + g.c.g + ' △' + g.c.w + ' ✕' + g.c.b + '</span></p>');
       det.insertAdjacentHTML('beforeend', '<div class="vfull">' + extra + '</div>');
