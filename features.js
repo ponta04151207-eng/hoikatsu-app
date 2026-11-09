@@ -830,7 +830,7 @@ function renderPhotos(){
 var Q_KEY = 'hoikatsu-q-v1';
 var qd = lsGet(Q_KEY, {custom: [], a: {}});
 if(!qd.custom) qd.custom = []; if(!qd.a) qd.a = {};
-function qSave(){ lsSet(Q_KEY, qd); }
+function qSave(){ lsSet(Q_KEY, qd); try{ document.dispatchEvent(new Event('hk-q')); }catch(e){} }
 function allQ(){ return QUESTIONS.map(function(t, i){ return {id: 'q' + i, t: t}; }).concat(qd.custom.map(function(c){ return {id: c.id, t: c.t}; })); }
 function qAns(q, r){
   var g = QOPT[q.id];
@@ -2267,14 +2267,16 @@ function syJoin(code, manual){
   function fill(){
     var vs = HK.getVisits();
     Array.prototype.forEach.call(list.querySelectorAll('[data-act="edit"]'), function(b){
-      var th = b.closest('th'), id = b.getAttribute('data-id'); if(!th || th.getAttribute('data-full') === '1') return;
+      var th = b.closest('th'), id = b.getAttribute('data-id'); if(!th) return;
+      Array.prototype.forEach.call(th.querySelectorAll('.vfull, .vtot'), function(n){ n.remove(); });
+      var old = th.querySelector('.vmemo[data-mine="1"]'), wasOpen = !!(old && old.open); if(old) old.remove();
       var v = vs.filter(function(x){ return x.id === id; })[0]; if(!v) return;
       var s = v.st || {}, marks = HK.items.map(function(it){ var k = HK.status[s[it.id]] ? s[it.id] : 'q'; return '<li' + (k === 'q' ? ' class="qno"' : '') + '>' + HK.status[k].s + ' ' + esc(it.l) + '</li>'; });
       var q = qa(id), has = v.good || v.bad || v.ask || v.memo || marks.some(function(m){ return m.indexOf('qno') < 0; }) || q.some(function(m){ return m.indexOf('qno') < 0; });
       var det = th.querySelector('.vmemo');
-      if(!has){ th.setAttribute('data-full', '1'); return; }
+      if(!has) return;
       if(!det){
-        det = document.createElement('details'); det.className = 'vmemo';
+        det = document.createElement('details'); det.className = 'vmemo'; det.setAttribute('data-mine', '1'); if(wasOpen) det.open = true;
         function fld(t, x){ return '<p><b>' + t + '</b>' + (x ? esc(x) : '<i class="none">未記入</i>') + '</p>'; }
         det.innerHTML = '<summary>📝 メモあり<span>▼ 見る</span></summary>' + fld('👍 良かったところ', v.good) + fld('⚠ 気になったところ', v.bad) + fld('❓ 次に聞くこと', v.ask) + fld('📝 そのほかのメモ', v.memo);
         var vb = th.querySelector('.vb'); th.insertBefore(det, vb);
@@ -2284,11 +2286,14 @@ function syJoin(code, manual){
       extra += '<p><b>❓ 質問リスト</b></p>' + (q.length ? '<ul class="vml">' + q.join('') + '</ul>' : '<p><i class="none">未記入</i></p>');
       var g = HK.grade(v), sm = det.querySelector('summary');
       if(sm) sm.insertAdjacentHTML('afterend', '<p class="vtot"><b>総評</b>' + HK.gbadge(v) + '<span>○' + g.c.g + ' △' + g.c.w + ' ✕' + g.c.b + '</span></p>');
-      det.insertAdjacentHTML('beforeend', extra);
-      th.setAttribute('data-full', '1');
+      det.insertAdjacentHTML('beforeend', '<div class="vfull">' + extra + '</div>');
     });
   }
   new MutationObserver(function(){ setTimeout(fill, 60); }).observe(list, {childList: true});
   setTimeout(fill, 600);
+  var ft = null; function later(){ clearTimeout(ft); ft = setTimeout(fill, 80); }
+  document.addEventListener('hk-q', later);
+  document.addEventListener('visibilitychange', later);
+  var sv = document.getElementById('vSave'); if(sv) sv.addEventListener('click', function(){ setTimeout(fill, 150); setTimeout(fill, 700); });
 })();
 })();
