@@ -2338,3 +2338,41 @@ function syJoin(code, manual){
   var sv = document.getElementById('vSave'); if(sv) sv.addEventListener('click', function(){ setTimeout(fill, 150); setTimeout(fill, 700); });
 })();
 })();
+
+/* ===== 画面を短くする(有料タブと説明の折りたたみ・下の点数の帯を小さく) ===== */
+(function(){
+  var st = document.createElement('style');
+  st.textContent = [
+    '.bar{padding-top:5px!important; padding-bottom:calc(5px + env(safe-area-inset-bottom,0px))!important; border-radius:14px 14px 0 0!important}',
+    '.bar .t{font-size:12px!important}',
+    '.bar .n{font-size:21px!important}',
+    '.tgl.pd{cursor:pointer; user-select:none}',
+    '.tgl.pd .tgm{margin-left:auto; font-size:12px; font-weight:700; color:#8a5a00}',
+    '.tabs.pdc #tabAlert,.tabs.pdc #tabCmp3,.tabs.pdc #tabEase,.tabs.pdc #tabWish,.tabs.pdc #tabDist,.tabs.pdc #tabSched,.tabs.pdc #tabPlus,.tabs.pdc #tabDocs,.tabs.pdc #tabAdv{display:none!important}',
+    '.feat:not(.po) li.fpd ~ li small,.feat:not(.po) li.fpd ~ li .dbx,.feat:not(.po) li.fpd ~ li br{display:none!important}',
+    '.feat:not(.po) li.fpd ~ li{padding-top:4px!important; padding-bottom:4px!important; min-height:0!important}',
+    '.feat li.fpd{cursor:pointer}',
+    '.feat li.fpd .fpm{margin-left:auto; font-size:12px; font-weight:700; color:#8a5a00; white-space:nowrap}'
+  ].join('\n');
+  document.head.appendChild(st);
+  function lg(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function ls(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+  var nav = document.querySelector('.tabs'), pd = nav && nav.querySelector('.tgl.pd');
+  if(nav && pd){
+    var m = document.createElement('span'); m.className = 'tgm'; pd.appendChild(m);
+    pd.removeAttribute('aria-hidden'); pd.setAttribute('role', 'button'); pd.tabIndex = 0;
+    function setT(c){ nav.classList.toggle('pdc', c); m.textContent = c ? '▼ 開く' : '▲ 閉じる'; pd.setAttribute('aria-expanded', c ? 'false' : 'true'); ls('hoikatsu-pdc-v1', c ? '1' : '0'); }
+    setT(lg('hoikatsu-pdc-v1') !== '0');
+    pd.addEventListener('click', function(){ setT(!nav.classList.contains('pdc')); });
+    pd.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pd.click(); } });
+  }
+  var feat = document.querySelector('.feat'), fp = feat && feat.querySelector('li.fpd');
+  if(feat && fp){
+    var fm = document.createElement('span'); fm.className = 'fpm'; fp.appendChild(fm);
+    fp.setAttribute('role', 'button'); fp.tabIndex = 0;
+    function setF(o){ feat.classList.toggle('po', o); fm.textContent = o ? '▲ 説明を閉じる' : '▼ 説明を見る'; }
+    setF(false);
+    fp.addEventListener('click', function(){ setF(!feat.classList.contains('po')); });
+    fp.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); fp.click(); } });
+  }
+})();
