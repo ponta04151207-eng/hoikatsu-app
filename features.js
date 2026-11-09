@@ -2264,7 +2264,6 @@ function syJoin(code, manual){
     QUESTIONS.concat((d.custom || []).map(function(c){ return c.t; })).forEach(function(t, i){
       var r = a['q' + i] || ((d.custom || [])[i - QUESTIONS.length] && a[(d.custom[i - QUESTIONS.length]).id]) || null;
       if(r && (r.d || r.n)) out.push('<li>✔ ' + esc(t) + (r.n ? ': <b>' + esc(r.n) + '</b>' : '') + '</li>');
-      else out.push('<li class="qno">☐ ' + esc(t) + ' <i class="none">未</i></li>');
     });
     return out;
   }
@@ -2287,7 +2286,7 @@ function syJoin(code, manual){
       }
       var extra = '';
       if(marks.length) extra += '<p><b>✅ 確認した項目(○よい △ふつう ✕いまいち)</b></p><ul class="vml">' + marks.join('') + '</ul>';
-      extra += '<p><b>❓ 質問リスト</b></p>' + (q.length ? '<ul class="vml">' + q.join('') + '</ul>' : '<p><i class="none">未記入</i></p>');
+      if(q.length) extra += '<p><b>❓ 聞いたこと</b></p><ul class="vml">' + q.join('') + '</ul>';
       var g = HK.grade(v), sm = det.querySelector('summary');
       if(sm) sm.insertAdjacentHTML('afterend', '<p class="vtot"><b>総評</b>' + HK.gbadge(v) + '<span>○' + g.c.g + ' △' + g.c.w + ' ✕' + g.c.b + '</span></p>');
       det.insertAdjacentHTML('beforeend', '<div class="vfull">' + extra + '</div>');
