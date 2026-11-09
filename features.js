@@ -221,6 +221,7 @@ css.textContent = [
     '#hkWish .tk .x b{font-size:14px!important; line-height:1.3!important}',
     '#hkWish .tk .x .wmap{display:inline-block; margin-top:3px; font-size:12.5px; font-weight:700; color:var(--accent,#2a9d8f); text-decoration:none}',
     '.vmemo .vtot{display:flex!important; align-items:center; gap:8px}.vmemo .vtot b{display:inline!important; margin:0!important}.vmemo .vtot span{font-size:13px; font-weight:700}',
+    '.vmemo li.qno{color:var(--muted)}',
     '#hkWish .tk .x .rs{font-size:12px!important; margin-top:2px!important}',
     '#hkWish .tk .x small{display:block; font-size:10.5px!important; line-height:1.35!important; margin-top:1px!important}',
     '#hkWish .tk .sc{font-size:10.5px!important; padding:0 6px!important; line-height:1.6!important}',
@@ -2258,7 +2259,8 @@ function syJoin(code, manual){
     var d = lsGet('hoikatsu-q-v1', {custom: [], a: {}}), a = (d.a && d.a[id]) || {}, out = [];
     QUESTIONS.concat((d.custom || []).map(function(c){ return c.t; })).forEach(function(t, i){
       var r = a['q' + i] || ((d.custom || [])[i - QUESTIONS.length] && a[(d.custom[i - QUESTIONS.length]).id]) || null;
-      if(r && (r.d || r.n)) out.push('<li>' + esc(t) + (r.n ? ': <b>' + esc(r.n) + '</b>' : ' ✔') + '</li>');
+      if(r && (r.d || r.n)) out.push('<li>✔ ' + esc(t) + (r.n ? ': <b>' + esc(r.n) + '</b>' : '') + '</li>');
+      else out.push('<li class="qno">☐ ' + esc(t) + ' <i class="none">未</i></li>');
     });
     return out;
   }
@@ -2267,8 +2269,8 @@ function syJoin(code, manual){
     Array.prototype.forEach.call(list.querySelectorAll('[data-act="edit"]'), function(b){
       var th = b.closest('th'), id = b.getAttribute('data-id'); if(!th || th.getAttribute('data-full') === '1') return;
       var v = vs.filter(function(x){ return x.id === id; })[0]; if(!v) return;
-      var s = v.st || {}, marks = HK.items.filter(function(it){ return s[it.id] && s[it.id] !== 'q'; }).map(function(it){ return '<li>' + HK.status[s[it.id]].s + ' ' + esc(it.l) + '</li>'; });
-      var q = qa(id), has = v.good || v.bad || v.ask || v.memo || marks.length || q.length;
+      var s = v.st || {}, marks = HK.items.map(function(it){ var k = HK.status[s[it.id]] ? s[it.id] : 'q'; return '<li' + (k === 'q' ? ' class="qno"' : '') + '>' + HK.status[k].s + ' ' + esc(it.l) + '</li>'; });
+      var q = qa(id), has = v.good || v.bad || v.ask || v.memo || marks.some(function(m){ return m.indexOf('qno') < 0; }) || q.some(function(m){ return m.indexOf('qno') < 0; });
       var det = th.querySelector('.vmemo');
       if(!has){ th.setAttribute('data-full', '1'); return; }
       if(!det){
