@@ -151,13 +151,13 @@ css.textContent = [
     '#viewVisit #vForm .gradebox{font-size:12px!important; padding:6px 10px!important; margin-top:6px!important}',
     '#viewVisit #vForm .nav{margin-top:10px!important; gap:8px!important}',
     '#viewVisit #vForm .nav button{min-height:36px!important; padding:3px 14px!important; font-size:13px!important}',
-    '#hkD2 #hkQ .qsel{display:flex; gap:5px; margin:3px 0 0 21px}',
-    '#hkD2 #hkQ .qsel select{flex:1; min-width:0; height:27px!important; min-height:27px!important; font-size:11.5px!important; padding:0 22px 0 8px!important; border-radius:9px!important; letter-spacing:0!important; background-position:right 6px center!important}',
-    '#hkD2 #hkQ .qk{padding:3px 0!important}',
-    '#hkD2 #hkQ .qk label{font-size:clamp(10.5px,3.1vw,12px)!important; gap:6px!important; align-items:center!important; letter-spacing:0!important}',
-    '#hkD2 #hkQ .qk label > span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}',
-    '#hkD2 #hkQ .qk input[type=checkbox]{width:15px!important; height:15px!important; min-width:15px!important; margin:0!important}',
-    '#hkD2 #hkQ .qk input[type=text]{height:26px!important; min-height:26px!important; margin:3px 0 0 21px!important; width:calc(100% - 21px)!important; font-size:11.5px!important; padding:1px 9px!important}',
+    '#viewVisit #hkQ .qsel{display:flex; gap:5px; margin:3px 0 0 21px}',
+    '#viewVisit #hkQ .qsel select{flex:1; min-width:0; height:27px!important; min-height:27px!important; font-size:11.5px!important; padding:0 22px 0 8px!important; border-radius:9px!important; letter-spacing:0!important; background-position:right 6px center!important}',
+    '#viewVisit #hkQ .qk{padding:3px 0!important}',
+    '#viewVisit #hkQ .qk label{font-size:clamp(10.5px,3.1vw,12px)!important; gap:6px!important; align-items:center!important; letter-spacing:0!important}',
+    '#viewVisit #hkQ .qk label > span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}',
+    '#viewVisit #hkQ .qk input[type=checkbox]{width:15px!important; height:15px!important; min-width:15px!important; margin:0!important}',
+    '#viewVisit #hkQ .qk input[type=text]{height:26px!important; min-height:26px!important; margin:3px 0 0 21px!important; width:calc(100% - 21px)!important; font-size:11.5px!important; padding:1px 9px!important}',
     '#hkQ .hint{font-size:11px!important; line-height:1.4!important; margin:0 0 4px!important}',
     '#hkQ .qk{padding:5px 0!important; display:block!important; border-top:1px dotted #d3dfe5!important}',
     '#hkQ .qk label{display:flex!important; align-items:flex-start!important; gap:7px!important; min-height:0!important; font-size:12.5px!important; line-height:1.4!important; font-weight:700!important}',
@@ -736,11 +736,9 @@ if(!PREMIUM){
 } else {
   plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge">有料版・お試し中</span></h2>'
   + '<p class="hint" style="margin:0 0 6px">いまは、お試しで全員が使えます。有料になるときは、先にお知らせします。</p>'
-  + '<label class="field" for="hkSel">園を選ぶ</label><select id="hkSel"></select>'
-  + '<details class="plus" id="hkD1"><summary>📷 写真をつける</summary><div id="hkPh"></div></details>'
-  + '<details class="plus" id="hkD2"><summary>❓ 質問リスト</summary><div id="hkQ"></div></details>'
+  + '<details class="plus" id="hkD1" hidden><summary>📷 写真をつける</summary><div id="hkPh"></div></details>'
   + '<details class="plus" id="hkD3"><summary>📊 すべての園を並べて比べる</summary><div id="hkAll"></div></details>'
-  + '<details class="plus" id="hkD4"><summary>📄 PDFにする・印刷する</summary><div><p class="hint" style="margin:0 0 8px">印刷の画面で「PDFに保存」を選ぶと、PDFになります。</p><button type="button" id="hkP1" style="width:100%; margin-bottom:8px">選んだ園のレポート(写真つき)</button><button type="button" id="hkP2" style="width:100%">すべての園のレポート</button></div></details>'
+  + '<details class="plus" id="hkD4"><summary>📄 PDFにする・印刷する</summary><div><label class="field" for="hkSel" style="margin-top:0">1園だけPDFにするとき、園を選ぶ</label><select id="hkSel"></select><p class="hint" style="margin:0 0 8px">印刷の画面で「PDFに保存」を選ぶと、PDFになります。</p><button type="button" id="hkP1" style="width:100%; margin-bottom:8px">選んだ園のレポート(写真つき)</button><button type="button" id="hkP2" style="width:100%">すべての園のレポート</button></div></details>'
   + '<details class="plus" id="hkD5"><summary>👪 夫婦・家族で共有する</summary><div id="hkSh"></div></details>'
   + '<details class="plus" id="hkD6"><summary>' + CR + ' 🏁 希望園を並べる</summary><div id="hkWish"></div></details>'
   + '<details class="plus" id="hkD7"><summary>' + CR + ' 🔔 空きが変わったらお知らせ</summary><div id="hkWatch"></div></details>';
@@ -837,11 +835,17 @@ function qAns(q, r){
     return '<select data-sel="' + esc(q.id) + '" data-i="' + i + '" aria-label="' + esc(x.p) + '"><option value="">' + esc(x.p) + '</option>' + x.o.map(function(o){ return '<option' + (cur.indexOf(o) >= 0 ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>';
   }).join('') + '</div>';
 }
+function qTarget(){
+  var fm = $('vForm'); if(!fm || fm.hidden) return null;
+  var id = HK.formId ? HK.formId() : null;
+  return {id: id || '__new', name: ''};
+}
 function renderQ(){
-  var v = curVisit(), box = $('hkQ');
-  if(!v){ box.innerHTML = '<p class="hint">先に、見学した園を追加してください。</p>'; return; }
+  var v = qTarget(), box = $('hkQ');
+  if(!box) return;
+  if(!v){ box.innerHTML = ''; return; }
   var a = qd.a[v.id] || (qd.a[v.id] = {}), qs = allQ(), n = qs.filter(function(q){ return a[q.id] && a[q.id].d; }).length;
-  box.innerHTML = '<p class="hint" style="margin:0 0 6px">' + esc(v.name) + ': 聞けた質問 ' + n + ' / ' + qs.length + '。聞けたらチェックして、答えを選びます。</p>'
+  box.innerHTML = '<p class="hint" style="margin:0 0 6px">聞けた質問 ' + n + ' / ' + qs.length + '。聞けたらチェックして、答えを選びます。</p>'
     + qs.map(function(q){
       var r = a[q.id] || {};
       return '<div class="qk"><label><input type="checkbox" data-q="' + esc(q.id) + '"' + (r.d ? ' checked' : '') + '><span>' + esc(q.t) + '</span></label>' + qAns(q, r) + '</div>';
@@ -1077,6 +1081,23 @@ $('hkWish').addEventListener('click', function(e){
 });
 
 /* --- 全体の更新 --- */
+(function(){
+  var nb = $('vNoteBox'), fm = $('vForm'); if(!nb || !fm || $('hkQ')) return;
+  var qb = document.createElement('div'); qb.id = 'hkQbox';
+  qb.innerHTML = '<h3 class="grp" style="margin-top:14px">❓ 質問リスト</h3><div id="hkQ"></div>';
+  nb.appendChild(qb);
+  new MutationObserver(function(){
+    if(fm.hidden) return;
+    if(!(HK.formId && HK.formId())){ qd.a.__new = {}; qSave(); }
+    renderQ();
+  }).observe(fm, {attributes: true, attributeFilter: ['hidden']});
+  $('vSave').addEventListener('click', function(){
+    if(!fm.hidden || (HK.formId && HK.formId())) return;
+    var vs = vis(), last = vs[vs.length - 1];
+    if(last && qd.a.__new){ qd.a[last.id] = qd.a.__new; delete qd.a.__new; qSave(); renderAll(); }
+  });
+  $('vCancel').addEventListener('click', function(){ if(qd.a.__new){ delete qd.a.__new; qSave(); } });
+})();
 function refreshSel(){
   var s = $('hkSel'), keep = s.value;
   s.innerHTML = vis().map(function(v){ return '<option value="' + esc(v.id) + '">' + esc(v.name) + '</option>'; }).join('');

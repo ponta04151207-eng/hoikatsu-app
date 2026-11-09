@@ -2492,7 +2492,7 @@ window.SHISUU_DIST.r8 = {
     getVisits: function(){ return visits; }, rerender: function(){ renderVisit(); },
     setVisits: function(a){ visits = a; vSave(); renderVisit(); },
     facMap: facMap, stat: stat, times: times, cls: function(){ return cls; }, esc: esc,
-    grade: grade, gbadge: gbadge, items: V_ITEMS, status: V_STATUS, counts: counts, tab: tab,
+    formId: function(){ return editing; }, grade: grade, gbadge: gbadge, items: V_ITEMS, status: V_STATUS, counts: counts, tab: tab,
     renderFind: function(){ renderFind(); },
     ease: ease, total: function(){ return calc().total; },
     setSort: function(v){ fSort = v; $('fSort').value = v; fShown = 15; }
@@ -2815,6 +2815,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=196"></script>
+<script src="features.js?v=197"></script>
 </body>
 </html>
