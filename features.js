@@ -219,6 +219,7 @@ css.textContent = [
     '#hkWish .tk{padding:5px 0!important; gap:6px!important; align-items:center!important}',
     '#hkWish .tk .x{min-width:0; flex:1}',
     '#hkWish .tk .x b{font-size:14px!important; line-height:1.3!important}',
+    '#hkWish .tk .x .wmap{display:inline-block; margin-top:3px; font-size:12.5px; font-weight:700; color:var(--accent,#2a9d8f); text-decoration:none}',
     '#hkWish .tk .x .rs{font-size:12px!important; margin-top:2px!important}',
     '#hkWish .tk .x small{display:block; font-size:10.5px!important; line-height:1.35!important; margin-top:1px!important}',
     '#hkWish .tk .sc{font-size:10.5px!important; padding:0 6px!important; line-height:1.6!important}',
@@ -1029,7 +1030,7 @@ function renderWish(){
   wish.forEach(function(id, i){
     var v = wVisit(id), s = vst(v), r = wR2(v), ez = ezOf(v);
     if(ez) EZ[ez.k]++; else EZ.none++;
-    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</b><small>' + esc(v.area || '') + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + '</small>' + wsum(v) + '<small>' + (ez ? '<span class="ezb ez-' + ez.k + '" title="' + esc(ez.why) + '">あなたの点:' + ez.l + '</span> ' : '') + (s && s.vac !== null ? '空き' + s.vac + '人・倍率' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small></span>'
+    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</b><small>' + esc(v.area || '') + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + '</small>' + wsum(v) + '<small>' + (ez ? '<span class="ezb ez-' + ez.k + '" title="' + esc(ez.why) + '">あなたの点:' + ez.l + '</span> ' : '') + (s && s.vac !== null ? '空き' + s.vac + '人・倍率' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small>' + (v.ex ? '' : '<a class="wmap" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' 保育園 世田谷区') + '" target="_blank" rel="noopener">🗺️ 地図・写真を見る</a>') + '</span>'
       + '<span style="display:flex; gap:4px; flex:none"><button type="button" data-w="up" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0" aria-label="外す">✕</button></span></div>';
   });
   var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
