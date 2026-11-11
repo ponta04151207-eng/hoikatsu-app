@@ -901,7 +901,7 @@ function renderAll(){
   var vs = realVisits(), box = $('hkAll');
   if(!vs.length){ box.innerHTML = '<p class="hint">見学した園を追加すると、ここに並びます。</p>'; return; }
   function row(label, fn){ return '<tr><th scope="row">' + esc(label) + '</th>' + vs.map(function(v){ return '<td>' + fn(v) + '</td>'; }).join('') + '</tr>'; }
-  var h = '<p class="hint" style="margin:0">園の数に上限はありません。横にスライドして見られます。</p><div class="tblwrap"><table class="cmp"><thead><tr><th scope="col">項目</th>' + vs.map(function(v){ return '<th scope="col">' + esc(v.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
+  var h = '<p class="hint" style="margin:0">園の数に上限はありません。横にスライドして見られます。</p><div class="tblwrap"><table class="cmp"><thead><tr><th scope="col">項目</th>' + vs.map(function(v){ return '<th scope="col"><button type="button" class="cmpname" data-alledit="' + esc(v.id) + '" aria-label="' + esc(v.name) + 'を編集">' + esc(v.name) + '<span class="ce">✏ 編集</span></button></th>'; }).join('') + '</tr></thead><tbody>';
   h += row('地域・見学日', function(v){ return esc(v.area) + (v.date ? '<br>' + esc(v.date.slice(5).replace('-', '/')) : ''); });
   h += row('総合評価', function(v){ var g = HK.grade(v); return HK.gbadge(v) + '<br><small>○' + g.c.g + ' △' + g.c.w + ' ✕' + g.c.b + '</small>'; });
   h += row('入園可能数', function(v){ var s = vst(v); return s && s.vac !== null ? s.vac + '人' : '―'; });
@@ -2339,4 +2339,13 @@ function syJoin(code, manual){
   document.addEventListener('visibilitychange', later);
   var sv = document.getElementById('vSave'); if(sv) sv.addEventListener('click', function(){ setTimeout(fill, 150); setTimeout(fill, 700); });
 })();
+})();
+
+/* すべての園を並べて比べる: 園名の下の編集ボタン */
+(function(){
+  var b = document.getElementById('hkAll'); if(!b) return;
+  b.addEventListener('click', function(e){
+    var t = e.target.closest('[data-alledit]'); if(!t || !window.HK || !HK.edit) return;
+    HK.edit(t.getAttribute('data-alledit'));
+  });
 })();
