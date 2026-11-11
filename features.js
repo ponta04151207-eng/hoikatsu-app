@@ -168,6 +168,9 @@ css.textContent = [
     '#hkQ .addtk label{font-size:11.5px!important; flex:1 0 100%; margin:0!important}',
     '#hkQ .addtk input[type=text]{height:30px!important; min-height:30px!important; flex:1; min-width:0; font-size:12px!important; padding:2px 10px!important}',
     '#hkQ .addtk button{min-height:30px!important; padding:2px 12px!important; font-size:12px!important}',
+    '#vList .vb{display:inline-flex; gap:6px; margin:0}',
+    '#vList td:nth-child(2){min-width:64px; text-align:center}',
+    '#vList td:nth-child(2) b{display:inline-block; font-size:22px!important; font-weight:900!important; line-height:1.1; color:#0b5f52; background:#e3f4ec; border:1.5px solid #9fd5c1; border-radius:10px; padding:4px 8px; white-space:nowrap}',
     '.vph{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:6px 0 0; font-weight:400}',
     '.vph .vphb{display:inline-flex; align-items:center; min-height:28px!important; padding:1px 10px!important; font-size:12px!important; border-radius:999px; border:1.5px solid #bfe3d8; background:#f1faf7; color:#1d6b5c; font-weight:700; cursor:pointer}',
     '.vph .vphg{position:relative; margin:0}',
@@ -2253,10 +2256,12 @@ function syJoin(code, manual){
   function esc2(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   var busy = false;
   function paint(th, id, ps){
+    var vb = th.querySelector('.vb');
     var d = th.querySelector('.vph'); if(!d){ d = document.createElement('div'); d.className = 'vph'; th.appendChild(d); }
     if(!PREMIUM){ d.innerHTML = '<button type="button" class="mini vphb" data-id="' + id + '">📷 写真(有料)</button><span class="vphm"></span>'; return; }
     d.innerHTML = '<label class="mini vphb vphl">📷 写真を入れる' + (ps.length ? '(' + ps.length + '枚)' : '') + '<input type="file" accept="image/*" multiple class="vphf" data-id="' + id + '" hidden></label>'
       + ps.map(function(p){ return '<figure class="vphg" data-k="' + esc2(p.k) + '"><img src="' + p.d + '" alt="見学の写真"><button type="button" class="vphx" aria-label="写真を削除">✕</button></figure>'; }).join('') + '<span class="vphm"></span>';
+    var lb = d.querySelector('.vphl'); if(vb){ if(lb) lb.insertAdjacentElement('afterend', vb); else d.insertBefore(vb, d.firstChild); }
   }
   function decorate(){
     if(busy) return; busy = true;
