@@ -2181,7 +2181,9 @@ window.SHISUU_DIST.r8 = {
           + st('第1希望', (z || s.fi === null) ? '―' : '<b>' + times(s.r1) + '</b>', (z || s.fi === null) ? '' : s.fi + '人')
           + st('全希望', (z || s.all === null) ? '―' : '<b>' + times(s.r2) + '</b>', (z || s.all === null) ? '' : s.all + '人')
           + '</div>' + distBox(x.f) + (window.HKNEAR ? HKNEAR.line(x.f) : '') + nowStrip(x.f) + ageTable(x.f)
-          + '<button type="button" class="bk" data-fbook="' + i + '">📞 見学を予約する</button><div class="bkp" hidden></div></article>';
+          + '<button type="button" class="bk" data-fbook="' + i + '">📞 見学を予約する</button><div class="bkp" hidden></div>'
+          + (function(){ var dv = visits.filter(function(v){ return !v.ex && v.name === x.f[1] && v.area === x.f[0]; })[0], on = dv && dv.cmp;
+              return '<button type="button" class="bk fcmp' + (on ? ' on' : '') + '" data-fcmp="' + i + '">' + (on ? '✔ 見学メモ・園を比べるに追加ずみ' : '＋ 見学メモ・園を比べるに追加') + '</button><p class="fcmsg hint" hidden></p>'; })() + '</article>';
       }).join('');
       $('fList').innerHTML = '<div class="fcards">' + ch + '</div>';
       $('fMore').hidden = shown.length >= a.length;
@@ -2425,6 +2427,24 @@ window.SHISUU_DIST.r8 = {
         }
         vSave(); renderVisit(); msg.textContent = '「見学した園」に、' + dt.slice(5).replace('-', '/') + ' ' + tm + 'の予定を入れました。';
       };
+      return;
+    }
+    var cb = e.target.closest('[data-fcmp]');
+    if(cb){
+      var cx = fRows[+cb.getAttribute('data-fcmp')], cm = cb.closest('.fcard').querySelector('.fcmsg'), ck = cx.f[0] + '|' + cx.f[1];
+      function say(t){ cm.textContent = t; cm.hidden = false; }
+      var cv = visits.filter(function(v){ return !v.ex && v.name === cx.f[1] && v.area === cx.f[0]; })[0];
+      if(cv && cv.cmp){ say('すでに追加ずみです。'); return; }
+      var csel = visits.filter(function(q){ return q.cmp; });
+      if(csel.length >= cmpMax()){
+        var cex = csel.filter(function(q){ return q.ex; })[0];
+        if(cex) cex.cmp = false;
+        else { say(window.HK_PREMIUM === false ? CMP_FREE_MSG + '「見学した園」の「比べる」のチェックを1つ外してください。' : '比べられるのは3園までです。「見学した園」の「比べる」のチェックを1つ外してください。'); return; }
+      }
+      if(!cv && visFull()){ say(VIS_FREE_MSG + '「見学した園」の「削除」で1園をはずしてください。'); return; }
+      if(cv) cv.cmp = true;
+      else visits.push({id:'v' + Date.now(), name:cx.f[1], area:cx.f[0], fac:ck, date:'', st:pack(''), memo:'', ex:false, cmp:true});
+      vSave(); renderVisit(); renderFind();
       return;
     }
     var b = e.target.closest('[data-fadd]'); if(!b) return;
@@ -2857,6 +2877,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=229"></script>
+<script src="features.js?v=230"></script>
 </body>
 </html>
