@@ -325,6 +325,16 @@ css.textContent = [
   '.tabs button small{font-size:9.5px!important}',
   '.tabs .tgl{font-size:10px!important; margin:0 2px!important}.tabs .tgl.pd{margin-top:3px!important}',
   '#tabAzuke,#tabIndex{font-size:11px!important}',
+    '.hkb .bst{font-size:12px; font-weight:800; color:#fff; background:#d93a2f; border-radius:999px; display:inline-block; padding:2px 12px; margin:0 0 4px}',
+    '.hkb.far{background:#fff8ec!important; border-color:#e6b955!important}.hkb.far .bst{background:#b4782a}.hkb.far .bd{color:#9a5b12}',
+    '.hkb .bls{margin:8px 0 0; text-align:left; background:rgba(255,255,255,.7); border-radius:12px; padding:6px 10px}',
+    '.hkb .bls summary{font-size:13px; font-weight:800; color:#7a2a1f; cursor:pointer; text-align:center}',
+    '.hkb .bmh{font-size:13px; font-weight:800; color:#0b5f52; margin:10px 0 3px; border-bottom:1.5px solid #cfe5dd}',
+    '.hkb .bli{display:grid; grid-template-columns:78px 1fr auto; gap:6px; align-items:baseline; font-size:12.5px; padding:4px 0; color:#4a5a63}',
+    '.hkb .bli.dl{color:#7a2a1f; font-weight:700}.hkb .bli .bld{font-weight:800}.hkb .bli .blk{font-weight:800; white-space:nowrap}',
+    '.hkb .bli em{font-style:normal; font-size:11px; font-weight:800; color:#fff; background:#2f8f7e; border-radius:999px; padding:1px 7px; margin-right:5px}',
+    '.hkb .bli.dl em{background:#d93a2f}',
+    '.hkb .bli .blt{font-weight:600; line-height:1.4}.hkb .bli.dl .blt{font-weight:800}',
   '.hkb.on{padding:5px 10px!important; margin:0 0 8px!important; border-radius:14px!important; text-align:center!important}',
   '.hkb .bm{display:flex!important; align-items:baseline; justify-content:center; gap:6px; margin:0!important}',
   '.hkb .bl{font-size:10.5px!important}',
@@ -614,14 +624,24 @@ function nextDeadline(){
   var a = EVENTS.filter(function(e){ return e.kind === '締切' && daysLeft(e.date) >= 0; });
   return a[0] || null;
 }
+function evStage(e){ return /^first/.test(e.id) ? '一次選考' : /^second/.test(e.id) ? '二次選考' : e.id === 'start' ? '' : e.id === 'consult' ? '個別相談' : ''; }
 function renderBanner(){
   var n = nextDeadline();
-  if(!n || daysLeft(n.date) > 14){ banner.className = 'hkb'; banner.innerHTML = ''; return; }
-  var k = daysLeft(n.date);
-  banner.className = 'hkb on';
-  banner.innerHTML = '<div class="bm"><span class="bl">📣 次の締切</span><b class="bd">' + (k === 0 ? '今日です' : 'あと' + k + '日') + '</b><span class="bdt">' + md(n.date) + '</span></div><div class="bt">' + esc(n.title) + '</div><button type="button" class="bmsg" id="hkBdoc">' + (k === 0 ? '今日が締切です。' : 'あと' + k + '日で締切です。') + '提出前チェックで書類のミスを防げます タップ ›</button>';
+  if(!n){ banner.className = 'hkb'; banner.innerHTML = ''; return; }
+  var k = daysLeft(n.date), st = evStage(n);
+  banner.className = 'hkb on' + (k > 14 ? ' far' : '');
+  var up = EVENTS.filter(function(e){ return daysLeft(e.date) >= 0 && e.id !== n.id; }), lh = '', cur = '';
+  up.forEach(function(e){
+    var d = ymd(e.date), ym = d.getFullYear() + '年' + (d.getMonth() + 1) + '月', s = evStage(e), kk = daysLeft(e.date);
+    if(ym !== cur){ cur = ym; lh += '<div class="bmh">' + ym + '</div>'; }
+    lh += '<div class="bli' + (e.kind === '締切' ? ' dl' : '') + '"><span class="bld">' + md(e.date) + '</span><span class="blt">' + (s && e.kind !== '入園' ? '<em>' + s + '</em>' : '') + esc(e.title.replace(/^(一次|二次)選考 ?/, '').replace(/\(令和9年4月入園\)/, '')) + '</span><span class="blk">' + (kk === 0 ? '今日' : 'あと' + kk + '日') + '</span></div>';
+  });
+  banner.innerHTML = '<div class="bst">令和9年4月入園' + (st ? '・' + st : '') + '</div><div class="bm"><span class="bl">📣 次の締切</span><b class="bd">' + (k === 0 ? '今日です' : 'あと' + k + '日') + '</b><span class="bdt">' + md(n.date) + '</span></div><div class="bt">' + esc(n.title) + '</div><button type="button" class="bmsg" id="hkBdoc">' + (k === 0 ? '今日が締切です。' : 'あと' + k + '日で締切です。') + '提出前チェックで書類のミスを防げます タップ ›</button>'
+    + (lh ? '<details class="bls" id="hkBls"><summary>このあとの締切・予定を月ごとに見る</summary>' + lh + '</details>' : '');
   banner.onclick = showSched;
-  var bd = document.getElementById('hkBdoc'); if(bd) bd.onclick = function(e){ e.stopPropagation(); document.getElementById('tabDocs').click(); }; banner.setAttribute('role', 'button'); banner.tabIndex = 0;
+  var bd = document.getElementById('hkBdoc'); if(bd) bd.onclick = function(e){ e.stopPropagation(); document.getElementById('tabDocs').click(); };
+  var bl = document.getElementById('hkBls'); if(bl) bl.onclick = function(e){ e.stopPropagation(); };
+  banner.setAttribute('role', 'button'); banner.tabIndex = 0;
 }
 
 function taskDue(t){ return t.ev ? addDays(EVENTS.filter(function(e){ return e.id === t.ev; })[0].date, t.off) : null; }
