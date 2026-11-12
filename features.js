@@ -2376,3 +2376,22 @@ function syJoin(code, manual){
     HK.edit(t.getAttribute('data-alledit'));
   });
 })();
+
+/* ===== 「できること」の右下: 締切・メニューまで移動するボタン ===== */
+(function(){
+  var feat = document.querySelector('.feat'); if(!feat || document.getElementById('hkJump')) return;
+  var st = document.createElement('style');
+  st.textContent = '.fjump{position:fixed; right:max(14px,calc(50% - 300px)); bottom:104px; z-index:40; display:none}.fjump.on{display:block}'
+    + '.fjump button{display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:0 16px; border-radius:999px; border:2px solid #fff; background:#0f8a7a; color:#fff; font-size:14px; font-weight:800; box-shadow:0 4px 12px rgba(15,100,90,.35); cursor:pointer}'
+    + '.fjump button b{font-size:18px; line-height:1}';
+  document.head.appendChild(st);
+  var w = document.createElement('div'); w.className = 'fjump';
+  w.innerHTML = '<button type="button" id="hkJump" aria-label="締切とメニューまで移動"><span>締切・メニューへ</span><b>⬇</b></button>';
+  document.body.appendChild(w);
+  var upd = function(){ var r = feat.getBoundingClientRect(), bn = document.getElementById('hkBanner'), tg = (bn && bn.classList.contains('on')) ? bn : document.querySelector('.tabs'), tr = tg ? tg.getBoundingClientRect() : null; w.classList.toggle('on', r.bottom > 120 && r.top < window.innerHeight && !(tr && tr.top < window.innerHeight - 160)); };
+  window.addEventListener('scroll', upd, {passive: true}); window.addEventListener('resize', upd); setTimeout(upd, 300); upd();
+  document.getElementById('hkJump').addEventListener('click', function(){
+    var b = document.getElementById('hkBanner'), t = (b && b.classList.contains('on')) ? b : document.querySelector('.tabs');
+    if(t && t.scrollIntoView) t.scrollIntoView({behavior: 'smooth', block: 'start'});
+  });
+})();
