@@ -525,6 +525,15 @@ css.textContent = [
 '.calh button{min-height:28px !important; min-width:34px !important}.calh b{font-size:14px !important}',
 '#hkCal h3{font-size:13px !important; margin:4px 0 2px !important}.cleg{font-size:10px !important}',
 '#hkCal .calh, #hkCal .cal7, #hkCal .cleg{max-width:290px; margin-left:auto; margin-right:auto}',
+'#hkCal .cday{min-height:52px!important; padding:4px 0 3px!important; border-width:2px!important; border-radius:10px!important; font-size:14px!important; gap:2px!important}',
+'#hkCal .cday .dots{display:flex!important; flex-direction:column; align-items:center; gap:2px; min-height:0!important; font-size:11px!important; white-space:normal}',
+'#hkCal .ck{display:block; font-size:10px; font-weight:900; line-height:1.25; padding:1px 4px; border-radius:6px; color:#fff; letter-spacing:0; white-space:nowrap}',
+'#hkCal .ck.r{background:#d93a2f}#hkCal .ck.t{background:#128a8a}',
+'#hkCal .ce{font-style:normal; font-size:11px; line-height:1}',
+'#hkCal .cday.dl{background:#fdeceb!important; border-color:#d93a2f!important}#hkCal .cday.up{background:#e3f5f3!important}',
+'#hkCal .cday.sel{background:var(--accent)!important}#hkCal .cday.sel .ck{outline:1.5px solid #fff}',
+'#hkCal .cleg{font-size:12px!important; gap:6px 14px!important; max-width:none!important; margin:10px 0!important}#hkCal .cleg .ck{display:inline-block}',
+'#hkCal .calh, #hkCal .cal7{max-width:none!important}',
 '.cday{min-height:22px !important; font-size:11px !important; padding:1px 0 0 !important; border-radius:6px !important; border-width:1px !important}.cday .dots{min-height:8px !important; font-size:7px !important}.cal7{gap:1px !important}.cal7 .wd{font-size:9px !important}',
 '.calh{margin-bottom:0 !important}.calh button{min-height:24px !important; min-width:30px !important; font-size:11px !important}.calh b{font-size:13px !important}',
 '.cleg{font-size:9px !important; gap:0 6px !important; margin:3px auto !important}',
@@ -674,9 +683,9 @@ function renderCal(){
     var ds = calY + '-' + pad(calM + 1) + '-' + pad(d), it = dayItems(ds), kinds = {};
     it.forEach(function(x){ kinds[x.k] = 1; });
     var ks = Object.keys(kinds).map(Number).sort();
-    h += '<button type="button" class="cday' + (ds === today ? ' today' : '') + (kinds[1] ? ' dl' : '') + (ds === calSel ? ' sel' : '') + '" data-cd="' + ds + '" aria-label="' + (calM + 1) + '月' + d + '日 ' + it.length + '件' + (kinds[1] ? '(申込の締切)' : '') + '"><span>' + d + '</span><span class="dots">' + ks.slice(0, 2).map(function(k){ return KIND[k][1]; }).join('') + (ks.length > 2 ? '+' : '') + '</span></button>';
+    h += '<button type="button" class="cday' + (ds === today ? ' today' : '') + (kinds[1] ? ' dl' : '') + (kinds[6] && !kinds[1] ? ' up' : '') + (ds === calSel ? ' sel' : '') + '" data-cd="' + ds + '" aria-label="' + (calM + 1) + '月' + d + '日 ' + it.length + '件' + (kinds[1] ? '(申込の締切)' : '') + '"><span>' + d + '</span><span class="dots">' + ks.map(function(k){ return k === 1 ? '<b class="ck r">締切</b>' : k === 6 ? '<b class="ck t">空き更新</b>' : '<i class="ce">' + KIND[k][1] + '</i>'; }).join('') + '</span></button>';
   }
-  h += '</div><div class="cleg">' + [1, 2, 3, 4, 5, 6].map(function(k){ return '<span>' + KIND[k][1] + ' ' + KIND[k][0] + '</span>'; }).join('') + '</div>';
+  h += '</div><div class="cleg">' + [1, 6, 2, 3, 4, 5].map(function(k){ return '<span>' + (k === 1 ? '<b class="ck r">締切</b>' : k === 6 ? '<b class="ck t">空き更新</b>' : KIND[k][1]) + ' ' + (k === 1 ? '申込の締切日' : k === 6 ? '空き数を取り込む日' : KIND[k][0]) + '</span>'; }).join('') + '</div>';
   var nt = NOTES[calY + '-' + pad(calM + 1)];
   if(nt) h += '<p class="hint" style="margin:0 0 8px">📢 ' + esc(nt) + '</p>';
   var items = dayItems(calSel);
