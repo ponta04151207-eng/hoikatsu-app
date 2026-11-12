@@ -2439,9 +2439,9 @@ window.SHISUU_DIST.r8 = {
       if(csel.length >= cmpMax()){
         var cex = csel.filter(function(q){ return q.ex; })[0];
         if(cex) cex.cmp = false;
-        else { say(window.HK_PREMIUM === false ? CMP_FREE_MSG + '「見学した園」の「比べる」のチェックを1つ外してください。' : '比べられるのは3園までです。「見学した園」の「比べる」のチェックを1つ外してください。'); return; }
+        else { say((window.HK_PREMIUM === false || window.HK_TRIAL) ? '2園から有料です。' : '比べられるのは3園までです。'); return; }
       }
-      if(!cv && visFull()){ say(VIS_FREE_MSG + '「見学した園」の「削除」で1園をはずしてください。'); return; }
+      if(!cv && visFull()){ say('2園から有料です。'); return; }
       if(cv) cv.cmp = true;
       else visits.push({id:'v' + Date.now(), name:cx.f[1], area:cx.f[0], fac:ck, date:'', st:pack(''), memo:'', ex:false, cmp:true});
       vSave(); renderVisit(); renderFind();
@@ -2877,6 +2877,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=231"></script>
+<script src="features.js?v=232"></script>
 </body>
 </html>

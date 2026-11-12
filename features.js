@@ -25,7 +25,7 @@ function unlockTok(){ var o = lsGet(UL_KEY, null); return (o && typeof o === 'ob
 function unlockUntil(){ var o = lsGet(UL_KEY, null); return (o && typeof o === 'object' && o.until) ? o.until : null; }
 function unlockActive(){ var u = unlockUntil(); if(!u) return false; var t = new Date(); var today = t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); return u >= today; }
 var PREMIUM = TRIAL || unlockActive();
-window.HK_PREMIUM = PREMIUM; if(window.HK){ try{ HK.renderFind(); HK.rerender(); }catch(e){} }
+window.HK_TRIAL = (typeof TRIAL !== 'undefined') && TRIAL; window.HK_PREMIUM = PREMIUM; if(window.HK){ try{ HK.renderFind(); HK.rerender(); }catch(e){} }
 
 function lsGet(k, d){ try{ var s = localStorage.getItem(k); return s === null ? d : JSON.parse(s); }catch(e){ return d; } }
 function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
