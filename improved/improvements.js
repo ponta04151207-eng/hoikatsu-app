@@ -41,3 +41,13 @@ if(paid&&source){const old=paid.firstElementChild;const detail=document.createEl
 document.getElementById('tabPaid').addEventListener('click',enhancePaid);
 enhancePaid();
 })();
+(function(){
+const home=document.getElementById('uxHome');
+const hero=home.querySelector('.ux-hero');hero.querySelector('h1').innerHTML='保活、何から始める？';hero.querySelector('p').innerHTML='まずは点数を確認。<br>4つのステップで、申込みまで進めます。';hero.querySelector('.ux-actions').innerHTML='<button class="primary" data-go="prepare" data-target="tabIndex">① 点数の確認からはじめる →</button>';
+const roadmap=document.createElement('section');roadmap.className='ux-roadmap';roadmap.innerHTML='<h2>この順番で進めましょう</h2>'+[['prepare','tabIndex','1','点数を確認','家庭の状況を入力 · 約2〜3分'],['find','','2','通える園を探す','気になる園を候補に追加'],['candidates','','3','見学して、比べる','メモ・写真・希望順位を整理'],['prepare','tabDocs','4','書類をそろえる','必要書類と締切をチェック']].map(([page,target,n,t,d])=>`<button data-go="${page}" ${target?`data-target="${target}"`:''}><b>${n}</b><span><strong>${t}</strong><small>${d}</small></span><i aria-hidden="true">›</i></button>`).join('');hero.after(roadmap);
+home.querySelector('.ux-task-grid').closest('section').classList.add('ux-progress-card');
+const heading=document.createElement('div');heading.className='ux-topline';heading.innerHTML='<strong>保活アプリ <small>世田谷区版</small></strong><button data-go="home">進め方を見る</button>';document.querySelector('.ux-nav').before(heading);
+const guide=document.createElement('section');guide.id='uxFlowGuide';guide.className='ux-flow-guide';document.querySelector('.ux-nav').after(guide);
+function update(){const page=document.body.dataset.ux,focus=document.body.dataset.focus;let step=page==='find'?2:page==='candidates'?3:page==='prepare'&&focus!=='tabDocs'&&focus!=='tabSched'?1:page==='prepare'?4:0;guide.hidden=!step;if(step){const titles=['','点数を確認する','通える園を探す','見学して、比べる','書類をそろえる'];const descriptions=['','入力例をご自身の状況に変えて、結果を確認します。','地域・クラスを選び、気になる園を候補に追加します。','見学のメモを残して、候補園を比較します。','家庭に必要な書類を確認し、準備できたらチェックします。'];const next=[null,['find','','次は、園を探す →'],['candidates','','次は、候補園を確認 →'],['prepare','tabDocs','次は、書類を確認 →'],['prepare','tabSched','締切・やることを確認 →']][step];guide.innerHTML=`<div class="ux-flow-count">STEP ${step} / 4 <span>${[1,2,3,4].map(n=>`<i class="${n<=step?'done':''}"></i>`).join('')}</span></div><h2>${titles[step]}</h2><p>${descriptions[step]}</p><button data-go="${next[0]}" ${next[1]?`data-target="${next[1]}"`:''}>${next[2]}</button>`;}document.querySelectorAll('.ux-nav button').forEach(b=>{if(b.dataset.go===page)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});}
+new MutationObserver(update).observe(document.body,{attributes:true,attributeFilter:['data-ux','data-focus']});update();
+})();
