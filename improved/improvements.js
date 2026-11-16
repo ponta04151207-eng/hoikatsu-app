@@ -34,6 +34,10 @@ document.getElementById('uxExport').onclick=()=>{const data={format:'hoikatsu-im
 document.getElementById('uxImport').onchange=async e=>{const f=e.target.files[0];if(!f)return;const m=document.getElementById('uxBackupMessage');try{const data=JSON.parse(await f.text());if(data.format!=='hoikatsu-improved-backup'||data.version!==1||!data.records||Object.entries(data.records).some(([k,v])=>!allowed(k)||typeof v!=='string'))throw Error();if(!confirm('改善版の同じ項目を、バックアップの内容で上書きします。復元しますか？'))return;for(const [k,v]of Object.entries(data.records))localStorage.setItem(k,v);location.reload();}catch(err){m.textContent='復元できませんでした。改善版で保存したバックアップファイルを選んでください。';}};
 })();
 (function(){
+function enhancePaid(){
 const paid=document.getElementById('viewPaid');const source=document.querySelector('#uxHome .ux-plan');
 if(paid&&source){const old=paid.firstElementChild;const detail=document.createElement('details');detail.className='ux-card';const summary=document.createElement('summary');summary.textContent='すべての対象機能を見る';detail.append(summary);if(old)detail.append(old);paid.prepend(detail);const intro=source.cloneNode(true);intro.querySelector('button').outerHTML='<button class="primary ux-wide" data-go="candidates" data-target="tabAlert">まずは無料でアラートを体験する →</button>';paid.prepend(intro);}
+}
+document.getElementById('tabPaid').addEventListener('click',enhancePaid);
+enhancePaid();
 })();
