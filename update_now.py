@@ -151,6 +151,18 @@ def main():
         new = re.sub(r'/\*ADDR-START\*/.*?/\*ADDR-END\*/', lambda m: '/*ADDR-START*/\n' + ajs + '\n/*ADDR-END*/', new, count=1, flags=re.S)
         print('所在地を更新しました(%d園)' % len(old))
     APP.write_text(new, encoding='utf-8')
+    # 新しいアプリ(improved/)にも、同じ空き数・所在地を反映する
+    try:
+        NEW = APP.parent / 'improved' / 'hoikatsu.html'
+        if NEW.exists():
+            t = NEW.read_text(encoding='utf-8')
+            for tag in ('NOW', 'ADDR'):
+                m = re.search(r'/\*%s-START\*/.*?/\*%s-END\*/' % (tag, tag), new, re.S)
+                if m: t = re.sub(r'/\*%s-START\*/.*?/\*%s-END\*/' % (tag, tag), lambda _m, blk=m.group(0): blk, t, count=1, flags=re.S)
+            NEW.write_text(t, encoding='utf-8')
+            print('improved/hoikatsu.html にも反映しました')
+    except Exception as ex:
+        print('警告 improved/ への反映に失敗:', ex)
     print('%s の空き数を更新しました(%d園)' % (APP.name, len(out)))
 
 if __name__ == '__main__': main()
