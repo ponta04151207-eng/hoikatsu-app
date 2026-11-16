@@ -1370,7 +1370,7 @@ var viewP = document.createElement('div'); viewP.id = 'viewPaid'; viewP.hidden =
 view.parentNode.insertBefore(viewP, view);
 function hidePaid(){ viewP.hidden = true; tbP.setAttribute('aria-selected', 'false'); if(typeof viewS !== 'undefined' && viewS){ viewS.hidden = true; tbS.setAttribute('aria-selected', 'false'); } }
 var PAID = [
-  ['watch', '空き更新の確認', '見学メモの園の空きが変わると、トップの一番上にお知らせ(メールなし)。毎月1日・15日のカレンダー予定も入れられます。'],
+  ['watch', '空き更新アラート', '見学メモの園の空きが変わると、トップの一番上にお知らせ(メールなし)。毎月1日・15日のカレンダー予定も入れられます。'],
   ['cmp3', '園を比べる(3園から有料)', '無料の見学メモは2園までです。2園以上を入れて、評価と答えを並べて比べられます。'],
   ['ease', '過去データとの比較の目安(園を並べる)', '希望園ごとに「入りやすい・ふつう・厳しい」の目安が出ます。10園のバランスの提案つき。合格の約束ではありません。'],
   ['wish', '希望園を並べる', '第10希望までのリスト。あなたの点数からみた入りやすさと、見学の評価・地図つき。'],
@@ -2080,7 +2080,7 @@ function syJoin(code, manual){
   mk('tabDist', '📊', '地域別の入園者点数', '自分の点数での入りやすさ', function(){ document.getElementById('tabFind').click(); window.scrollTo(0, 0); });
   mk('tabAdv', '📈', '点数アップ', 'アドバイス', function(){ document.getElementById('tabIndex').click(); setTimeout(function(){ var t = document.getElementById('advPanel'); if(t) t.scrollIntoView(); }, 150); });
   mk('tabEase', '🎯', '過去データとの比較', '(園を並べる)', function(){ document.getElementById('tabVisit').click(); setTimeout(function(){ var d = document.getElementById('hkD6'); if(d){ d.open = true; d.scrollIntoView(); } }, 150); });
-  mk('tabAlert', '🔔', '空き更新の確認', '園の空き状況が<br>変更されたらお知らせ', function(){ document.getElementById('tabVisit').click(); setTimeout(function(){ var d = document.getElementById('hkD7'); if(d){ d.open = true; d.scrollIntoView(); } }, 150); });
+  mk('tabAlert', '🔔', '空き更新アラート', '園の空き状況が<br>変更されたらお知らせ', function(){ document.getElementById('tabVisit').click(); setTimeout(function(){ var d = document.getElementById('hkD7'); if(d){ d.open = true; d.scrollIntoView(); } }, 150); });
   var pd = document.getElementById('tabPaid'); if(pd) nav.appendChild(pd);
 })();
 
