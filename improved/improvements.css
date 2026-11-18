@@ -69,3 +69,27 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 .ux-alert-ex .ux-ex-chg u{text-decoration:none;font-weight:800}
 .ux-alert-ex small{font-size:11.5px;color:#6b7a80}
 .ux-alert-ex p{margin:8px 0 0;font-size:12.5px;color:#4a5a63}
+
+/* 空き更新アラートの紹介カードを小さく */
+.ux-featured{padding:12px 14px!important;line-height:1.5!important;margin:8px 0 14px!important}
+.ux-featured .ux-feature-top{margin-bottom:8px!important}
+.ux-featured .ux-recommended{font-size:11.5px!important;padding:3px 10px!important;border-radius:9px!important}
+.ux-featured .ux-premium{font-size:11px!important;padding:3px 9px!important}
+.ux-featured .ux-bell{width:42px!important;height:42px!important;border-radius:12px!important;flex:none}
+.ux-featured .ux-bell svg{width:22px!important;height:22px!important}
+.ux-featured .ux-feature-title{gap:8px!important}
+.ux-featured .ux-feature-title h2{font-size:17px!important;margin:0!important;line-height:1.3!important}
+.ux-featured .ux-kicker{font-size:11px!important}
+.ux-featured .ux-benefit{font-size:14px!important;line-height:1.55!important;margin:8px 0 4px!important}
+.ux-featured .ux-note{font-size:12px!important;line-height:1.5!important;margin:0 0 8px!important}
+.ux-featured .ux-preview{padding:8px 10px!important;margin:0 0 8px!important;border-radius:12px!important}
+.ux-featured .ux-preview>span{font-size:10.5px!important}
+.ux-featured .ux-preview>b{font-size:13.5px!important;margin:3px 0!important;display:block}
+.ux-featured .ux-preview>div{display:flex;align-items:center;gap:6px;margin:4px 0!important}
+.ux-featured .ux-old,.ux-featured .ux-new{font-size:13px!important;padding:3px 9px!important;border-radius:8px!important;white-space:nowrap;min-height:0!important}
+.ux-featured .ux-preview small{font-size:10.5px!important}
+.ux-featured .ux-steps{margin:0 0 8px!important;gap:4px!important}
+.ux-featured .ux-steps li{font-size:11.5px!important;line-height:1.35!important}
+.ux-featured .ux-steps b{width:22px!important;height:22px!important;font-size:12px!important}
+.ux-featured .ux-wide{font-size:14px!important;min-height:44px!important;padding:8px 10px!important}
+.ux-featured .ux-honest{font-size:11px!important;line-height:1.5!important;margin:6px 0 0!important}
