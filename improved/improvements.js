@@ -87,6 +87,9 @@ document.addEventListener('click',function(e){const b=e.target.closest('[data-op
   const jump=(t)=>{const x=document.createElement('button');x.dataset.go='prepare';x.dataset.target=t;x.hidden=true;document.body.appendChild(x);x.click();x.remove();};
   if(bn){
     hero.after(bn);
+    const nt=document.createElement('div');nt.className='ux-dlnote';
+    nt.innerHTML='<p>※ 令和9年4月入園の「一次選考」の申込は、11月10日で終わっています。11月24日は、申込済みの方が、足りない書類を出す最後の日です。</p><p>※ 4月入園で、まだ申し込んでいない場合は、二次選考(締切: 1月27日・2月1日)が次の機会です。</p><p>※ 4月以外の月(年度の途中)は、毎月の締切までに申し込んだ人の中から、空きのある園に、点数の高い順に決まります。先着順ではありません。</p><p>※ 日程は区の発表にもとづく目安です。申込の前に、必ず区の案内で確認してください。</p>';
+    bn.after(nt);
     bn.addEventListener('click',e=>{
       if(e.target.closest('.bls')) return;
       e.stopImmediatePropagation(); e.preventDefault();
