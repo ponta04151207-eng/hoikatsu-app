@@ -116,3 +116,23 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 .wtop .wc-msg{display:block;text-align:center;font-size:13px;font-weight:800;color:#1f6b36;background:#eaf8ea;border-radius:999px;padding:3px 8px}
 #vList tr.wflash th,#vList tr.wflash td{background:#fff3c4!important;transition:background .4s}
 .wtop .wc-chg>span u{text-decoration:none;display:block;white-space:nowrap;font-size:13px}
+
+/* お知らせ(ホーム)を、トップのアラート例と同じ大きさに */
+#uxHome .wtop{padding:10px 12px!important;margin:8px 0!important;border-radius:16px!important}
+#uxHome .wtop .wdm{font-size:10.5px!important;padding:2px 9px!important}
+#uxHome .wtop .wh{font-size:14px!important;line-height:1.4!important;margin:4px 0 2px!important;display:block}
+#uxHome .wtop .wcard{padding:8px 10px!important;margin:6px 0!important;border-radius:12px!important}
+#uxHome .wtop .wc-name{gap:8px!important}
+#uxHome .wtop .wc-ill{width:38px!important;height:38px!important;border-radius:10px!important}
+#uxHome .wtop .wc-ill svg{width:28px!important;height:28px!important}
+#uxHome .wtop .wc-name b{font-size:15.5px!important}
+#uxHome .wtop .wc-name em{font-size:10.5px!important}
+#uxHome .wtop .wc-name u{font-size:20px!important}
+#uxHome .wtop .wc-chg{margin:6px 0 3px!important;gap:6px!important}
+#uxHome .wtop .wc-chg>span{padding:3px 4px!important;border-radius:10px!important}
+#uxHome .wtop .wc-chg small{font-size:10px!important}
+#uxHome .wtop .wc-chg>span u{font-size:12px!important}
+#uxHome .wtop .wc-chg b{font-size:21px!important}
+#uxHome .wtop .wc-chg>strong{font-size:16px!important}
+#uxHome .wtop .wc-msg{font-size:12px!important;padding:2px 8px!important}
+#uxHome .wtop .wgo{font-size:11.5px!important;line-height:1.4!important;margin-top:2px!important;display:block}
