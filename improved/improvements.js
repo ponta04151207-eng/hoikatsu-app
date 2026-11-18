@@ -48,7 +48,7 @@ enhancePaid();
 })();
 (function(){
 const home=document.getElementById('uxHome');
-const hero=home.querySelector('.ux-hero');hero.querySelector('h1').innerHTML='保活、何から始める？';hero.querySelector('p').innerHTML='まずは点数を確認。<br>4つのステップで、申込みまで進めます。';hero.querySelector('.ux-actions').innerHTML='<button class="primary" data-go="prepare" data-target="tabIndex">① 点数の確認からはじめる →</button>';
+const hero=home.querySelector('.ux-hero');hero.querySelector('h1').innerHTML='保活、これ1つで<br>かんたん';hero.querySelector('p').innerHTML='まずは点数を確認。<br>4つのステップで、申込みまで進めます。';hero.querySelector('.ux-actions').innerHTML='<button class="primary" data-go="prepare" data-target="tabIndex">① 点数の確認からはじめる →</button>';
 const roadmap=document.createElement('section');roadmap.className='ux-roadmap';roadmap.innerHTML='<h2>この順番で進めましょう</h2>'+[['prepare','tabIndex','1','点数を確認','家庭の状況を入力 · 約2〜3分'],['find','','2','通える園を探す','気になる園を候補に追加'],['candidates','','3','見学して、比べる','メモ・写真・希望順位を整理'],['prepare','tabDocs','4','書類をそろえる','必要書類と締切をチェック']].map(([page,target,n,t,d])=>`<button data-go="${page}" ${target?`data-target="${target}"`:''}><b>${n}</b><span><strong>${t}</strong><small>${d}</small></span><i aria-hidden="true">›</i></button>`).join('');hero.after(roadmap);
 home.querySelector('.ux-task-grid').closest('section').classList.add('ux-progress-card');
 const heading=document.createElement('div');heading.className='ux-topline';heading.innerHTML='<strong>保活アプリ <small>世田谷区版</small></strong><button data-go="home">進め方を見る</button>';document.querySelector('.ux-nav').before(heading);
