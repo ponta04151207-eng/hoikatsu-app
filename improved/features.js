@@ -40,11 +40,11 @@ var EVENTS = [
   {id:'consult', date:'2026-10-30', kind:'区', title:'個別相談(窓口・予約制)の最終日', note:'令和8年9月1日〜10月30日。申込の受付は予約なしでできます。'},
   {id:'first-mail', date:'2026-11-05', kind:'締切', title:'一次選考 申込締切(郵送・オンライン)', note:'消印有効です。'},
   {id:'first-visit', date:'2026-11-10', kind:'締切', title:'一次選考 申込締切(窓口に持っていく場合)', note:'厳守です。増点につながる変更の届けも、この日までです。'},
-  {id:'first-add', date:'2026-11-24', kind:'締切', title:'不足書類の追加提出の期限', note:'締切日までに申込書類を出した人が対象です。郵送・オンラインでも出せます。'},
-  {id:'first-result', date:'2027-01-20', kind:'区', title:'一次選考の結果公表(令和9年4月入園)', note:'区の「入園のご相談および申込み方法」のページの表にある日付です。'},
+  {id:'first-add', date:'2026-11-24', kind:'締切', title:'不足書類の追加提出の期限(申込済みの方のみ)', note:'一次選考の申込は11月10日で終わっています。この日は、締切日までに申込書類を出した人が、足りない書類を出せる最後の日です。入園担当への相談が必要です。郵送・オンラインでも出せます。'},
+  {id:'first-result', date:'2027-01-18', kind:'区', title:'一次選考の結果通知(発送予定・令和9年4月入園)', note:'結果についての問い合わせは、1月20日から受け付けています。'},
   {id:'second-mail', date:'2027-01-27', kind:'締切', title:'二次選考 申込締切(郵送・オンライン)', note:'消印有効です。一次で内定しなかった人は、改めて申し込む必要はありません。状況が変わったら書類を出します。'},
   {id:'second-visit', date:'2027-02-01', kind:'締切', title:'二次選考 申込締切(窓口に持っていく場合)', note:'厳守です。'},
-  {id:'second-result', date:'2027-02-18', kind:'区', title:'二次選考の結果公表(令和9年4月入園)', note:'区の「入園のご相談および申込み方法」のページの表にある日付です。'},
+  {id:'second-result', date:'2027-02-18', kind:'区', title:'二次選考の結果の問い合わせ開始日(令和9年4月入園)', note:'内定した人には、保育園等から電話で連絡があります。'},
   {id:'start', date:'2027-04-01', kind:'入園', title:'令和9年4月 入園', note:''}
 ];
 var UNDATED = [
@@ -62,7 +62,7 @@ var TASKS = [
   {id:'t-add', ev:'first-add', off:0, title:'不足書類の連絡があれば、追加で出す'},
   {id:'t-rate', ev:null, title:'区が申込者数を公表したら、倍率を見直す'},
   {id:'t-second', ev:'second-mail', off:-7, title:'二次選考に向けて、状況が変わった場合の書類を準備する'},
-  {id:'t-result', ev:'first-result', off:0, title:'一次選考の結果を確認する(結果公表日)'},
+  {id:'t-result', ev:'first-result', off:0, title:'一次選考の結果を確認する(1月18日発送予定)'},
   {id:'t-after', ev:null, title:'内定したら、入園の手続きと準備を始める'}
 ];
 
@@ -633,7 +633,7 @@ function nextDeadline(){
   var a = EVENTS.filter(function(e){ return e.kind === '締切' && daysLeft(e.date) >= 0; });
   return a[0] || null;
 }
-function evStage(e){ return /^first/.test(e.id) ? '一次選考' : /^second/.test(e.id) ? '二次選考' : e.id === 'start' ? '' : e.id === 'consult' ? '個別相談' : ''; }
+function evStage(e){ return e.id === 'first-add' ? '一次選考(申込受付は終了済み)' : /^first/.test(e.id) ? '一次選考' : /^second/.test(e.id) ? '二次選考' : e.id === 'start' ? '' : e.id === 'consult' ? '個別相談' : ''; }
 function renderBanner(){
   var n = nextDeadline();
   if(!n){ banner.className = 'hkb'; banner.innerHTML = ''; return; }
