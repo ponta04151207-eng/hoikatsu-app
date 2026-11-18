@@ -325,6 +325,7 @@ css.textContent = [
   '.tabs button small{font-size:9.5px!important}',
   '.tabs .tgl{font-size:10px!important; margin:0 2px!important}.tabs .tgl.pd{margin-top:3px!important}',
   '#tabAzuke,#tabIndex{font-size:11px!important}',
+    '.hkb .bsub{margin:4px 0 2px; font-size:14px; font-weight:800; color:#0b5f52; background:rgba(255,255,255,.75); border-radius:10px; padding:4px 8px}.hkb .bsub b{font-size:18px; color:#d93a2f}.hkb .bsub span{display:block; font-size:11px; font-weight:700; color:#4a5a63}',
     '.hkb .bst{font-size:12px; font-weight:800; color:#fff; background:#d93a2f; border-radius:999px; display:inline-block; padding:2px 12px; margin:0 0 4px}',
     '.hkb.far{background:#fff8ec!important; border-color:#e6b955!important}.hkb.far .bst{background:#b4782a}.hkb.far .bd{color:#9a5b12}',
     '.hkb .bls{margin:8px 0 0; text-align:left; background:rgba(255,255,255,.7); border-radius:12px; padding:6px 10px}',
@@ -634,9 +635,29 @@ function nextDeadline(){
   return a[0] || null;
 }
 function evStage(e){ return e.id === 'first-add' ? '一次選考(申込受付は終了済み)' : /^first/.test(e.id) ? '一次選考' : /^second/.test(e.id) ? '二次選考' : e.id === 'start' ? '' : e.id === 'consult' ? '個別相談' : ''; }
+/* 二次選考のあとの「不足書類の提出期限」は、区が日付を発表したら、ここに 'YYYY-MM-DD' で入れます(空のあいだは「区の案内で確認」と出します) */
+var SECOND_ADD_DATE = '';
+if(SECOND_ADD_DATE && !EVENTS.some(function(e){ return e.id === 'second-add'; })){
+  EVENTS.push({id: 'second-add', date: SECOND_ADD_DATE, kind: '締切', title: '二次選考の不足書類の追加提出の期限(申込済みの方のみ)', note: '二次選考の申込を出した人が、足りない書類を出せる最後の日です。'});
+  EVENTS.sort(function(x, y){ return x.date < y.date ? -1 : x.date > y.date ? 1 : 0; });
+}
+function bannerSub(n){
+  var sec = EVENTS.filter(function(e){ return /^second-(mail|visit)$/.test(e.id) && daysLeft(e.date) >= 0; });
+  if(!sec.length || /^second-(mail|visit)$/.test(n.id)) return '';
+  var f = sec[0], kk = daysLeft(f.date), o = sec[1];
+  return '<div class="bsub">二次選考の締切まで <b>' + (kk === 0 ? '今日' : 'あと' + kk + '日') + '</b><span>(' + md(f.date) + (f.id === 'second-mail' ? ' 郵送・オンライン' : ' 窓口') + (o ? ' / ' + md(o.date) + ' 窓口' : '') + ')</span></div>';
+}
 function renderBanner(){
   var n = nextDeadline();
-  if(!n){ banner.className = 'hkb'; banner.innerHTML = ''; return; }
+  if(!n){
+    var last = EVENTS.filter(function(e){ return e.id === 'second-visit'; })[0];
+    if(last && daysLeft(last.date) < 0 && !SECOND_ADD_DATE){
+      banner.className = 'hkb on far';
+      banner.innerHTML = '<div class="bst">二次選考のあと</div><div class="bt" style="font-size:13px!important">📄 二次選考の不足書類の提出期限は、区の案内で確認してください(日付は、まだ公表されていません)</div>';
+      banner.onclick = showSched; return;
+    }
+    banner.className = 'hkb'; banner.innerHTML = ''; return;
+  }
   var k = daysLeft(n.date), st = evStage(n);
   banner.className = 'hkb on' + (k > 14 ? ' far' : '');
   var up = EVENTS.filter(function(e){ return daysLeft(e.date) >= 0 && e.id !== n.id; }), lh = '', cur = '';
@@ -645,7 +666,7 @@ function renderBanner(){
     if(ym !== cur){ cur = ym; lh += '<div class="bmh">' + ym + '</div>'; }
     lh += '<div class="bli' + (e.kind === '締切' ? ' dl' : '') + '"><span class="bld">' + md(e.date) + '</span><span class="blt">' + (s && e.kind !== '入園' ? '<em>' + s + '</em>' : '') + esc(e.title.replace(/^(一次|二次)選考 ?/, '').replace(/\(令和9年4月入園\)/, '')) + '</span><span class="blk">' + (kk === 0 ? '今日' : 'あと' + kk + '日') + '</span></div>';
   });
-  banner.innerHTML = '<div class="bst">令和9年4月入園' + (st ? '・' + st : '') + '</div><div class="bm"><span class="bl">📣 次の締切</span><b class="bd">' + (k === 0 ? '今日です' : 'あと' + k + '日') + '</b><span class="bdt">' + md(n.date) + '</span></div><div class="bt">' + esc(n.title) + '</div><button type="button" class="bmsg" id="hkBdoc">' + (k === 0 ? '今日が締切です。' : 'あと' + k + '日で締切です。') + '提出前チェックで書類のミスを防げます タップ ›</button>'
+  banner.innerHTML = '<div class="bst">令和9年4月入園' + (st ? '・' + st : '') + '</div><div class="bm"><span class="bl">' + (/-add$/.test(n.id) ? '📄 不足書類の提出期限' : '📣 次の締切') + '</span><b class="bd">' + (k === 0 ? '今日です' : 'あと' + k + '日') + '</b><span class="bdt">' + md(n.date) + '</span></div>' + bannerSub(n) + '<div class="bt">' + esc(n.title) + '</div><button type="button" class="bmsg" id="hkBdoc">' + (k === 0 ? '今日が締切です。' : 'あと' + k + '日で締切です。') + '提出前チェックで書類のミスを防げます タップ ›</button>'
     + (lh ? '<details class="bls" id="hkBls"><summary>このあとの締切・予定を月ごとに見る</summary>' + lh + '</details>' : '');
   banner.onclick = showSched;
   var bd = document.getElementById('hkBdoc'); if(bd) bd.onclick = function(e){ e.stopPropagation(); document.getElementById('tabDocs').click(); };
