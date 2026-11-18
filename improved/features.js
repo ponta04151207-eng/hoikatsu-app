@@ -2227,14 +2227,28 @@ function syJoin(code, manual){
     if(!snap.d) save();
     render();
     if(!PREMIUM){ var d7 = document.getElementById('hkD7'); if(d7) d7.querySelector('div').innerHTML = '<p class="hint" style="margin:0">この機能は、有料版です。</p>' + buyHtml(); return; }
-    if(changes.length) showTop(changes.map(function(c){ return {name: c.v.name, c: c.c, a: c.a, b: c.b}; }), false);
+    if(changes.length) showTop(changes.map(function(c){ return {name: c.v.name, id: c.v.id, c: c.c, a: c.a, b: c.b}; }), false);
   }
   function showTop(items, demo){
     if(top){ top.remove(); top = null; }
     top = document.createElement('button'); top.type = 'button'; top.className = 'wtop' + (demo ? ' demo' : '');
-    var lines = items.slice(0, 3).map(function(c){ return '<span class="wl"><b>' + esc(c.name) + '</b>(' + c.c + '歳児) ' + fmt(c.a) + ' → <b>' + fmt(c.b) + '</b></span>'; }).join('');
-    top.innerHTML = (demo ? '<i class="wdm">表示の見本(仮)</i>' : '') + '<span class="wh">🔔 空きが変わった園があります(' + items.length + '園)</span>' + lines + (items.length > 3 ? '<span class="wl">ほか' + (items.length - 3) + '園</span>' : '') + '<span class="wgo">タップして見る ›</span>';
-    top.onclick = function(){ var d = document.getElementById('hkD7'); document.getElementById('tabVisit').click(); setTimeout(function(){ if(d){ d.open = true; d.scrollIntoView(); } }, 150); };
+    var ILL = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 22L24 7l18 15v20H6z" fill="#fbd9c9" stroke="#d9573f" stroke-width="2.5" stroke-linejoin="round"/><rect x="19" y="28" width="10" height="14" rx="2" fill="#fff" stroke="#d9573f" stroke-width="2"/><circle cx="24" cy="19" r="4" fill="#fff" stroke="#d9573f" stroke-width="2"/></svg>';
+    var lines = items.slice(0, 3).map(function(c){
+      var up = (c.b == null ? -1 : c.b) - (c.a == null ? 0 : c.a);
+      var msg = c.a == null ? '空き表に載りました' : c.b == null ? '空き表から消えました' : up > 0 ? '🎉 ' + up + '人ぶん、空きが増えました' : '空きが ' + (-up) + '人ぶん減りました';
+      return '<span class="wcard" data-vid="' + esc(c.id || '') + '"><span class="wc-name"><i class="wc-ill">' + ILL + '</i><span><b>' + esc(c.name) + '</b><em>' + c.c + '歳児クラス</em></span><u>›</u></span><span class="wc-chg"><span class="wc-old"><small>前回</small><u>空き <b>' + (c.a == null ? '―' : c.a) + '</b>' + (c.a == null ? '' : '人') + '</u></span><strong>→</strong><span class="wc-new"><small>今回</small><u>空き <b>' + (c.b == null ? '―' : c.b) + '</b>' + (c.b == null ? '' : '人') + '</u></span></span><span class="wc-msg">' + msg + '</span></span>';
+    }).join('');
+    top.innerHTML = (demo ? '<i class="wdm">表示の見本(仮)</i>' : '') + '<span class="wh">🔔 空きが変わった園があります(' + items.length + '園)</span>' + lines + (items.length > 3 ? '<span class="wl">ほか' + (items.length - 3) + '園</span>' : '') + '<span class="wgo">園をタップすると、見学メモのその園に移動します ›</span>';
+    top.onclick = function(e){
+      var cd = e.target.closest ? e.target.closest('.wcard') : null, vid = cd && cd.getAttribute('data-vid');
+      var d = document.getElementById('hkD7'); document.getElementById('tabVisit').click();
+      setTimeout(function(){
+        var row = null;
+        if(vid){ var bt = document.querySelector('#vList [data-act="edit"][data-id="' + vid + '"]'); row = bt && bt.closest('tr'); }
+        if(row){ row.scrollIntoView({block: 'center'}); row.classList.add('wflash'); setTimeout(function(){ row.classList.remove('wflash'); }, 3000); }
+        else if(d){ d.open = true; d.scrollIntoView(); }
+      }, 250);
+    };
     var h1 = document.querySelector('h1'), host = h1 && h1.parentNode;
     if(host && host.firstElementChild) host.insertBefore(top, host.firstElementChild); else { var tabsEl = document.querySelector('.tabs'); if(tabsEl) tabsEl.parentNode.insertBefore(top, tabsEl); }
   }
@@ -2242,7 +2256,7 @@ function syJoin(code, manual){
     if(e.target.id !== 'hkWdemo') return;
     if(top && top.classList.contains('demo')){ top.remove(); top = null; e.target.textContent = '🔔 お知らせの出かたを見る(見本)'; return; }
     var ws = watched(), nm0 = ws.length ? ws[0].name : '(例)サンプル第一保育園';
-    showTop([{name: nm0, c: HK.cls(), a: 0, b: 2}], true);
+    showTop([{name: nm0, id: ws.length ? ws[0].id : '', c: HK.cls(), a: 0, b: 2}], true);
     e.target.textContent = '見本を消す'; window.scrollTo(0, 0);
     var hb = document.querySelector('[data-go=home]'); if(hb && document.documentElement.hasAttribute('data-uxapp')){ hb.click(); setTimeout(function(){ var t = document.querySelector('.wtop'); if(t) t.scrollIntoView({block: 'center'}); }, 300); }
   });

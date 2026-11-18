@@ -96,3 +96,23 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 .ux-featured .ux-pv-chg>strong{font-size:20px;color:#2f8f7e}
 .ux-featured .ux-pv-up{margin:6px 0 4px;text-align:center;font-size:13px;font-weight:800;color:#1f6b36;background:#eaf8ea;border-radius:999px;padding:3px 8px}
 .ux-featured .ux-pv-chg>span u{text-decoration:none;display:block;white-space:nowrap}
+
+/* 空きが変わった園のお知らせ(ホーム) */
+.wtop .wcard{display:block;background:#fff;border-radius:14px;padding:10px 12px;margin:8px 0;text-align:left;color:#3b2a1a}
+.wtop .wc-name{display:flex;align-items:center;gap:10px}
+.wtop .wc-ill{flex:none;width:44px;height:44px;border-radius:12px;background:#fff1ea;display:grid;place-items:center;font-style:normal}
+.wtop .wc-ill svg{width:32px;height:32px}
+.wtop .wc-name>span{display:flex;flex-direction:column;flex:1;min-width:0}
+.wtop .wc-name b{font-size:18px;font-weight:900;line-height:1.3;color:#1b3a30;overflow-wrap:anywhere}
+.wtop .wc-name em{font-style:normal;font-size:11.5px;font-weight:800;color:#fff;background:#2f8f7e;border-radius:999px;padding:1px 9px;width:fit-content;margin-top:2px}
+.wtop .wc-name u{text-decoration:none;font-size:26px;color:#d9573f;font-weight:700}
+.wtop .wc-chg{display:flex;align-items:center;gap:8px;margin:8px 0 4px}
+.wtop .wc-chg>span{flex:1;display:flex;flex-direction:column;align-items:center;border-radius:12px;padding:4px 6px;font-size:13px;font-weight:800;white-space:nowrap}
+.wtop .wc-chg small{font-size:10.5px;font-weight:700}
+.wtop .wc-chg b{font-size:24px;font-weight:900;line-height:1.1;display:inline}
+.wtop .wc-old{background:#eceeea;color:#7a868b}
+.wtop .wc-new{background:#d8f0d9;color:#1f6b36;box-shadow:0 0 0 2px #7cc58a}
+.wtop .wc-chg>strong{font-size:20px;color:#2f8f7e}
+.wtop .wc-msg{display:block;text-align:center;font-size:13px;font-weight:800;color:#1f6b36;background:#eaf8ea;border-radius:999px;padding:3px 8px}
+#vList tr.wflash th,#vList tr.wflash td{background:#fff3c4!important;transition:background .4s}
+.wtop .wc-chg>span u{text-decoration:none;display:block;white-space:nowrap;font-size:13px}
