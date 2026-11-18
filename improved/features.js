@@ -2021,6 +2021,7 @@ function syJoin(code, manual){
 
 /* ===== 端末の「戻る」で、1つ前に開いていたタブ・位置に戻る ===== */
 (function(){
+  if(document.documentElement.hasAttribute('data-uxapp')) return;
   var nav = document.querySelector('.tabs'); if(!nav || !window.history || !history.pushState || !window.MutationObserver) return;
   var cur = 'tabIndex', lastY = 0, popping = false;
   function selId(){ var b = nav.querySelector('button[role=tab][aria-selected=true]'); return b ? b.id : null; }

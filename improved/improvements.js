@@ -96,3 +96,25 @@ document.addEventListener('click',function(e){const b=e.target.closest('[data-op
   const place=()=>{const t=document.querySelector('.wtop'); if(t&&t.parentNode!==home) hero.after(t);};
   new MutationObserver(place).observe(document.body,{childList:true,subtree:true}); place();
 })();
+
+/* 端末の「戻る」で、1つ前のページ・位置に戻る */
+(function(){
+  if(!window.history||!history.pushState||!window.MutationObserver) return;
+  const b=document.body; let popping=false,lastY=0;
+  const key=()=>b.dataset.ux&&b.dataset.ux!=='home'?b.dataset.ux+'|'+(b.dataset.focus||''):'home|';
+  const st=(k,y)=>{const i=k.indexOf('|');return {hk2:1,page:k.slice(0,i),focus:k.slice(i+1),y:y||0};};
+  let cur=key();
+  addEventListener('scroll',()=>{if(!popping)lastY=pageYOffset;},{passive:true});
+  try{history.replaceState(st(cur,0),'',location.href);}catch(e){return;}
+  new MutationObserver(()=>{
+    if(popping) return; const k=key(); if(k===cur) return;
+    try{history.replaceState(st(cur,lastY),'',location.href);history.pushState(st(k,0),'',location.href);}catch(e){}
+    cur=k;lastY=0;
+  }).observe(b,{attributes:true,attributeFilter:['data-ux','data-focus']});
+  addEventListener('popstate',e=>{
+    const s=e.state&&e.state.hk2?e.state:st('home|',0); popping=true;
+    const x=document.createElement('button');x.hidden=true;x.dataset.go=s.page;if(s.page!=='home'&&s.focus)x.dataset.target=s.focus;
+    document.body.appendChild(x);x.click();x.remove();
+    setTimeout(()=>{scrollTo(0,s.y||0);lastY=s.y||0;cur=key();popping=false;},90);
+  });
+})();
