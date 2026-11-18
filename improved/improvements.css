@@ -79,3 +79,20 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 .ux-featured .ux-steps b{width:22px!important;height:22px!important;font-size:12px!important}
 .ux-featured .ux-wide{font-size:14px!important;min-height:44px!important;padding:8px 10px!important}
 .ux-featured .ux-honest{font-size:11px!important;line-height:1.5!important;margin:6px 0 0!important}
+
+/* アラート例: 園名とイラスト・人数を目立たせる */
+.ux-featured .ux-pv-name{display:flex;align-items:center;gap:10px;margin:6px 0 8px}
+.ux-featured .ux-pv-ill{flex:none;width:46px;height:46px;border-radius:12px;background:#fff1ea;display:grid;place-items:center;font-style:normal}
+.ux-featured .ux-pv-ill svg{width:34px;height:34px}
+.ux-featured .ux-pv-name>span{display:flex;flex-direction:column;gap:0;font-size:inherit!important}
+.ux-featured .ux-pv-name b{font-size:19px;font-weight:900;color:#1b3a30;line-height:1.3}
+.ux-featured .ux-pv-name em{font-style:normal;font-size:12px;font-weight:800;color:#fff;background:#2f8f7e;border-radius:999px;padding:1px 9px;width:fit-content;margin-top:2px}
+.ux-featured .ux-pv-chg{display:flex;align-items:center;justify-content:center;gap:8px;margin:4px 0}
+.ux-featured .ux-pv-chg>span{display:flex;flex-direction:column;align-items:center;flex:1;border-radius:12px;padding:5px 6px;font-size:13px!important;font-weight:800;white-space:nowrap}
+.ux-featured .ux-pv-chg>span small{font-size:10.5px!important;font-weight:700}
+.ux-featured .ux-pv-chg>span b{font-size:26px;font-weight:900;line-height:1.1;display:inline}
+.ux-featured .ux-pv-chg .ux-old{background:#eceeea;color:#7a868b}
+.ux-featured .ux-pv-chg .ux-new{background:#d8f0d9;color:#1f6b36;box-shadow:0 0 0 2px #7cc58a}
+.ux-featured .ux-pv-chg>strong{font-size:20px;color:#2f8f7e}
+.ux-featured .ux-pv-up{margin:6px 0 4px;text-align:center;font-size:13px;font-weight:800;color:#1f6b36;background:#eaf8ea;border-radius:999px;padding:3px 8px}
+.ux-featured .ux-pv-chg>span u{text-decoration:none;display:block;white-space:nowrap}
