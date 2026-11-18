@@ -2244,6 +2244,7 @@ function syJoin(code, manual){
     var ws = watched(), nm0 = ws.length ? ws[0].name : '(例)サンプル第一保育園';
     showTop([{name: nm0, c: HK.cls(), a: 0, b: 2}], true);
     e.target.textContent = '見本を消す'; window.scrollTo(0, 0);
+    var hb = document.querySelector('[data-go=home]'); if(hb && document.documentElement.hasAttribute('data-uxapp')){ hb.click(); setTimeout(function(){ var t = document.querySelector('.wtop'); if(t) t.scrollIntoView({block: 'center'}); }, 300); }
   });
   setTimeout(init, 400);
 })();
