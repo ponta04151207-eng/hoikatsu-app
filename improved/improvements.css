@@ -43,3 +43,15 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 .ux-roadmap .rm-ill svg{width:38px;height:38px}
 .ux-roadmap strong{font-size:17px!important;font-weight:800}
 .ux-roadmap small{font-size:12.5px!important}
+
+/* 小さめに調整(2回目) */
+.ux-roadmap{padding:10px 12px!important;margin:6px 0 14px!important}
+.ux-roadmap h2{font-size:15px!important;white-space:nowrap;margin:0 0 4px!important}
+.ux-roadmap .rm-sub{display:none}
+.ux-roadmap>button{gap:8px!important;padding:6px 0!important;min-height:52px!important}
+.ux-roadmap>button>b{width:24px!important;height:24px!important;font-size:13px!important}
+.ux-roadmap .rm-ill{width:38px;height:38px;border-radius:10px}
+.ux-roadmap .rm-ill svg{width:28px;height:28px}
+.ux-roadmap strong{font-size:14.5px!important}
+.ux-roadmap small{font-size:11px!important}
+.ux-roadmap>button>span{gap:1px!important}
