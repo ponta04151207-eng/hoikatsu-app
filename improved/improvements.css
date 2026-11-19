@@ -157,3 +157,9 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 /* 「次は、○○」ボタンを目立たせる */
 .ux-flow-guide button{display:block;width:100%;min-height:50px!important;padding:12px 14px!important;font-size:16px!important;font-weight:900!important;color:#fff!important;background:#2f8f7e!important;border:0!important;border-radius:14px!important;box-shadow:0 4px 0 #1f6f61!important;text-align:center}
 .ux-flow-guide button:active{transform:translateY(2px);box-shadow:0 2px 0 #1f6f61!important}
+
+/* 「次は、○○」ボタン: 小さめ・青・イラスト付き */
+.ux-flow-guide button{display:flex!important;align-items:center;justify-content:center;gap:8px;width:auto!important;max-width:100%;min-height:42px!important;padding:8px 16px!important;font-size:14.5px!important;color:#fff!important;background:#2a6fd1!important;border-radius:999px!important;box-shadow:0 3px 0 #1d4f9c!important}
+.ux-flow-guide button:active{box-shadow:0 1px 0 #1d4f9c!important}
+.ux-flow-guide button .fg-ill{flex:none;width:26px;height:26px;border-radius:50%;background:#fff;display:grid;place-items:center}
+.ux-flow-guide button .fg-ill svg{width:17px;height:17px}
