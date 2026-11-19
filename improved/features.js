@@ -2374,7 +2374,7 @@ function syJoin(code, manual){
   function fill(){
     var vs = HK.getVisits();
     Array.prototype.forEach.call(list.querySelectorAll('[data-act="edit"]'), function(b){
-      var th = b.closest('th'), id = b.getAttribute('data-id'); if(!th) return;
+      var tr = b.closest('tr'), th = tr && tr.querySelector('th'), id = b.getAttribute('data-id'); if(!th) return;
       Array.prototype.forEach.call(th.querySelectorAll('.vfull, .vtot'), function(n){ n.remove(); });
       var old = th.querySelector('.vmemo[data-mine="1"]'), wasOpen = !!(old && old.open); if(old) old.remove();
       var v = vs.filter(function(x){ return x.id === id; })[0]; if(!v) return;
@@ -2386,7 +2386,7 @@ function syJoin(code, manual){
         det = document.createElement('details'); det.className = 'vmemo'; det.setAttribute('data-mine', '1'); if(wasOpen) det.open = true;
         function fld(t, x){ return '<p><b>' + t + '</b>' + (x ? esc(x) : '<i class="none">未記入</i>') + '</p>'; }
         det.innerHTML = '<summary>📝 メモあり<span>▼ 見る</span></summary>' + fld('👍 良かったところ', v.good) + fld('⚠ 気になったところ', v.bad) + fld('❓ 次に聞くこと', v.ask) + fld('📝 そのほかのメモ', v.memo);
-        var vb = th.querySelector('.vb'); th.insertBefore(det, vb);
+        var vb = th.querySelector('.vb'); if(vb) th.insertBefore(det, vb); else th.appendChild(det);
       }
       var extra = '';
       if(marks.length) extra += '<p><b>✅ 確認した項目と聞いた答え(○よい △ふつう ✕いまいち)</b></p><ul class="vml">' + marks.join('') + '</ul>';

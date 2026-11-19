@@ -163,3 +163,14 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 .ux-flow-guide button:active{box-shadow:0 1px 0 #1d4f9c!important}
 .ux-flow-guide button .fg-ill{flex:none;width:26px;height:26px;border-radius:50%;background:#fff;display:grid;place-items:center}
 .ux-flow-guide button .fg-ill svg{width:17px;height:17px}
+
+/* 見学メモ: ○△✕の欄も同じ画面に出す(フリーメモは「そのほかのメモ」と重なるので隠す) */
+#vForm.vmode-memo label[for="v-rmemo"],#vForm.vmode-memo #v-rmemo{display:none!important}
+
+/* メモあり: ○△✕の一覧をカード風に */
+#vList .vfull .vml{list-style:none!important;padding:0!important;margin:6px 0 0!important;display:grid;gap:5px}
+#vList .vfull .vml li{display:block;padding:7px 10px;border-radius:10px;background:#f3f9f7;font-size:13.5px;font-weight:700;line-height:1.5;color:#1d2a30}
+#vList .vfull .vml li.qno{background:#f4f5f4;color:#8a969b;font-weight:600}
+#vList .vfull .vml li .qa{display:inline-block;margin-left:4px;color:#0b5f52}
+#vList .vfull .vml li{padding:5px 10px!important;font-size:13px!important}
+#vList .vfull .vml{gap:4px!important}

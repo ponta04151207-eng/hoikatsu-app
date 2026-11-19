@@ -2281,6 +2281,7 @@ window.SHISUU_DIST.r8 = {
   var VIS_FREE_MSG = '無料版で記録できるのは1園までです。2園からは有料版(王冠のマーク)です。';
   function visFull(){ return window.HK_PREMIUM === false && visits.filter(function(v){ return !v.ex; }).length >= 1; }
   function visBlock(){ var m = $('vLimit'); if(m){ m.textContent = '※' + VIS_FREE_MSG + 'ここを増やすには、「削除」で1園をはずしてください。'; m.scrollIntoView({block:'center'}); } }
+  var curMode = 'memo';
   function openForm(id, pre, mode){
     if(!id && visFull()){ visBlock(); return; }
     editing = id || null; newId = id ? null : 'v' + Date.now() + Math.floor(Math.random() * 1000); mode = mode || 'memo';
@@ -2288,7 +2289,7 @@ window.SHISUU_DIST.r8 = {
     $('v-area').value = v.area; fillNames();
     $('v-name').value = v.name; $('v-date').value = v.date || '';
     $('v-memo').value = v.memo || ''; $('v-rmemo').value = v.memo || ''; $('v-good').value = v.good || ''; $('v-bad').value = v.bad || ''; $('v-ask').value = v.ask || '';
-    $('vNoteBox').hidden = (mode === 'rate'); $('vRateBox').hidden = (mode !== 'rate');
+    curMode = mode; $('vNoteBox').hidden = (mode === 'rate'); $('vRateBox').hidden = false; $('vForm').classList.toggle('vmode-memo', mode !== 'rate');
     $('h-vf').textContent = mode === 'rate' ? '評価を入れる(園を比べる用)' : '見学メモ';
     Array.prototype.forEach.call(document.querySelectorAll('#vItems input[type=radio]'), function(r){ r.checked = false; r.dataset.was = '0'; });
     Array.prototype.forEach.call(document.querySelectorAll('#vItems .cusn'), function(t){ t.value = cusNames[+t.getAttribute('data-cus')]; });
@@ -2324,7 +2325,7 @@ window.SHISUU_DIST.r8 = {
     var f = matchFac(name);
     rec.name = name; rec.area = f ? f[0] : $('v-area').value; rec.fac = f ? f[0] + '|' + f[1] : null;
     rec.date = $('v-date').value;
-    rec.memo = (!$('vRateBox').hidden ? $('v-rmemo') : $('v-memo')).value.trim(); rec.good = $('v-good').value.trim(); rec.bad = $('v-bad').value.trim(); rec.ask = $('v-ask').value.trim(); rec.ex = false;
+    rec.memo = (curMode === 'rate' ? $('v-rmemo') : $('v-memo')).value.trim(); rec.good = $('v-good').value.trim(); rec.bad = $('v-bad').value.trim(); rec.ask = $('v-ask').value.trim(); rec.ex = false;
     rec.st = {};
     V_ITEMS.forEach(function(it){ var r = document.querySelector('input[name="st-'+it.id+'"]:checked'); rec.st[it.id] = r ? r.value : 'q'; });
     if(!editing) visits.push(rec);
@@ -2880,6 +2881,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=247"></script>
-<link rel="stylesheet" href="improvements.css?v=20261119-next2"><script src="improvements.js?v=20261119-next2"></script></body>
+<script src="features.js?v=248"></script>
+<link rel="stylesheet" href="improvements.css?v=20261119-rate3"><script src="improvements.js?v=20261119-next2"></script></body>
 </html>
