@@ -2157,7 +2157,7 @@ window.SHISUU_DIST.r8 = {
         try{ fr = localStorage.getItem('hoikatsu-improved-distfree-v1'); }catch(e){}
         if(fr && fr !== fk) return '<div class="dbx">' + CRW + '<b style="display:inline">地域別の入園者点数(0〜5歳児)</b> <small style="display:inline">無料で見られるのは1園だけです(「' + esc(fr.split('|')[1]) + '」で使いました)。ほかの園は有料版で見られます。</small></div>';
       }
-      var h = '<details class="dbx"' + (freeMode ? ' data-dfree="' + esc(fk) + '"' + (fr === fk ? ' open' : '') : '') + '><summary>' + CRW + '<b style="display:inline">' + (freeMode ? '地域別の入園者点数(無料は1園だけ' + (fr === fk ? '・この園で使用中' : '・開くとこの園に決まります') + ')' : esc(f[0]) + '地域の入園者の点数(0〜5歳児)') + '</b></summary>';
+      var h = '<details class="dbx"' + (freeMode ? ' data-dfree="' + esc(fk) + '"' + (fr === fk ? ' open' : '') : '') + '><summary>' + CRW + '<b style="display:inline">' + (freeMode ? '地域別の入園者点数(無料は1園だけ' + (fr === fk ? '・この園で使用中' : '・開くとこの園に決まります') + ')' : esc(f[0]) + '地域の入園者の点数(0〜5歳児)') + '</b><span class="dpaid">有料</span></summary>';
       h += '<p class="dnote"><b>いつの分布?</b>' + esc(DIST.label) + 'の点数の分布です(区の公表資料)。あなたの予想点数は、令和9年4月入園を申し込む想定の点数です。去年の入園者と、あなたの今の点数を並べています。</p>';
       for(var c = 0; c < 6; c++) h += distOne(f, c);
       return h + '<div class="dl"><span>' + DIST.bands[0].l + '</span><span>' + DIST.bands[DIST.bands.length - 1].l + '</span></div><small>青はあなたより低い区分、緑があなたの区分、橙はあなたより高い区分です。園ごとではなく地域全体の昨年の分布で、人気の園は上の区分に偏ります。入れる目安であり、保証ではありません。</small></details>';
@@ -2881,5 +2881,5 @@ window.SHISUU_ADDR = {
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
 <script src="features.js?v=246"></script>
-<link rel="stylesheet" href="improvements.css?v=20261119-find2"><script src="improvements.js?v=20261119-find2"></script></body>
+<link rel="stylesheet" href="improvements.css?v=20261119-paid1"><script src="improvements.js?v=20261119-find2"></script></body>
 </html>
