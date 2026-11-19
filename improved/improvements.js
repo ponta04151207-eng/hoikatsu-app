@@ -18,9 +18,9 @@ menu('uxPrepare','申込み準備',[['tabIndex','点数診断'],['tabDocs','必�
 menu('uxCandidates','候補園・比較',[['tabVisit','見学メモ・比較'],['tabWish','希望順位'],['tabAlert','🔔 空き更新アラート']]);
 menu('uxAccount','マイページ',[['tabSet','保存・復元・設定'],['tabPaid','料金・無料体験'],['tabAzuke','ほかの預け先'],['tabAbout','使い方・出典']]);
 const watch=$('hkD7');if(watch){watch.querySelector('summary').textContent='🔔 空き更新アラートを設定・確認する';const guide=document.createElement('div');guide.className='ux-alert-guide';guide.innerHTML='<b>候補園を登録 → 空き数の変化を確認</b><p>候補園の空きが前回の確認から変わると、アプリ内に表示します。スマホへのプッシュ・メール配信はありません。</p><p class="ux-honest">空き数は、毎月1日・15日に、区のページから自動で取り込みます。資料の対象月を必ず確認してください。</p><button data-go="find">対象の候補園を探す →</button>';watch.querySelector('div').before(guide);}
-const find=$('secFind');const info=document.createElement('div');info.className='ux-trust';info.textContent='前年申込数による参考倍率です。地域別の点数分布から、個別の園の合格点はわかりません。「空き」は公表資料の対象月時点の数字です。';find.prepend(info);
+const find=$('secFind');const info=document.createElement('div');info.className='ux-trust';info.textContent='個別の園の合格点はわかりません。「空き」は、公表資料の対象月時点の数字です。';find.prepend(info);
 function progress(){const count=window.HK.getVisits().filter(v=>!v.ex).length;$('uxProgress').textContent=`候補園 ${count}園 · 点数診断 ${document.body.dataset.diagnosed==='yes'?'入力済み':'未入力'}`;}
-function go(page,target){document.body.dataset.ux=page;nav.querySelectorAll('button').forEach(b=>{if(b.dataset.go===page)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(page==='home'){progress();}else{const id=target||({find:'tabFind',candidates:'tabVisit',prepare:'tabIndex',account:'tabSet'}[page]);if($(id))$(id).click();document.body.dataset.focus=id;document.querySelectorAll('.ux-subnav button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.target===id)));}window.scrollTo(0,0);}
+function go(page,target){document.body.dataset.ux=page;nav.querySelectorAll('button').forEach(b=>{if(b.dataset.go===page)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(page==='home'){progress();}else{const id=target||({find:'tabFind',candidates:'tabVisit',prepare:'tabIndex',account:'tabSet'}[page]);if($(id))$(id).click();document.body.dataset.focus=id;document.querySelectorAll('.ux-subnav button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.target===id)));}window.scrollTo(0,0);if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();[60,250,600].forEach(t=>setTimeout(()=>{if(!window.__uxKeepScroll)window.scrollTo(0,0);},t));}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go],[data-target]');if(!b)return;const page=b.dataset.go||document.body.dataset.ux;go(page,b.dataset.target);});
 // Original controls remain functional while all destinations use the simplified navigation.
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{const id=b.id;document.body.dataset.focus=id;document.body.dataset.ux=/tabFind|tabDist/.test(id)?'find':/tabVisit|tabCmp|tabPlus|tabWish|tabEase|tabAlert/.test(id)?'candidates':/tabIndex|tabDocs|tabSched|tabAdv/.test(id)?'prepare':'account';}));
@@ -58,7 +58,7 @@ new MutationObserver(update).observe(document.body,{attributes:true,attributeFil
 })();
 
 // Open the selected help panel after the existing route has rendered.
-document.addEventListener('click',function(e){const b=e.target.closest('[data-open]');if(!b)return;const id=b.dataset.open;setTimeout(function(){const panel=document.getElementById(id);if(panel){panel.open=true;panel.scrollIntoView({block:'start',behavior:'smooth'});}},200);});
+document.addEventListener('click',function(e){const b=e.target.closest('[data-open]');if(!b)return;const id=b.dataset.open;window.__uxKeepScroll=true;setTimeout(function(){window.__uxKeepScroll=false;},1500);setTimeout(function(){const panel=document.getElementById(id);if(panel){panel.open=true;panel.scrollIntoView({block:'start',behavior:'smooth'});}},200);});
 
 /* 以前のアプリの記録を引き継ぐ */
 (function(){
