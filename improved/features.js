@@ -1097,6 +1097,7 @@ function renderWish(){
   wish = wish.filter(function(id){ return wVisit(id); });
   var vs = realVisits(), h = '';
   h += '<p class="hint" style="margin:0 0 8px">区は「希望する園の数や順位で、有利・不利にはならない」と説明しています(出典: <a href="' + WSRC.url + '" target="_blank" rel="noopener">' + esc(WSRC.name) + '</a>、区の更新 ' + esc(WSRC.upd) + '、確認日 ' + esc(WSRC.checked) + ')。選考は点数の高い順です。だから、順位は<b>行きたい順</b>で大丈夫です。このリストは、考えを整理して、申込書に写すためのものです。</p>';
+  h += '<p class="hint" style="margin:0 0 8px; color:#b4532a; font-weight:700">※希望園を並べるのは、1園までが無料です。2園から並べて順位をつけるのは有料版です(いまはお試しで、全員が使えます)。</p>';
   h += '<div class="mysc"><span>あなたの予想点数</span><b>' + (HK.total ? HK.total() : '') + '<small>点</small></b></div><p class="hint" style="margin:0 0 6px">この点数からみた、各園の入りやすさの目安を、園の名前の横に出しています。</p>';
   h += '<p style="margin:0 0 8px"><b>' + wish.length + ' / 10園</b>(第10希望まで書けます)</p>';
   if(!wish.length) h += '<p class="hint">下から園を追加してください。見学メモに入れた園が出ます。</p>';
@@ -1109,7 +1110,9 @@ function renderWish(){
       + '<span style="display:flex; gap:4px; flex:none"><button type="button" data-w="up" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0" aria-label="外す">✕</button></span></div>';
   });
   var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
-  if(wish.length < 10 && rest.length){
+  if(window.HK_PREMIUM === false && wish.length >= 1){
+    h += '<p class="hint">2園から並べるのは有料版です。</p>';
+  } else if(wish.length < 10 && rest.length){
     h += '<label class="field" for="hkWadd">園を追加する</label><div style="display:flex; gap:8px"><select id="hkWadd" style="flex:1; min-width:0">' + rest.map(function(v){ return '<option value="' + esc(v.id) + '">' + esc(v.name) + '</option>'; }).join('') + '</select><button type="button" id="hkWaddB" class="primary" style="flex:none">追加</button></div>';
   } else if(!rest.length && wish.length < 10){
     h += '<p class="hint">見学メモにある園は、すべて入っています。見学した園を増やすと、ここに出ます。</p>';
