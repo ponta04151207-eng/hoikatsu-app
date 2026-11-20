@@ -222,3 +222,13 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 /* ○△✕の一覧: 1列で、項目名を全部見せる */
 #vList tr.vmemo-row .vfull .vml{grid-template-columns:1fr!important;gap:4px!important}
 #vList tr.vmemo-row .vfull .vml li{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;padding:6px 10px!important;font-size:13px!important;line-height:1.45!important;text-align:left!important;display:block}
+
+/* メモあり > 確認した項目: 小さく・記号を色つきの丸で */
+#vList tr.vmemo-row .vfull .vml{gap:3px!important}
+#vList tr.vmemo-row .vfull .vml li{display:flex!important;align-items:center;gap:8px;padding:3px 8px!important;font-size:12px!important;font-weight:700!important;line-height:1.35!important;border-radius:8px!important;min-height:0}
+#vList tr.vmemo-row .vfull .vml li .mk{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:900;color:#fff;background:#9aa7ae}
+#vList tr.vmemo-row .vfull .vml li .mk-g{background:#1f9d6f}
+#vList tr.vmemo-row .vfull .vml li .mk-w{background:#e0a21b}
+#vList tr.vmemo-row .vfull .vml li .mk-b{background:#e0453a}
+#vList tr.vmemo-row .vfull .vml li .mk-q{background:#c6cdd1}
+#vList tr.vmemo-row .vfull .vml li .qa{margin-left:auto!important;font-size:11px!important;padding:0 8px!important;border:1px solid #9fcfc0;border-radius:999px;background:#e6f4ef;font-weight:700;white-space:nowrap}
