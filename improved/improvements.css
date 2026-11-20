@@ -202,3 +202,19 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 .ux-how li span{font-size:12.5px;line-height:1.5;color:#34454c}
 .ux-how li strong{display:block;font-size:14px;color:#1b3a30}
 .ux-how p{margin:8px 0 0;font-size:12px;color:#5a6a72}
+
+/* メモあり: 行の下に横幅いっぱいで、1項目1行のコンパクト表示 */
+#vList tr.vmemo-row>td{padding:0 0 10px!important;border:0!important;background:transparent!important}
+#vList tr.vmemo-row details.vmemo{margin:0!important;max-width:none!important;width:100%}
+#vList tr.vmemo-row details.vmemo>summary{margin:0 0 4px}
+#vList tr.vmemo-row details.vmemo[open]{background:#f7fbfa;border-radius:12px;padding:6px 8px}
+#vList tr.vmemo-row details.vmemo p{display:flex!important;align-items:baseline;gap:8px;margin:0!important;padding:5px 8px!important;background:transparent!important;border-radius:0!important;border-bottom:1px dotted #d3e3de;font-size:13px!important;line-height:1.45!important}
+#vList tr.vmemo-row details.vmemo p b{flex:none;font-size:12.5px!important;white-space:nowrap;color:#0b5f52}
+#vList tr.vmemo-row details.vmemo p .none{color:#98a4a9;font-style:normal}
+#vList tr.vmemo-row details.vmemo p.vtot{align-items:center}
+#vList tr.vmemo-row .vfull .vml{grid-template-columns:1fr 1fr;gap:4px!important}
+#vList tr.vmemo-row .vfull .vml li{padding:4px 8px!important;font-size:12px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#vList tr.vmemo-row .vfull .vml{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+#vList tr.vmemo-row>td{max-width:0;width:100%;overflow:hidden}
+#vList tr.vmemo-row details.vmemo p.vtot{display:none!important}
+#vList tr.vmemo-row .vfull .vml li{text-align:left}

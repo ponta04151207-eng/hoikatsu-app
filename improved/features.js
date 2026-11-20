@@ -2376,7 +2376,9 @@ function syJoin(code, manual){
     Array.prototype.forEach.call(list.querySelectorAll('[data-act="edit"]'), function(b){
       var tr = b.closest('tr'), th = tr && tr.querySelector('th'), id = b.getAttribute('data-id'); if(!th) return;
       Array.prototype.forEach.call(th.querySelectorAll('.vfull, .vtot'), function(n){ n.remove(); });
-      var old = th.querySelector('.vmemo[data-mine="1"]'), wasOpen = !!(old && old.open); if(old) old.remove();
+      var prevRow = tr.nextElementSibling, wasOpen = false;
+      if(prevRow && prevRow.classList.contains('vmemo-row')){ var pd = prevRow.querySelector('details'); wasOpen = !!(pd && pd.open); prevRow.remove(); }
+      var old = th.querySelector('.vmemo[data-mine="1"]'); if(old){ wasOpen = wasOpen || old.open; old.remove(); }
       var v = vs.filter(function(x){ return x.id === id; })[0]; if(!v) return;
       var fn0 = th.querySelector('.fn');
       if(fn0 && !fn0.querySelector('.fn-ill')){ var ic = document.createElement('i'); ic.className = 'fn-ill'; ic.setAttribute('aria-hidden', 'true'); ic.innerHTML = '<svg viewBox="0 0 48 48"><path d="M6 22L24 7l18 15v20H6z" fill="#fbd9c9" stroke="#d9573f" stroke-width="2.5" stroke-linejoin="round"/><rect x="19" y="28" width="10" height="14" rx="2" fill="#fff" stroke="#d9573f" stroke-width="2"/><circle cx="24" cy="19" r="4" fill="#fff" stroke="#d9573f" stroke-width="2"/></svg>'; fn0.insertBefore(ic, fn0.firstChild); }
@@ -2396,11 +2398,12 @@ function syJoin(code, manual){
         var vb = th.querySelector('.vb'); if(vb) th.insertBefore(det, vb); else th.appendChild(det);
       }
       var extra = '';
-      if(marks.length) extra += '<p><b>✅ 確認した項目と聞いた答え(○よい △ふつう ✕いまいち)</b></p><ul class="vml">' + marks.join('') + '</ul>';
+      if(marks.length) extra += '<p><b>✅ 確認した項目</b></p><ul class="vml">' + marks.join('') + '</ul>';
       
       var g = HK.grade(v), sm = det.querySelector('summary');
       if(sm) sm.insertAdjacentHTML('afterend', '<p class="vtot"><b>総評</b>' + HK.gbadge(v) + '<span>○' + g.c.g + ' △' + g.c.w + ' ✕' + g.c.b + '</span></p>');
       det.insertAdjacentHTML('beforeend', '<div class="vfull">' + extra + '</div>');
+      var mrow = document.createElement('tr'); mrow.className = 'vmemo-row'; var mtd = document.createElement('td'); mtd.colSpan = 3; mtd.appendChild(det); mrow.appendChild(mtd); tr.parentNode.insertBefore(mrow, tr.nextSibling);
     });
   }
   new MutationObserver(function(){ setTimeout(fill, 60); }).observe(list, {childList: true});
