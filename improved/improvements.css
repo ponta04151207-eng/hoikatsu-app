@@ -218,3 +218,7 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 #vList tr.vmemo-row>td{max-width:0;width:100%;overflow:hidden}
 #vList tr.vmemo-row details.vmemo p.vtot{display:none!important}
 #vList tr.vmemo-row .vfull .vml li{text-align:left}
+
+/* ○△✕の一覧: 1列で、項目名を全部見せる */
+#vList tr.vmemo-row .vfull .vml{grid-template-columns:1fr!important;gap:4px!important}
+#vList tr.vmemo-row .vfull .vml li{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;padding:6px 10px!important;font-size:13px!important;line-height:1.45!important;text-align:left!important;display:block}
