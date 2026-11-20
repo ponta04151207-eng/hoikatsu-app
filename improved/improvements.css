@@ -174,3 +174,9 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 #vList .vfull .vml li .qa{display:inline-block;margin-left:4px;color:#0b5f52}
 #vList .vfull .vml li{padding:5px 10px!important;font-size:13px!important}
 #vList .vfull .vml{gap:4px!important}
+
+/* 見学した園の行: 総評(A/B/C) */
+#vList .rgr{display:flex;align-items:center;gap:6px;margin:4px 0 2px}
+#vList .rgr em{font-style:normal;font-size:12.5px;font-weight:800;color:#34454c}
+#vList .rgr .gb{font-size:18px!important;padding:0 12px!important;border-radius:8px}
+#vList .rgr small{font-size:11.5px!important;font-weight:700;color:#5a6a72}

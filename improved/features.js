@@ -2378,6 +2378,11 @@ function syJoin(code, manual){
       Array.prototype.forEach.call(th.querySelectorAll('.vfull, .vtot'), function(n){ n.remove(); });
       var old = th.querySelector('.vmemo[data-mine="1"]'), wasOpen = !!(old && old.open); if(old) old.remove();
       var v = vs.filter(function(x){ return x.id === id; })[0]; if(!v) return;
+      Array.prototype.forEach.call(th.querySelectorAll('.rgr'), function(n){ n.remove(); });
+      var rg = HK.grade(v), anchor = th.querySelector('.rs') || th.querySelector('.fn').nextSibling;
+      var rgEl = document.createElement('span'); rgEl.className = 'rgr';
+      rgEl.innerHTML = '<em>総評</em>' + HK.gbadge(v) + (rg.n < 3 ? '<small>○△✕を3つ以上つけると出ます</small>' : '<small>' + (rg.l === 'A' ? 'とても良い' : rg.l === 'B' ? 'まずまず' : 'いまいち') + '</small>');
+      if(th.querySelector('.rs')) anchor.parentNode.insertBefore(rgEl, anchor.nextSibling); else th.querySelector('.fn').parentNode.insertBefore(rgEl, th.querySelector('small').nextSibling);
       var q = qa(id), s = v.st || {}, marks = HK.items.map(function(it){ var k = HK.status[s[it.id]] ? s[it.id] : 'q', ans = q.by[it.id]; return '<li' + (k === 'q' && !ans ? ' class="qno"' : '') + '>' + HK.status[k].s + ' ' + esc(it.l) + (ans ? ' <b class="qa">' + esc(ans) + '</b>' : '') + '</li>'; });
       var has = v.good || v.bad || v.ask || v.memo || marks.some(function(m){ return m.indexOf('qno') < 0; });
       var det = th.querySelector('.vmemo');
