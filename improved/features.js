@@ -920,7 +920,9 @@ function renderQ(){
   var v = qTarget(), box = $('hkQ');
   if(!box) return;
   if(!v){ box.innerHTML = ''; return; }
-  var a = qd.a[v.id] || (qd.a[v.id] = {}), qs = allQ(), n = qs.filter(function(q){ return a[q.id] && a[q.id].d; }).length;
+  if(box.parentNode) box.parentNode.hidden = !(qd.custom && qd.custom.length);
+  /* ○△✕の項目と重なる質問は出さない(自分で足した質問だけ出す) */
+  var a = qd.a[v.id] || (qd.a[v.id] = {}), qs = allQ().slice(QUESTIONS.length), n = qs.filter(function(q){ return a[q.id] && a[q.id].d; }).length;
   box.innerHTML = '<p class="hint" style="margin:0 0 6px">聞けた質問 ' + n + ' / ' + qs.length + '。聞けたらチェックして、答えを選びます。</p>'
     + qs.map(function(q){
       var r = a[q.id] || {};
@@ -955,7 +957,7 @@ function renderAll(){
   h += row('全希望の倍率', function(v){ var s = vst(v); return s && s.r2 !== null ? '<b>' + HK.times(s.r2) + '</b>' : '―'; });
   h += row('○ △ ✕', function(v){ var c = HK.counts(v); return '○' + c.g + ' △' + c.w + ' ✕' + c.b; });
   HK.items.forEach(function(it){ h += row(it.l, function(v){ var s = v.st[it.id] || 'q'; return '<span class="s ' + s + '">' + HK.status[s].s + '</span>'; }); });
-  h += row('聞けた質問', function(v){ return askedCount(v) + ' / ' + allQ().length; });
+  if(qd.custom && qd.custom.length) h += row('聞けた質問', function(v){ var a = qd.a[v.id] || {}; return qd.custom.filter(function(c){ return a[c.id] && a[c.id].d; }).length + ' / ' + qd.custom.length; });
   h += row('良かったところ', function(v){ return esc(v.good || '') || '―'; });
   h += row('気になったところ', function(v){ return esc(v.bad || '') || '―'; });
   h += row('次に聞くこと', function(v){ return esc(v.ask || '') || '―'; });
