@@ -180,3 +180,10 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 #vList .rgr em{font-style:normal;font-size:12.5px;font-weight:800;color:#34454c}
 #vList .rgr .gb{font-size:18px!important;padding:0 12px!important;border-radius:8px}
 #vList .rgr small{font-size:11.5px!important;font-weight:700;color:#5a6a72}
+
+/* 見学した園: 園名をイラスト付きで目立たせる */
+#vList .vtbl th[scope=row] .fn{display:flex!important;align-items:center;gap:8px;margin:0 0 4px;font-size:16px!important;font-weight:900!important;line-height:1.35;color:#1b3a30}
+#vList .fn-ill{flex:none;width:36px;height:36px;border-radius:10px;background:#fff1ea;display:grid;place-items:center;font-style:normal}
+#vList .fn-ill svg{width:26px;height:26px}
+#vList .vtbl th[scope=row]{padding-top:10px!important}
+#vList .vtbl th[scope=row]>small:not(.rs){display:block;margin:0 0 4px 44px;font-size:11.5px}
