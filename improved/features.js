@@ -1106,8 +1106,15 @@ function renderWish(){
   wish.forEach(function(id, i){
     var v = wVisit(id), s = vst(v), r = wR2(v), ez = ezOf(v);
     if(ez) EZ[ez.k]++; else EZ.none++;
-    h += '<div class="tk" style="align-items:center"><span class="sc soon" style="flex:none">第' + (i + 1) + '</span><span class="x"><b>' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</b><small>' + esc(v.area || '') + (v.date ? ' ・ ' + esc(v.date.slice(5).replace('-', '/')) : '') + '</small>' + wsum(v) + '<small>' + (ez ? '<span class="ezb ez-' + ez.k + '" title="' + esc(ez.why) + '">あなたの点:' + ez.l + '</span> ' : '') + (s && s.vac !== null ? '空き' + s.vac + '人・倍率' + (r !== null ? HK.times(r) : '―') : '昨年の数字なし') + '</small>' + (v.ex ? '' : '<a class="wmap" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' 保育園 世田谷区') + '" target="_blank" rel="noopener">🗺️ 地図・写真を見る(タップ)</a>') + '</span>'
-      + '<span style="display:flex; gap:4px; flex:none"><button type="button" data-w="up" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" style="min-height:40px; min-width:40px; padding:0" aria-label="外す">✕</button></span></div>';
+    var SCH = '<i class="wk-ill" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M6 22L24 7l18 15v20H6z" fill="#fbd9c9" stroke="#d9573f" stroke-width="2.5" stroke-linejoin="round"/><rect x="19" y="28" width="10" height="14" rx="2" fill="#fff" stroke="#d9573f" stroke-width="2"/><circle cx="24" cy="19" r="4" fill="#fff" stroke="#d9573f" stroke-width="2"/></svg></i>';
+    var lv = ez ? ez.k : 'none';
+    var meter = '<div class="wk-meter" title="' + (ez ? esc(ez.why) : '') + '"><span class="wk-ml">あなたの点数での入りやすさ</span><div class="wk-seg ' + lv + '"><b class="e">入りやすい</b><b class="m">ふつう</b><b class="h">厳しい</b></div>' + (ez ? '' : '<small class="wk-none">昨年の数字がないため、目安は出せません</small>') + '</div>';
+    h += '<div class="wk"><div class="wk-top"><span class="wk-n">第' + (i + 1) + '</span>' + SCH + '<span class="wk-name">' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</span>'
+      + '<span class="wk-btn"><button type="button" data-w="up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" aria-label="外す">✕</button></span></div>'
+      + '<div class="wk-sub">' + esc(v.area || '') + (v.date ? ' ・ 見学 ' + esc(v.date.slice(5).replace('-', '/')) : '') + wsum(v) + '</div>'
+      + meter
+      + '<div class="wk-num">' + (s && s.vac !== null ? '空き <b>' + s.vac + '人</b> ・ 倍率 <b>' + (r !== null ? HK.times(r) : '―') + '</b>' : '昨年の数字なし') + '</div>'
+      + (v.ex ? '' : '<a class="wmap" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' 保育園 世田谷区') + '" target="_blank" rel="noopener">🗺️ 地図・写真を見る</a>') + '</div>';
   });
   var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
   if(window.HK_PREMIUM === false && wish.length >= 1){
