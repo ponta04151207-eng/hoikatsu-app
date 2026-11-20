@@ -581,7 +581,8 @@ img{max-width:100%}
         <p class="hint" id="cmpMsg" style="margin:4px 0 0" aria-live="polite"></p>
       </div>
       <p class="hint" style="margin:6px 0 0; color:#b4532a; font-weight:700">※表の園の名前をタップすると、○△？の評価を入れたり直したりできます。</p>
-      <div class="tblwrap" id="vCmp"></div>
+      <div class="tblwrap" id="vCmp" hidden></div>
+      <div id="hkAll" class="hkall"></div>
     </section>
 
     <section class="panel" id="secFind" aria-labelledby="h-find">
@@ -2097,8 +2098,8 @@ window.SHISUU_DIST.r8 = {
   function renderCmp(){
     var all = visits.filter(function(v){return v.cmp});
     $('vCmpHint').textContent = window.HK_PREMIUM === false
-      ? '「比べる」にチェックを入れた園が並びます。無料で見られるのは1園までです。2園から並べて比べるのは有料版です。'
-      : '「比べる」にチェックを入れた園が並びます(3園まで)。4園以上は、「見学メモ プラス」の「すべての園を並べて比べる」で見られます。';
+      ? '園の数に上限はありません。無料で見られるのは1園までです。2園から並べて比べるのは有料版です。'
+      : '追加した園が、下の表に全部並びます。園の数に上限はありません。';
     var sel = all.slice(0, cmpMax());
     if(sel.length < (window.HK_PREMIUM === false ? 1 : 2)){ $('vCmp').innerHTML = '<p class="hint">'+(window.HK_PREMIUM === false ? '1園' : '2園以上')+'にチェックを入れると、比較表が出ます。</p>'; return; }
     var SHORTL = {'先生の人数・雰囲気':'先生の人数・雰囲気','慣らし保育の期間と進め方':'慣らし保育','発熱時のお迎え・病児保育':'発熱時の対応','給食・アレルギー対応':'給食','持ち物(布団・おむつ)の負担':'持ち物の負担','延長保育・開所時間':'延長保育','送迎・駐輪場':'送迎・駐輪場','保育料以外の費用(用品代・行事費)':'保育料以外の費用'};
@@ -2881,6 +2882,6 @@ window.SHISUU_ADDR = {
 </script>
 <script src="azuke.js?v=1"></script>
 <script src="ichiji.js?v=1"></script>
-<script src="features.js?v=254"></script>
-<link rel="stylesheet" href="improvements.css?v=20261120-mk1"><script src="improvements.js?v=20261120-how1"></script></body>
+<script src="features.js?v=255"></script>
+<link rel="stylesheet" href="improvements.css?v=20261120-cmp1"><script src="improvements.js?v=20261120-how1"></script></body>
 </html>

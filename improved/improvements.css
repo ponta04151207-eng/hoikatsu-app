@@ -232,3 +232,7 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 #vList tr.vmemo-row .vfull .vml li .mk-b{background:#e0453a}
 #vList tr.vmemo-row .vfull .vml li .mk-q{background:#c6cdd1}
 #vList tr.vmemo-row .vfull .vml li .qa{margin-left:auto!important;font-size:11px!important;padding:0 8px!important;border:1px solid #9fcfc0;border-radius:999px;background:#e6f4ef;font-weight:700;white-space:nowrap}
+
+/* 園を比べる: すべての園の比較表をここに表示 */
+#hkAll.hkall{margin-top:10px}
+#hkAll .tblwrap{overflow-x:auto}

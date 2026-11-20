@@ -788,12 +788,11 @@ plus.className = 'panel'; plus.id = 'hkPlus';
 vSec.parentNode.insertBefore(plus, vSec.nextSibling);
 var CROWN = '<span class="hi" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 11l6 5 6-9 6 9 6-5-3 15H7z" fill="#ffd36b" stroke="#f0b429" stroke-width="1.5" stroke-linejoin="round"/><circle cx="4" cy="11" r="2" fill="#ff7b6b"/><circle cx="16" cy="6" r="2" fill="#ff7b6b"/><circle cx="28" cy="11" r="2" fill="#ff7b6b"/></svg></span>';
 if(!PREMIUM){
-  plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge" style="font-size:12px">有料版</span></h2><p class="hint" style="margin:0">すべての園を並べて比べる、PDF・印刷、夫婦の同期は、有料版の機能です。</p>' + buyHtml();
+  plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge" style="font-size:12px">有料版</span></h2><p class="hint" style="margin:0">PDF・印刷、夫婦の同期は、有料版の機能です。</p>' + buyHtml();
 } else {
   plus.innerHTML = '<h2 class="hasicon">' + CROWN + '見学メモ プラス <span class="badge">有料版・お試し中</span></h2>'
   + '<p class="hint" style="margin:0 0 6px">いまは、お試しで全員が使えます。有料になるときは、先にお知らせします。</p>'
   + '<details class="plus" id="hkD1" hidden><summary>📷 写真をつける</summary><div id="hkPh"></div></details>'
-  + '<details class="plus" id="hkD3"><summary>📊 すべての園を並べて比べる</summary><div id="hkAll"></div></details>'
   + '<details class="plus" id="hkD4"><summary>📄 PDFにする・印刷する</summary><div><label class="field" for="hkSel" style="margin-top:0">1園だけPDFにするとき、園を選ぶ</label><select id="hkSel"></select><p class="hint" style="margin:0 0 8px">印刷の画面で「PDFに保存」を選ぶと、PDFになります。</p><button type="button" id="hkP1" style="width:100%; margin-bottom:8px">選んだ園のレポート(写真つき)</button><button type="button" id="hkP2" style="width:100%">すべての園のレポート</button></div></details>'
   + '<details class="plus" id="hkD5"><summary>👪 夫婦・家族で共有する</summary><div id="hkSh"></div></details>'
   + '<details class="plus" id="hkD6"><summary>' + CR + ' 🏁 希望園を並べる</summary><div id="hkWish"></div></details>'
@@ -948,6 +947,7 @@ function askedCount(v){ var a = qd.a[v.id] || {}; return allQ().filter(function(
 function renderAll(){
   var vs = realVisits(), box = $('hkAll');
   if(!vs.length){ box.innerHTML = '<p class="hint">見学した園を追加すると、ここに並びます。</p>'; return; }
+  if(window.HK_PREMIUM === false) vs = vs.slice(0, 1);
   function row(label, fn){ return '<tr><th scope="row">' + esc(label) + '</th>' + vs.map(function(v){ return '<td>' + fn(v) + '</td>'; }).join('') + '</tr>'; }
   var h = '<p class="hint" style="margin:0">園の数に上限はありません。横にスライドして見られます。</p><div class="tblwrap"><table class="cmp"><thead><tr><th scope="col">項目</th>' + vs.map(function(v){ return '<th scope="col"><button type="button" class="cmpname" data-alledit="' + esc(v.id) + '" aria-label="' + esc(v.name) + 'を編集">' + esc(v.name) + '<span class="ce">✏ 編集</span></button></th>'; }).join('') + '</tr></thead><tbody>';
   h += row('地域・見学日', function(v){ return esc(v.area) + (v.date ? '<br>' + esc(v.date.slice(5).replace('-', '/')) : ''); });
