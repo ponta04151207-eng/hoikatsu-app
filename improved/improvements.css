@@ -236,3 +236,10 @@ body{padding-bottom:88px!important}.ux-nav{position:fixed!important;top:auto!imp
 /* 園を比べる: すべての園の比較表をここに表示 */
 #hkAll.hkall{margin-top:10px}
 #hkAll .tblwrap{overflow-x:auto}
+
+/* 希望園を並べるページ(ステップ4) */
+body[data-focus=tabWish] #viewVisit>:not(#hkPlus){display:none!important}
+body[data-focus=tabWish] #hkPlus>:not(#hkD6){display:none!important}
+body[data-focus=tabWish] #hkD6{border:1px solid #bed7c6;border-radius:20px;background:var(--surface);margin:12px 0}
+body[data-focus=tabWish] #hkD6>summary{font-size:18px;padding:16px}
+body[data-focus=tabWish] #hkPlus{border:none;box-shadow:none;padding:0;background:transparent}
