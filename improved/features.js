@@ -795,7 +795,7 @@ if(!PREMIUM){
   + '<details class="plus" id="hkD1" hidden><summary>📷 写真をつける</summary><div id="hkPh"></div></details>'
   + '<details class="plus" id="hkD4"><summary>📄 PDFにする・印刷する</summary><div><label class="field" for="hkSel" style="margin-top:0">1園だけPDFにするとき、園を選ぶ</label><select id="hkSel"></select><p class="hint" style="margin:0 0 8px">印刷の画面で「PDFに保存」を選ぶと、PDFになります。</p><button type="button" id="hkP1" style="width:100%; margin-bottom:8px">選んだ園のレポート(写真つき)</button><button type="button" id="hkP2" style="width:100%">すべての園のレポート</button></div></details>'
   + '<details class="plus" id="hkD5"><summary>👪 夫婦・家族で共有する</summary><div id="hkSh"></div></details>'
-  + '<details class="plus" id="hkD6"><summary>' + CR + ' 🏁 希望園を並べる</summary><div id="hkWish"></div></details>'
+  + '<details class="plus" id="hkD6"><summary>' + CR + ' 🏁 希望園を並べる <span class="paidtag">(2園から有料)</span></summary><div id="hkWish"></div></details>'
   + '<details class="plus" id="hkD7"><summary>' + CR + ' 🔔 空きが変わったらお知らせ</summary><div id="hkWatch"></div></details>';
 }
 
@@ -1097,7 +1097,7 @@ function renderWish(){
   wish = wish.filter(function(id){ return wVisit(id); });
   var vs = realVisits(), h = '';
   h += '<p class="hint" style="margin:0 0 8px">区は「希望する園の数や順位で、有利・不利にはならない」と説明しています(出典: <a href="' + WSRC.url + '" target="_blank" rel="noopener">' + esc(WSRC.name) + '</a>、区の更新 ' + esc(WSRC.upd) + '、確認日 ' + esc(WSRC.checked) + ')。選考は点数の高い順です。だから、順位は<b>行きたい順</b>で大丈夫です。このリストは、考えを整理して、申込書に写すためのものです。</p>';
-  h += '<p class="hint" style="margin:0 0 8px; color:#b4532a; font-weight:700">※希望園を並べるのは、1園までが無料です。2園から並べて順位をつけるのは有料版です(いまはお試しで、全員が使えます)。</p>';
+  h += '<div class="wk-paid"><b>' + CR + ' 無料は1園まで・2園から有料</b><p>1園だけ入れて、入りやすさの目安を見るのは無料です。2園以上を並べて、第10希望まで順位をつけるのは、有料版(月490円)の機能です。</p><p class="wk-paid2">' + (window.HK_PREMIUM === false ? '2園目からは、有料版で追加できます。' : 'いまはお試しで、全員が使えます。有料になるときは、先にお知らせします。') + '</p></div>';
   h += '<div class="mysc"><span>あなたの予想点数</span><b>' + (HK.total ? HK.total() : '') + '<small>点</small></b></div><p class="hint" style="margin:0 0 6px">この点数からみた、各園の入りやすさの目安を、園の名前の横に出しています。</p>';
   var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
   var lockFree = window.HK_PREMIUM === false && wish.length >= 1;
