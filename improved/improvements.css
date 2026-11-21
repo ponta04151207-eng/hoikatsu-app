@@ -329,3 +329,6 @@ body[data-focus=tabWish] #hkPlus{border:none;box-shadow:none;padding:0;backgroun
 #hkWish .wk-ease i{flex:none;width:38px;height:38px;border-radius:12px;background:#fff;display:grid;place-items:center;font-style:normal;font-size:22px}
 #hkWish .wk-ease b{display:block;font-size:16.5px;font-weight:900;line-height:1.35;color:#fff}
 #hkWish .wk-ease small{display:block;margin-top:2px;font-size:11.5px;line-height:1.45;color:#e6f7f0;font-weight:700}
+
+/* トップ: 希望園を並べる の下の目立つ説明 */
+.ux-roadmap .rm-ease{display:inline-block;align-self:flex-start;margin-top:3px;padding:3px 10px;border-radius:999px;background:#1f9d6f;color:#fff;font-style:normal;font-size:12px;font-weight:900;line-height:1.5;box-shadow:0 2px 0 #1a7a5a}
