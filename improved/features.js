@@ -2183,10 +2183,16 @@ function syJoin(code, manual){
   var NOW = window.SHISUU_NOW; var box = document.getElementById('hkWatch'); if(!box || !NOW) return;
   var K = 'hoikatsu-improved-nowsnap-v1', snap = lsGet(K, null) || {};
   var nm = {}; NOW.rows.forEach(function(r){ nm[r[0] + '|' + r[1]] = r[2]; });
+  var WL = 'hoikatsu-improved-watchlist-v1', wl = lsGet(WL, null);
+  var rowOf = {}; NOW.rows.forEach(function(r){ rowOf[r[0] + '|' + r[1]] = r; });
+  if(!Array.isArray(wl)){ wl = []; (HK.getVisits() || []).forEach(function(v){ if(!v.ex && v.fac && nm[v.fac] && wl.indexOf(v.fac) < 0) wl.push(v.fac); }); }
+  function wlSave(){ lsSet(WL, wl); }
   function watched(){
-    var out = [], seen = {};
-    (HK.getVisits() || []).forEach(function(v){ if(v.ex || !v.fac || seen[v.fac] || !nm[v.fac]) return; seen[v.fac] = 1; out.push(v); });
-    return out;
+    var vs = HK.getVisits() || [];
+    return wl.filter(function(k){ return nm[k]; }).map(function(k){
+      var r = rowOf[k], v = vs.filter(function(x){ return x.fac === k && !x.ex; })[0];
+      return {name: r[1], area: r[0], fac: k, id: v ? v.id : ''};
+    });
   }
   function compute(){
     var ch = [];
@@ -2203,13 +2209,30 @@ function syJoin(code, manual){
   function render(){
     var ws = watched(), h = '';
     h += '<p class="hint" style="margin:0 0 8px"><b>空きが変わると、ここに出ます</b><br>① トップの上に「🔔空きが変わった園があります」と出ます。<br>② この画面に「◯◯園(1歳児): 0人 → 2人」と出ます。<br>メールや通知は送りません。アプリを開いたときに出ます。</p>';
-    if(!ws.length) h += '<p class="hint">見学メモに園を入れると、ここで空きの変化を見られます。</p>';
+    h += '<div class="wsrch"><label class="field" for="hkWq">🔍 園の名前で探して、アラートをオン・オフ</label><input type="search" id="hkWq" placeholder="例: 三宿、わらべうた" autocomplete="off"><div id="hkWres"></div><p class="wsh">アラートがオンの園(<span id="hkWcnt">0</span>園)</p><div id="hkWon"></div></div>';
+    if(!ws.length) h += '';
     else if(!snap.d || !Object.keys(snap.d).length) h += '<p class="hint">公表済みの空きを記録しました。次に区の空き表が更新されたとき、変わった園をお知らせします。</p>';
     if(changes.length) h += '<ul class="advl">' + changes.map(function(c){ return '<li><b>' + esc(c.v.name) + '</b>(' + c.c + '歳児): ' + fmt(c.a) + ' → <b>' + fmt(c.b) + '</b>' + (c.a == null ? ' 空き表に載りました' : c.b == null ? ' 空き表から消えました' : c.b > c.a ? ' 空きが増えました' : ' 空きが減りました') + '</li>'; }).join('') + '</ul><button type="button" class="mini" id="hkWok" style="margin-top:6px">確認した</button>';
     else if(ws.length && snap.d && Object.keys(snap.d).length) h += '<p class="hint">前に見たときから、変わった園はありません(空き表の確認日 ' + esc(NOW.checkedOn) + ')。</p>';
     h += '<p style="margin:10px 0 4px"><b>カレンダーで思い出す</b></p><p class="hint" style="margin:0 0 6px">毎月1日と15日に「空きを確認」の予定を入れます。区の空き表は月ごとに更新されます。</p><button type="button" id="hkWcal" style="width:100%">📅 カレンダーに入れる(毎月1日・15日)</button>';
     h += '<button type="button" id="hkWdemo" style="width:100%; margin-top:8px">🔔 お知らせの出かたを見る(見本)</button>';
-    box.innerHTML = h;
+    box.innerHTML = h; paintLists();
+  }
+  function fold(x){ return String(x || '').normalize('NFKC').toLowerCase().replace(/[\s　()（）・]/g, '').replace(/[\u3041-\u3096]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) + 96); }); }
+  function swRow(k){
+    var r = rowOf[k], on = wl.indexOf(k) >= 0;
+    return '<div class="wsw-row"><span class="wsw-n"><i class="wc-ill">' + SCHI + '</i><span><b>' + esc(r[1]) + '</b><small>' + esc(r[0]) + '</small></span></span><button type="button" class="wsw' + (on ? ' on' : '') + '" role="switch" aria-checked="' + on + '" data-wk="' + esc(k) + '" aria-label="' + esc(r[1]) + 'のアラート"><span>' + (on ? 'ON' : 'OFF') + '</span><i></i></button></div>';
+  }
+  var SCHI = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 22L24 7l18 15v20H6z" fill="#fbd9c9" stroke="#d9573f" stroke-width="2.5" stroke-linejoin="round"/><rect x="19" y="28" width="10" height="14" rx="2" fill="#fff" stroke="#d9573f" stroke-width="2"/><circle cx="24" cy="19" r="4" fill="#fff" stroke="#d9573f" stroke-width="2"/></svg>';
+  function paintLists(){
+    var q = fold(($('hkWq') || {}).value), res = $('hkWres'), on = $('hkWon'); if(!res || !on) return;
+    if(q){
+      var hit = NOW.rows.filter(function(r){ return fold(r[1]).indexOf(q) >= 0; }).slice(0, 10);
+      res.innerHTML = hit.length ? hit.map(function(r){ return swRow(r[0] + '|' + r[1]); }).join('') : '<p class="hint" style="margin:6px 0">一致する園がありません。「園を探す」で名前を確認してください。</p>';
+    } else res.innerHTML = '';
+    var ks = wl.filter(function(k){ return nm[k]; });
+    $('hkWcnt').textContent = ks.length;
+    on.innerHTML = ks.length ? ks.map(swRow).join('') : '<p class="hint" style="margin:6px 0">まだ、オンの園はありません。上で園の名前を探して、ONにしてください。</p>';
   }
   function ics(){
     var d = new Date(), y = d.getFullYear(), m = ('0' + (d.getMonth() + 1)).slice(-2), st = y + m + '01';
@@ -2227,7 +2250,14 @@ function syJoin(code, manual){
     var t = e.target;
     if(t.id === 'hkWok'){ save(); changes = []; render(); hideTop(); }
     if(t.id === 'hkWcal') ics();
+    var sw = t.closest && t.closest('.wsw');
+    if(sw){
+      var k = sw.getAttribute('data-wk'), ix = wl.indexOf(k);
+      if(ix >= 0) wl.splice(ix, 1); else { wl.push(k); if(!snap.d) snap.d = {}; if(!snap.d[k]){ snap.d[k] = nm[k]; lsSet(K, snap); } }
+      wlSave(); changes = compute(); paintLists();
+    }
   });
+  box.addEventListener('input', function(e){ if(e.target.id === 'hkWq') paintLists(); });
   var top = null;
   function hideTop(){ if(top) top.hidden = true; }
   function init(){

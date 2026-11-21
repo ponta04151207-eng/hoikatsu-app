@@ -307,3 +307,19 @@ body[data-focus=tabWish] #hkPlus{border:none;box-shadow:none;padding:0;backgroun
 #hkWish .wk-paid .wk-paid2{font-weight:700;color:#b4532a}
 #hkWish .wk-paid svg{width:18px;height:18px}
 .ux-subnav button[aria-pressed=true] .paidtag{color:#ffe7a8}
+
+/* 空き更新アラート: 園の名前で探して、ON/OFFだけ */
+#hkWatch .wsrch{margin:6px 0 12px;padding:10px 12px;border-radius:14px;background:#eef7f4;border:1.5px solid #bfe3d8}
+#hkWatch .wsrch .field{margin:0 0 6px;font-size:14px;font-weight:800;color:#1f6f60}
+#hkWatch .wsrch input[type=search]{width:100%;box-sizing:border-box;min-height:44px}
+#hkWatch .wsh{margin:12px 0 4px;font-size:13px;font-weight:800;color:#1f3a33}
+#hkWatch .wsw-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;margin-top:6px;border-radius:12px;background:#fff;border:1px solid #d6e6e0}
+#hkWatch .wsw-n{display:flex;align-items:center;gap:8px;min-width:0}
+#hkWatch .wsw-n .wc-ill{flex:none;width:28px;height:28px;border-radius:8px;background:#fdeee7;display:grid;place-items:center}
+#hkWatch .wsw-n .wc-ill svg{width:20px;height:20px}
+#hkWatch .wsw-n b{display:block;font-size:15px;color:#1f3a33;line-height:1.3}
+#hkWatch .wsw-n small{display:block;font-size:11px;color:#6b7d77}
+#hkWatch .wsw{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:3px 4px 3px 10px;border-radius:999px;border:2px solid #c6cdd1;background:#eef1f0;color:#7a8a85;font-size:12px;font-weight:900;box-shadow:none}
+#hkWatch .wsw i{width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003}
+#hkWatch .wsw.on{background:#1f9d6f;border-color:#1f9d6f;color:#fff;flex-direction:row}
+#hkWatch .wsw:not(.on){flex-direction:row-reverse;padding:3px 10px 3px 4px}
