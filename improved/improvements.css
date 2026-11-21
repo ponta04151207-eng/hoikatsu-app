@@ -268,3 +268,15 @@ body[data-focus=tabWish] #hkPlus{border:none;box-shadow:none;padding:0;backgroun
 #hkD6>#hkWish{padding:4px 12px 14px}
 #hkWish .hint{line-height:1.6!important}
 #hkWish ul.hint{gap:8px!important}
+
+/* 追加タブを常に表示 / 園名は横書きでバランスよく */
+#hkWish .wk-add{margin:10px 0 12px;padding:10px 12px;border-radius:14px;background:#eef7f4;border:1.5px solid #bfe3d8}
+#hkWish .wk-add .field{margin:0 0 6px;font-size:14px;font-weight:800;color:#1f6f60}
+#hkWish .wk-addrow{display:flex;gap:8px}
+#hkWish .wk-addrow select{flex:1;min-width:0;min-height:44px}
+#hkWish .wk-addrow button{flex:none;min-height:44px;padding:0 18px}
+#hkWish .wk-top{flex-wrap:nowrap}
+#hkWish .wk-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal!important;writing-mode:horizontal-tb}
+#hkWish .wk-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+#hkWish .wk-foot .wmap{margin:0!important}
+#hkWish .wk-foot .wk-btn{margin-left:auto}

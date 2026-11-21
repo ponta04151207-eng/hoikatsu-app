@@ -1099,6 +1099,10 @@ function renderWish(){
   h += '<p class="hint" style="margin:0 0 8px">区は「希望する園の数や順位で、有利・不利にはならない」と説明しています(出典: <a href="' + WSRC.url + '" target="_blank" rel="noopener">' + esc(WSRC.name) + '</a>、区の更新 ' + esc(WSRC.upd) + '、確認日 ' + esc(WSRC.checked) + ')。選考は点数の高い順です。だから、順位は<b>行きたい順</b>で大丈夫です。このリストは、考えを整理して、申込書に写すためのものです。</p>';
   h += '<p class="hint" style="margin:0 0 8px; color:#b4532a; font-weight:700">※希望園を並べるのは、1園までが無料です。2園から並べて順位をつけるのは有料版です(いまはお試しで、全員が使えます)。</p>';
   h += '<div class="mysc"><span>あなたの予想点数</span><b>' + (HK.total ? HK.total() : '') + '<small>点</small></b></div><p class="hint" style="margin:0 0 6px">この点数からみた、各園の入りやすさの目安を、園の名前の横に出しています。</p>';
+  var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
+  var lockFree = window.HK_PREMIUM === false && wish.length >= 1;
+  var canAdd = !lockFree && wish.length < 10 && rest.length;
+  h += '<div class="wk-add"><label class="field" for="hkWadd">➕ 希望園に追加する</label><div class="wk-addrow"><select id="hkWadd"' + (canAdd ? '' : ' disabled') + '>' + (canAdd ? rest.map(function(v){ return '<option value="' + esc(v.id) + '">' + esc(v.name) + '</option>'; }).join('') : '<option>' + (lockFree ? '2園から並べるのは有料版です' : wish.length >= 10 ? '10園まで入っています' : '追加できる園がありません') + '</option>') + '</select><button type="button" id="hkWaddB" class="primary"' + (canAdd ? '' : ' disabled') + '>追加</button></div>' + (!rest.length && !lockFree && wish.length < 10 ? '<p class="hint" style="margin:4px 0 0">見学メモにある園は、すべて入っています。見学した園を増やすと、ここに出ます。</p>' : '') + '</div>';
   h += '<p style="margin:0 0 8px"><b>' + wish.length + ' / 10園</b>(第10希望まで書けます)</p>';
   if(!wish.length) h += '<p class="hint">下から園を追加してください。見学メモに入れた園が出ます。</p>';
   var EZ = {easy:0, mid:0, hard:0, none:0};
@@ -1110,20 +1114,12 @@ function renderWish(){
     var lv = ez ? ez.k : 'none';
     var meter = '<div class="wk-meter" title="' + (ez ? esc(ez.why) : '') + '"><span class="wk-ml">あなたの点数での入りやすさ</span><div class="wk-seg ' + lv + '"><b class="e">入りやすい</b><b class="m">ふつう</b><b class="h">厳しい</b></div>' + (ez ? '' : '<small class="wk-none">昨年の数字がないため、目安は出せません</small>') + '</div>';
     h += '<div class="wk"><div class="wk-top"><span class="wk-n">第' + (i + 1) + '</span>' + SCH + '<span class="wk-name">' + (v.ex ? '<span class="ex">例</span>' : '') + esc(v.name) + '</span>'
-      + '<span class="wk-btn"><button type="button" data-w="up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" aria-label="外す">✕</button></span></div>'
+      + '</div>'
       + '<div class="wk-sub">' + esc(v.area || '') + (v.date ? ' ・ 見学 ' + esc(v.date.slice(5).replace('-', '/')) : '') + wsum(v) + '</div>'
       + meter
       + '<div class="wk-num">' + (s && s.vac !== null ? '空き <b>' + s.vac + '人</b> ・ 倍率 <b>' + (r !== null ? HK.times(r) : '―') + '</b>' : '昨年の数字なし') + '</div>'
-      + (v.ex ? '' : '<a class="wmap" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' 保育園 世田谷区') + '" target="_blank" rel="noopener">🗺️ 地図・写真を見る</a>') + '</div>';
+      + '<div class="wk-foot">' + (v.ex ? '' : '<a class="wmap" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' 保育園 世田谷区') + '" target="_blank" rel="noopener">🗺️ 地図・写真を見る</a>') + '<span class="wk-btn"><button type="button" data-w="up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="上へ">↑</button><button type="button" data-w="dn" data-i="' + i + '"' + (i === wish.length - 1 ? ' disabled' : '') + ' aria-label="下へ">↓</button><button type="button" data-w="rm" data-i="' + i + '" aria-label="外す">✕</button></span>' + '</div></div>';
   });
-  var rest = vs.filter(function(v){ return wish.indexOf(v.id) < 0; });
-  if(window.HK_PREMIUM === false && wish.length >= 1){
-    h += '<p class="hint">2園から並べるのは有料版です。</p>';
-  } else if(wish.length < 10 && rest.length){
-    h += '<label class="field" for="hkWadd">園を追加する</label><div style="display:flex; gap:8px"><select id="hkWadd" style="flex:1; min-width:0">' + rest.map(function(v){ return '<option value="' + esc(v.id) + '">' + esc(v.name) + '</option>'; }).join('') + '</select><button type="button" id="hkWaddB" class="primary" style="flex:none">追加</button></div>';
-  } else if(!rest.length && wish.length < 10){
-    h += '<p class="hint">見学メモにある園は、すべて入っています。見学した園を増やすと、ここに出ます。</p>';
-  }
   if(wish.length > 1){
     h += '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px"><button type="button" id="hkWs1" style="flex:1">倍率が低い順に並べる</button><button type="button" id="hkWs2" style="flex:1">評価が高い順に並べる</button></div>';
   }
