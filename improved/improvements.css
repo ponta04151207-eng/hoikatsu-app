@@ -280,3 +280,20 @@ body[data-focus=tabWish] #hkPlus{border:none;box-shadow:none;padding:0;backgroun
 #hkWish .wk-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
 #hkWish .wk-foot .wmap{margin:0!important}
 #hkWish .wk-foot .wk-btn{margin-left:auto}
+
+/* 希望園カード: コンパクト版 */
+#hkWish .wk{padding:9px 10px!important;margin:0 0 8px!important;border-radius:13px!important}
+#hkWish .wk-top{gap:7px!important}
+#hkWish .wk-n{min-width:0!important;padding:2px 8px!important;font-size:12px!important}
+#hkWish .wk-ill{width:28px!important;height:28px!important;border-radius:8px!important}
+#hkWish .wk-ill svg{width:20px!important;height:20px!important}
+#hkWish .wk-name{font-size:15.5px!important}
+#hkWish .wk-btn{gap:3px!important}
+#hkWish .wk-btn button{width:26px!important;height:26px!important;min-height:26px!important;min-width:26px!important;font-size:12px!important;border-radius:8px!important}
+#hkWish .wk-sub{margin:5px 0 0!important;font-size:11.5px!important;gap:2px 8px!important}
+#hkWish .wk-seg{margin-top:7px!important;gap:3px!important}
+#hkWish .wk-seg b{padding:4px 2px!important;font-size:11.5px!important;border-radius:7px!important}
+#hkWish .wk-foot{display:flex;align-items:center;justify-content:space-between;margin-top:7px!important}
+#hkWish .wk-num{font-size:12px!important;margin:0!important}
+#hkWish .wk-num b{font-size:13.5px!important}
+#hkWish .wk .wmap{font-size:12px!important;margin:0!important;white-space:nowrap}
