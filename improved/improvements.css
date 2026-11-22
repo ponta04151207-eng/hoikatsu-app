@@ -369,3 +369,8 @@ details.paper>.hint{padding:0 12px 10px}
 .ux-package h3 svg{flex:none;vertical-align:middle}
 .ux-package .ux-paidbadge{display:inline-block;padding:2px 10px;border-radius:999px;background:#e8903a;color:#fff;font-size:14px;font-weight:900;line-height:1.5}
 .ux-plan-compare b{display:flex;align-items:center;gap:4px}
+
+/* 候補・比較のタブ: 3つを横1列で均等に */
+.ux-subnav:has(>button:nth-child(3):last-child){display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.ux-subnav:has(>button:nth-child(3):last-child) button{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:48px!important;padding:5px 2px!important;font-size:12.5px!important;font-weight:800;white-space:nowrap;line-height:1.3}
+.ux-subnav:has(>button:nth-child(3):last-child) button .paidtag{margin-top:1px;font-size:10px}
