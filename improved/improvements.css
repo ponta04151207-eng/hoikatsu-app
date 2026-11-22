@@ -363,3 +363,9 @@ details.paper[open]>summary::after{content:' ▴'}
 details.paper ol{margin:0;padding:0 12px 4px 30px;font-size:13.5px;line-height:1.7;color:#33504a}
 details.paper li{margin-bottom:8px}
 details.paper>.hint{padding:0 12px 10px}
+
+/* 有料プラン: 王冠 + 有料 */
+.ux-package h3{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.ux-package h3 svg{flex:none;vertical-align:middle}
+.ux-package .ux-paidbadge{display:inline-block;padding:2px 10px;border-radius:999px;background:#e8903a;color:#fff;font-size:14px;font-weight:900;line-height:1.5}
+.ux-plan-compare b{display:flex;align-items:center;gap:4px}
