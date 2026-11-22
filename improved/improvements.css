@@ -333,3 +333,4 @@ body[data-focus=tabWish] #hkPlus{border:none;box-shadow:none;padding:0;backgroun
 /* トップ: 希望園を並べる の下の目立つ説明 */
 .ux-roadmap .rm-ease{display:inline-block;align-self:flex-start;margin-top:3px;padding:3px 10px;border-radius:999px;background:#1f9d6f;color:#fff;font-style:normal;font-size:12px;font-weight:900;line-height:1.5;box-shadow:0 2px 0 #1a7a5a}
 .ux-roadmap .rm-ease{white-space:nowrap;font-size:11.5px!important;padding:2px 9px!important}
+.ux-roadmap .rm-ease{background:none!important;box-shadow:none!important;padding:0!important;border-radius:0!important;color:#1f7a5a!important;font-size:11px!important;font-weight:800!important}
