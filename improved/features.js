@@ -750,6 +750,7 @@ function renderSched(){
   });
   h += '<div class="addtk"><label class="field" for="hkNt" style="margin:0">自分のやることを足す</label><input id="hkNt" type="text" placeholder="例: 祖父母に送迎をお願いする"><label class="field" for="hkNd" style="margin:0">日付(なくても大丈夫です)</label><input id="hkNd" type="date"><button type="button" class="primary" id="hkNa">追加する</button></div></section>';
   view.innerHTML = h;
+  var sbd = view.querySelector('.hkb-sched .bmsg'); if(sbd) sbd.onclick = function(){ document.getElementById('tabDocs').click(); };
   renderCal();
   Array.prototype.forEach.call(view.querySelectorAll('.ev.has'), function(e){ e.addEventListener('click', function(){ e.classList.toggle('open'); }); });
   $('hkIcs').addEventListener('click', function(){ download('hoikatsu-improved-schedule.ics', icsText(), 'text/calendar'); });
