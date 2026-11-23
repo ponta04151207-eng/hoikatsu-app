@@ -389,3 +389,9 @@ details.paper>.hint{padding:0 12px 10px}
 .ux-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:3px!important;padding:5px 4px calc(5px + env(safe-area-inset-bottom))!important}
 .ux-nav button{font-size:10px!important;letter-spacing:-.05em!important;padding:6px 0!important;border-radius:9px!important;border-width:1.5px!important;min-height:44px!important}
 .ux-subnav:has(>button:nth-child(4):last-child) button{font-size:11.5px!important;letter-spacing:-.04em!important}
+
+/* 一番上: 文字が大きい端末でも重ならないように */
+.ux-topline{flex-wrap:wrap!important;row-gap:6px!important}
+.ux-topline>strong{flex:1 1 auto!important;flex-wrap:wrap!important;white-space:normal!important;font-size:21px!important;row-gap:2px}
+.ux-topline>strong small{flex:none}
+.ux-topline button{flex:none!important;margin-left:auto}
