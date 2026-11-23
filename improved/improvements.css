@@ -395,3 +395,13 @@ details.paper>.hint{padding:0 12px 10px}
 .ux-topline>strong{flex:1 1 auto!important;flex-wrap:wrap!important;white-space:normal!important;font-size:21px!important;row-gap:2px}
 .ux-topline>strong small{flex:none}
 .ux-topline button{flex:none!important;margin-left:auto}
+
+/* スケジュール: カレンダーをコンパクトに / あと何日はトップと同じ */
+#hkCal .cday{min-height:40px!important;padding:2px 0!important;font-size:13px!important;border-radius:8px!important;gap:1px!important}
+#hkCal .cday .dots{font-size:9px!important;gap:1px!important}
+#hkCal .cday .dots *{font-size:9px!important}
+#hkCal .cal7{gap:3px!important}
+#hkCal .cal7 .wd{font-size:10.5px!important}
+#hkCal .calh b{font-size:14px!important}
+#hkCal .calh button{min-height:28px!important;min-width:34px!important;font-size:11px!important}
+.hkb.hkb-sched{margin:8px 0 10px!important;cursor:default}

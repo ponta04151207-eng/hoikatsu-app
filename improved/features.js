@@ -721,7 +721,8 @@ function renderSched(){
   var nx = nextDeadline(), h = '';
   h += '<section class="panel"><h2>' + CR + ' スケジュール</h2><p class="hint" style="margin:0">令和9年4月入園(認可保育園)の、区の日程です。出典: <a href="' + SRC.url + '" target="_blank" rel="noopener">' + esc(SRC.name) + '</a>(確認日 ' + esc(SRC.checked) + ')。日程は変わることがあるので、区のページも確認してください。</p>';
   if(nx){
-    h += '<div class="nx"><div style="font-size:14px; font-weight:700; color:var(--muted)">次の締切</div><div class="big">あと' + daysLeft(nx.date) + '日</div><div><b>' + esc(nx.title) + '</b></div><div style="font-size:14px">' + md(nx.date) + '</div></div>';
+    var bn0 = document.getElementById('hkBanner');
+    h += '<div class="hkb on hkb-sched' + (bn0 && bn0.classList.contains('far') ? ' far' : '') + '">' + (bn0 ? bn0.innerHTML.replace(/<details[\s\S]*<\/details>/, '').replace(/ id="[^"]*"/g, '') : '') + '</div>';
   } else {
     h += '<div class="nx"><b>令和9年4月入園の申込の締切は、すべて過ぎました。</b></div>';
   }
