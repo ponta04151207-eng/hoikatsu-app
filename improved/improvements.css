@@ -542,3 +542,7 @@ body .ux-benefit-group>span{font-size:3.8vw!important}
 .plans .plan .ps{font-size:3vw!important}
 .plans .plan .pb{font-size:3vw!important;top:-2.6vw!important;padding:1px 3vw!important}
 @media(min-width:480px){.ux-package .ux-half{font-size:13px}.plans .plan .pn{font-size:15px!important}.plans .plan .pp b{font-size:24px!important}.plans .plan .ps{font-size:13px!important}}
+
+.ux-package .ux-planpanel{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:8px 0 4px!important}
+.ux-package .ux-planpanel>h2{font-size:4.2vw!important;margin:0 0 6px!important}
+@media(min-width:480px){.ux-package .ux-planpanel>h2{font-size:16px!important}}
