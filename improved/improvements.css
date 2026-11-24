@@ -459,3 +459,10 @@ body .ux-dlnote p{margin:0 0 3px!important}
 body .ux-featured .ux-recommended{background:#f2c14e!important;color:#5a3d00!important}
 body .ux-featured .ux-premium{display:inline-flex;align-items:center;gap:4px;background:#e8903a!important;color:#fff!important;font-weight:900}
 .ux-featured .ux-fpaid{display:inline-flex;align-items:center;gap:4px;margin-top:3px;padding:1px 9px;border-radius:999px;background:#fff3d6;color:#b4782a;font-size:12px;font-weight:900}
+/* banner row one line */
+body .hkb .bm{flex-wrap:nowrap!important;gap:1.6vw!important;justify-content:center!important;align-items:baseline!important}
+body .hkb .bm>*{white-space:nowrap!important}
+body .hkb .bm .bl{font-size:2.7vw!important}
+body .hkb .bm .bd{font-size:5.2vw!important}
+body .hkb .bm .bdt{font-size:3vw!important}
+@media(min-width:480px){body .hkb .bm .bl{font-size:11px!important}body .hkb .bm .bd{font-size:22px!important}body .hkb .bm .bdt{font-size:12px!important}}
