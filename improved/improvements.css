@@ -546,3 +546,16 @@ body .ux-benefit-group>span{font-size:3.8vw!important}
 .ux-package .ux-planpanel{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;margin:8px 0 4px!important}
 .ux-package .ux-planpanel>h2{font-size:4.2vw!important;margin:0 0 6px!important}
 @media(min-width:480px){.ux-package .ux-planpanel>h2{font-size:16px!important}}
+
+/* package compact + 6ヶ月目立たせ */
+body .ux-package>h3{font-size:4.8vw!important;margin:2px 0 4px!important;line-height:1.3!important}
+body .ux-package>h3 .cr{width:5.4vw!important;height:5.4vw!important}
+body .ux-package>h3 .ux-paidbadge{font-size:3vw!important;padding:0 2.4vw!important}
+body .ux-package>p{font-size:3.1vw!important;margin:0 0 3px!important}
+body .ux-package .ux-trial{font-size:3.1vw!important;padding:1.4vw 3vw!important}
+body .ux-package .ux-planpanel>h2{display:none!important}
+body .ux-package .ux-planpanel{margin:6px 0 4px!important}
+body .ux-package .plans .plan:first-child{border-color:#d9573f!important;background:linear-gradient(180deg,#fff6f2,#fff)!important}
+body .ux-package .plans .plan:first-child .pb{background:#d9573f!important;color:#fff!important;font-size:3.5vw!important;font-weight:900!important;padding:.6vw 3.4vw!important;top:-3vw!important;box-shadow:0 2px 0 #a8382a}
+body .ux-package .plans .plan:first-child .pp b{color:#c4413a}
+@media(min-width:480px){body .ux-package>h3{font-size:19px!important}body .ux-package>p,body .ux-package .ux-trial{font-size:12px!important}body .ux-package .plans .plan:first-child .pb{font-size:14px!important}}
