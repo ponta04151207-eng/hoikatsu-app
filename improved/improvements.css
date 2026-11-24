@@ -475,3 +475,10 @@ body .hkb .bsub{display:flex!important;flex-wrap:wrap!important;align-items:base
 body .hkb .bsub b{font-size:8.6vw!important;line-height:1.15!important;color:#d93a2f!important}
 body .hkb .bsub span{flex:0 0 100%!important;font-size:3.1vw!important;font-weight:700!important;color:#4a5a63!important}
 @media(min-width:480px){body .hkb .bm .bl,body .hkb .bsub{font-size:14px!important}body .hkb .bm .bd,body .hkb .bsub b{font-size:34px!important}body .hkb .bm .bdt{font-size:15px!important}body .hkb .bsub span{font-size:13px!important}body .hkb .bm,body .hkb .bsub{padding:8px 14px!important}}
+/* banner numbers smaller */
+body .hkb .bm .bd,body .hkb .bsub b{font-size:6vw!important}
+body .hkb .bm .bl,body .hkb .bsub{font-size:3vw!important}
+body .hkb .bm .bdt{font-size:3.2vw!important}
+body .hkb .bsub span{font-size:2.9vw!important}
+body .hkb .bm,body .hkb .bsub{padding:1.6vw 3.2vw!important;margin:4px 0!important}
+@media(min-width:480px){body .hkb .bm .bd,body .hkb .bsub b{font-size:24px!important}body .hkb .bm .bl,body .hkb .bsub{font-size:13px!important}body .hkb .bm .bdt{font-size:14px!important}body .hkb .bsub span{font-size:12px!important}}
