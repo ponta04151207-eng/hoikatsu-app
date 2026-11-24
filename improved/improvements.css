@@ -466,3 +466,12 @@ body .hkb .bm .bl{font-size:2.7vw!important}
 body .hkb .bm .bd{font-size:5.2vw!important}
 body .hkb .bm .bdt{font-size:3vw!important}
 @media(min-width:480px){body .hkb .bm .bl{font-size:11px!important}body .hkb .bm .bd{font-size:22px!important}body .hkb .bm .bdt{font-size:12px!important}}
+/* banner cards: 見やすく */
+body .hkb .bm{display:grid!important;grid-template-columns:1fr auto!important;align-items:end!important;gap:0 2vw!important;background:#fff!important;border-radius:12px!important;border-left:5px solid #d93a2f!important;padding:2vw 3.4vw!important;margin:6px 0 !important;text-align:left!important}
+body .hkb .bm .bl{grid-column:1/-1!important;font-size:3.3vw!important;font-weight:800!important;color:#b4532a!important}
+body .hkb .bm .bd{font-size:8.6vw!important;line-height:1.15!important;color:#d93a2f!important}
+body .hkb .bm .bdt{font-size:3.7vw!important;font-weight:800!important;color:#7a2a1f!important;padding-bottom:1vw}
+body .hkb .bsub{display:flex!important;flex-wrap:wrap!important;align-items:baseline!important;justify-content:space-between!important;background:#fff!important;border-radius:12px!important;border-left:5px solid #1f9d6f!important;padding:2vw 3.4vw!important;margin:6px 0!important;font-size:3.3vw!important;font-weight:800!important;color:#0b5f52!important;text-align:left!important}
+body .hkb .bsub b{font-size:8.6vw!important;line-height:1.15!important;color:#d93a2f!important}
+body .hkb .bsub span{flex:0 0 100%!important;font-size:3.1vw!important;font-weight:700!important;color:#4a5a63!important}
+@media(min-width:480px){body .hkb .bm .bl,body .hkb .bsub{font-size:14px!important}body .hkb .bm .bd,body .hkb .bsub b{font-size:34px!important}body .hkb .bm .bdt{font-size:15px!important}body .hkb .bsub span{font-size:13px!important}body .hkb .bm,body .hkb .bsub{padding:8px 14px!important}}
