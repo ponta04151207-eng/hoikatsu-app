@@ -1471,7 +1471,7 @@ tbP.addEventListener('click', showPaid);
 Array.prototype.forEach.call(tabs.querySelectorAll('button'), function(b){ if(b !== tbP) b.addEventListener('click', hidePaid); });
 viewP.addEventListener('click', function(e){
   if(e.target.getAttribute && e.target.getAttribute('data-portal')){
-    var pm = viewP.querySelector('[data-pm]'); pm.textContent = '開いています…';
+    var pm = viewP.querySelector('[data-pm]'); if(!unlockTok()){ pm.textContent = 'まだ購入されていません。購入後に、ここから解約できます。(購入ずみで表示されないときは、「購入を復元」から購入コードを入れてください)'; return; } pm.textContent = '開いています…';
     fetch(API_URL + '/portal?token=' + encodeURIComponent(unlockTok())).then(function(r){ return r.json(); }).then(function(j){ if(j.url){ pm.textContent = ''; window.open(j.url, '_blank', 'noopener'); } else pm.textContent = '開けませんでした。お問い合わせのメールでご連絡ください。'; }).catch(function(){ pm.textContent = '通信できませんでした。'; });
     return;
   }
