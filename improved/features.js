@@ -1447,7 +1447,6 @@ function planHtml(){
   else if(own) h += '<button type="button" class="buy" disabled>使えます(' + esc(unlockUntil()) + 'まで)</button><p class="hint" style="text-align:center">' + (API_URL ? '毎月、自動で更新されます。' : '更新のコードは、期限の前にお知らせします。') + '</p>';
   else if(cur[6]) h += '<a class="buy" href="' + esc(cur[6]) + '" target="_blank" rel="noopener">このプランで始める</a>';
   else h += '<button type="button" class="buy" disabled>購入の受付は、準備中です</button>';
-  h += secHtml();
   return h;
 }
 function renderPaid(){

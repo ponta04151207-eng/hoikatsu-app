@@ -482,3 +482,9 @@ body .hkb .bm .bdt{font-size:3.2vw!important}
 body .hkb .bsub span{font-size:2.9vw!important}
 body .hkb .bm,body .hkb .bsub{padding:1.6vw 3.2vw!important;margin:4px 0!important}
 @media(min-width:480px){body .hkb .bm .bd,body .hkb .bsub b{font-size:24px!important}body .hkb .bm .bl,body .hkb .bsub{font-size:13px!important}body .hkb .bm .bdt{font-size:14px!important}body .hkb .bsub span{font-size:12px!important}}
+
+.ux-secure{margin:12px 0 4px;padding:14px 14px 12px;background:linear-gradient(180deg,#e6f6ee,#f3fbf7);border:2px solid #2f8f7e;border-radius:16px;box-shadow:0 3px 0 #bfe3d3}
+.ux-secure-t{margin:0 0 8px;font-size:17px;font-weight:900;color:#17624f;display:flex;align-items:center;gap:6px}
+.ux-secure-t span{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#2f8f7e;font-size:16px}
+.ux-secure ul{margin:0;padding-left:1.2em;display:grid;gap:6px;font-size:13px;line-height:1.6;color:#2d4a43}
+.ux-secure li b{color:#17624f}
