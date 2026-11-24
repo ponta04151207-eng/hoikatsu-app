@@ -532,3 +532,13 @@ body .ux-benefit-group>span{font-size:3.8vw!important}
 .ux-terms .ux-cancel-n{margin:2px 0 0;text-align:center;font-size:2.8vw;color:#7a5a2a}
 .ux-terms .ux-cancel-m{margin:4px 0 0;font-size:2.9vw;color:#7a2a1f}
 @media(min-width:480px){.ux-terms .ux-cancel{font-size:15px;padding:10px}.ux-terms .ux-cancel-n{font-size:12px}}
+
+.ux-package .ux-half{margin:4px 0 6px;font-size:3.3vw;font-weight:800;color:#b4532a}
+.ux-package .ux-half b{color:#c4413a}
+.plans .plan{padding:3.4vw 4vw 3vw!important;border-radius:16px!important}
+.plans .plan .pn{font-size:3.8vw!important}
+.plans .plan .pp b{font-size:6vw!important}
+.plans .plan .pp{font-size:3.2vw}
+.plans .plan .ps{font-size:3vw!important}
+.plans .plan .pb{font-size:3vw!important;top:-2.6vw!important;padding:1px 3vw!important}
+@media(min-width:480px){.ux-package .ux-half{font-size:13px}.plans .plan .pn{font-size:15px!important}.plans .plan .pp b{font-size:24px!important}.plans .plan .ps{font-size:13px!important}}

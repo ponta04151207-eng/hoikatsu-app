@@ -16,7 +16,8 @@ var TRIAL = true;
 var PAYLINK = '';
 var PRICE = '490円(税込)/月';
 var PAYLINK_M = ''; /* 月ごとのプランの支払いリンク */
-var sel = 'month';
+var PAYLINK_H = ''; /* 6ヶ月プラン(2,450円)の支払いリンク */
+var sel = 'half';
 var UNTIL = '2027年4月30日';
 var CODE_HASHES = [];
 var API_URL = 'https://hoikatsu-api.ponta04151207.workers.dev'; /* 購入の確認サーバー(worker/)のアドレス。空のあいだは、手で渡すコードだけが使えます */
@@ -93,7 +94,7 @@ function secHtml(){
 function buyHtml(onlyCode){
   if(onlyCode) return '<label class="field">購入コードを持っているとき</label>' + '<p class="hint" style="margin:0 0 6px">購入コードは、有料プランを買ったことをアプリに知らせる合言葉です。<br>別のスマホや、機種変更のときに、同じコードを入れると有料版が使えます。<br>人には見せないでください。</p>' + '<div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>';
   return '<p style="margin:10px 0 4px"><b>' + CR + ' 毎月プラン ' + esc(PRICE) + '</b><br><span class="hint">毎月自動で更新されます。いつでも解約できます。有料の機能がすべて使えます。夫婦の2人で使えます。</span></p>'
-    + (PAYLINK_M ? '<a class="primary" href="' + esc(PAYLINK_M) + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:12px; border-radius:999px; font-weight:700; margin:8px 0">購入する</a>' : '<p class="hint">購入の受付は、準備中です。</p>')
+    + (PAYLINK_H ? '<a class="primary" href="' + esc(PAYLINK_H) + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:12px; border-radius:999px; font-weight:700; margin:8px 0">6ヶ月プラン ¥2,450(1ヶ月分お得)で購入する</a>' : '') + (PAYLINK_M ? '<a class="primary" href="' + esc(PAYLINK_M) + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:12px; border-radius:999px; font-weight:700; margin:8px 0">購入する</a>' : '<p class="hint">購入の受付は、準備中です。</p>')
     + '<label class="field">購入コードを持っているとき</label>' + '<p class="hint" style="margin:0 0 6px">購入コードは、有料プランを買ったことをアプリに知らせる合言葉です。<br>別のスマホや、機種変更のときに、同じコードを入れると有料版が使えます。<br>人には見せないでください。</p>' + '<div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>'
     + secHtml()
     + '<p class="hint" style="margin-top:10px">' + legalLinks() + '</p>';
@@ -1426,18 +1427,19 @@ var PAID = [
 ];
 function planHtml(){
   var P = [
+    ['half', '6ヶ月プラン', '¥2,450', '/ 6ヶ月 (約¥408/月)', '6ヶ月ごとに自動更新・いつでも解約', '1ヶ月分お得!', PAYLINK_H],
     ['month', '毎月プラン', '¥490', '/ 月', '毎月自動更新・いつでも解約', '', PAYLINK_M]
   ];
   var cur = P.filter(function(x){ return x[0] === sel; })[0];
   var own = unlockActive(), exp = unlockUntil() && !own;
-  var h = '<div class="plans plan-moved">';
+  var h = '<div class="plans">';
   P.forEach(function(x){
     h += '<button type="button" class="plan' + (x[0] === sel ? ' on' : '') + '" data-plan="' + x[0] + '" aria-pressed="' + (x[0] === sel) + '">' + (x[5] ? '<span class="pb">' + x[5] + '</span>' : '') + '<span class="pn">' + x[1] + '</span><span class="pp"><b>' + x[2] + '</b> ' + x[3] + '</span><span class="ps">' + x[4] + '</span></button>';
   });
   h += '</div>';
   h += '<div class="hint" style="text-align:center; margin:10px 0 6px"><a href="#" data-restore="1">購入を復元(購入コードを入れる)</a></div><div data-restorebox hidden>' + buyHtml(true) + '</div>';
   h += '<p class="hint plan-moved" style="text-align:center; margin:6px 0">' + legalLinks() + '</p>';
-  var notes = ['有料プランは、毎月自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', (API_URL ? '解約は、このページの「解約・支払い方法の変更」からできます。次の更新から、請求されなくなります。' : '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。'), '日割りの返金はできません。'];
+  var notes = ['有料プランは、選んだ期間(毎月・6ヶ月)ごとに、自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', (API_URL ? '解約は、このページの「解約・支払い方法の変更」からできます。次の更新から、請求されなくなります。' : '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。'), '日割りの返金はできません。'];
   h += '<ul class="hint plan-moved" style="padding-left:1.2em; margin:6px 0 12px; display:grid; gap:4px">' + notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + '</ul>';
   if(API_URL && unlockTok()){
     h += '<div class="hint" style="margin:10px 0"><b>あなたの購入コード</b>(別の端末や、夫婦で使うときに入れます)<br><span style="font-size:18px; letter-spacing:.08em; font-weight:700; user-select:all">' + esc(unlockTok().replace(/(.{4})/g, '$1-').replace(/-$/, '')) + '</span></div><button type="button" data-portal="1" style="width:100%; margin-bottom:10px">解約・支払い方法の変更</button><div class="hint" data-pm role="status"></div>';
