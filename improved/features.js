@@ -1430,15 +1430,15 @@ function planHtml(){
   ];
   var cur = P.filter(function(x){ return x[0] === sel; })[0];
   var own = unlockActive(), exp = unlockUntil() && !own;
-  var h = '<div class="plans">';
+  var h = '<div class="plans plan-moved">';
   P.forEach(function(x){
     h += '<button type="button" class="plan' + (x[0] === sel ? ' on' : '') + '" data-plan="' + x[0] + '" aria-pressed="' + (x[0] === sel) + '">' + (x[5] ? '<span class="pb">' + x[5] + '</span>' : '') + '<span class="pn">' + x[1] + '</span><span class="pp"><b>' + x[2] + '</b> ' + x[3] + '</span><span class="ps">' + x[4] + '</span></button>';
   });
   h += '</div>';
   h += '<div class="hint" style="text-align:center; margin:10px 0 6px"><a href="#" data-restore="1">購入を復元(購入コードを入れる)</a></div><div data-restorebox hidden>' + buyHtml(true) + '</div>';
-  h += '<p class="hint" style="text-align:center; margin:6px 0">' + legalLinks() + '</p>';
+  h += '<p class="hint plan-moved" style="text-align:center; margin:6px 0">' + legalLinks() + '</p>';
   var notes = ['有料プランは、毎月自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', (API_URL ? '解約は、このページの「解約・支払い方法の変更」からできます。次の更新から、請求されなくなります。' : '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。'), '日割りの返金はできません。'];
-  h += '<ul class="hint" style="padding-left:1.2em; margin:6px 0 12px; display:grid; gap:4px">' + notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + '</ul>';
+  h += '<ul class="hint plan-moved" style="padding-left:1.2em; margin:6px 0 12px; display:grid; gap:4px">' + notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + '</ul>';
   if(API_URL && unlockTok()){
     h += '<div class="hint" style="margin:10px 0"><b>あなたの購入コード</b>(別の端末や、夫婦で使うときに入れます)<br><span style="font-size:18px; letter-spacing:.08em; font-weight:700; user-select:all">' + esc(unlockTok().replace(/(.{4})/g, '$1-').replace(/-$/, '')) + '</span></div><button type="button" data-portal="1" style="width:100%; margin-bottom:10px">解約・支払い方法の変更</button><div class="hint" data-pm role="status"></div>';
   }
