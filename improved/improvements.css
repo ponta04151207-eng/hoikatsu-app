@@ -418,3 +418,7 @@ body .ux-nav button[aria-current=page] .nv-lb{font-weight:900}
 
 /* ホーム: 預け先を探す(ステップ1〜5と同じ大きさ) */
 .ux-roadmap>button.rm-azuke>b{background:#f6d9d0!important;color:#c4553e!important}
+
+/* 下メニュー: スケジュールの下に「やることリスト」 */
+body .ux-nav .nv-lb small{display:block;font-size:.78em;font-weight:700;opacity:.85;letter-spacing:-.05em;margin-top:0;line-height:1.1}
+body .ux-nav button[data-nav=sched] .nv-lb{overflow:visible}
