@@ -450,3 +450,8 @@ body .ux-topline>strong{font-size:7vw!important}
 body .ux-dlnote{padding:7px 10px!important;font-size:3.1vw!important;line-height:1.5!important;margin:-4px 0 10px!important;border-radius:12px!important}
 body .ux-dlnote p{margin:0 0 3px!important}
 @media(min-width:480px){body .ux-dlnote{font-size:12px!important}}
+
+.ux-benefit-card h3.ux-bh{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.ux-bpaid{display:inline-block;padding:1px 9px;border-radius:999px;background:#e8903a;color:#fff;font-size:12px;font-weight:900;line-height:1.6}
+.ux-benefit-card .ux-free-line{display:flex;align-items:center;gap:5px;color:#b4782a;font-weight:800}
+.ux-benefit-card .ux-free-line .cr{flex:none}
