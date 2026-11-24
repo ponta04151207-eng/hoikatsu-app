@@ -569,3 +569,16 @@ body .ux-package>h3{font-size:6.6vw!important;margin:4px 0 4px!important}
 body .ux-package>h3 .cr{width:7vw!important;height:7vw!important}
 body .ux-package>h3 .ux-paidbadge{font-size:3.4vw!important}
 @media(min-width:480px){body .ux-package>h3{font-size:26px!important}}
+
+/* 2つの枠を揃える */
+.ux-monthbox{order:-1;border:2px solid #d9573f;border-radius:16px;background:linear-gradient(180deg,#fff6f2,#fff);padding:3.4vw 4vw 3vw;margin:0 0 2vw}
+.ux-monthbox>h3{display:flex!important;flex-wrap:wrap;align-items:center;gap:1.6vw;font-size:5.2vw!important;margin:0 0 1.2vw!important;line-height:1.3!important;color:#1f3a45!important}
+.ux-monthbox>h3 .ux-paidbadge{order:-1}
+.ux-monthbox>p{margin:0 0 1.4vw!important;font-size:3.1vw!important}
+.ux-monthbox .ux-trial{display:block!important;margin:0!important;font-size:3.1vw!important}
+.ux-package .ux-planpanel .plan{padding:3.4vw 4vw 3vw!important;border-radius:16px!important}
+.ux-package .ux-planpanel .plan .pn{font-size:3.8vw!important}
+.ux-package .ux-planpanel .plan .pp b{font-size:7.6vw!important}
+.ux-package .ux-planpanel .plan .pp{font-size:3.2vw!important}
+.ux-package .ux-planpanel .plan .ps{font-size:3vw!important}
+@media(min-width:480px){.ux-monthbox>h3{font-size:20px!important}.ux-monthbox>p,.ux-monthbox .ux-trial{font-size:12px!important}.ux-package .ux-planpanel .plan .pp b{font-size:30px!important}}
