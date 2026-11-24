@@ -405,3 +405,16 @@ details.paper>.hint{padding:0 12px 10px}
 #hkCal .calh b{font-size:14px!important}
 #hkCal .calh button{min-height:28px!important;min-width:34px!important;font-size:11px!important}
 .hkb.hkb-sched{margin:8px 0 10px!important;cursor:default}
+
+/* 下のメニュー: かわいくシンプルに(アイコン+文字、枠なし) */
+body .ux-nav{display:flex!important;gap:0!important;padding:6px 4px calc(6px + env(safe-area-inset-bottom))!important;background:#fff!important;border:none!important;border-radius:20px 20px 0 0!important;box-shadow:0 -4px 18px #1f5f5214!important;overflow:hidden}
+body .ux-nav button{flex:1 1 0!important;min-width:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;min-height:52px!important;padding:2px 0!important;margin:0!important;border:none!important;background:transparent!important;box-shadow:none!important;color:#7a948d!important;border-radius:0!important;letter-spacing:0!important;font-weight:700!important;white-space:nowrap!important}
+body .ux-nav .nv-ic{display:grid;place-items:center;width:40px;height:26px;border-radius:999px;transition:background .2s}
+body .ux-nav .nv-ic svg{width:21px;height:21px}
+body .ux-nav .nv-lb{display:block;max-width:100%;font-size:10.5px;line-height:1.2;letter-spacing:-.03em;white-space:nowrap;overflow:hidden}
+body .ux-nav button[aria-current=page]{background:transparent!important;color:#2f8f7e!important}
+body .ux-nav button[aria-current=page] .nv-ic{background:#dff2ec}
+body .ux-nav button[aria-current=page] .nv-lb{font-weight:900}
+
+/* ホーム: 預け先を探す(ステップ1〜5と同じ大きさ) */
+.ux-roadmap>button.rm-azuke>b{background:#f6d9d0!important;color:#c4553e!important}
