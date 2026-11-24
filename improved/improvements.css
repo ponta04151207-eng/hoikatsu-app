@@ -559,3 +559,13 @@ body .ux-package .plans .plan:first-child{border-color:#d9573f!important;backgro
 body .ux-package .plans .plan:first-child .pb{background:#d9573f!important;color:#fff!important;font-size:3.5vw!important;font-weight:900!important;padding:.6vw 3.4vw!important;top:-3vw!important;box-shadow:0 2px 0 #a8382a}
 body .ux-package .plans .plan:first-child .pp b{color:#c4413a}
 @media(min-width:480px){body .ux-package>h3{font-size:19px!important}body .ux-package>p,body .ux-package .ux-trial{font-size:12px!important}body .ux-package .plans .plan:first-child .pb{font-size:14px!important}}
+/* 6ヶ月プランを月額の上に / 月額を大きく */
+.ux-package:has(.ux-planpanel){display:flex;flex-direction:column}
+.ux-package:has(.ux-planpanel)>.ux-kicker{order:-3}
+.ux-package .ux-planpanel,.ux-package .ux-planpanel .plans{display:contents!important}
+.ux-package .ux-planpanel .plan[data-plan=half]{order:-2;margin:3vw 0 2vw}
+.ux-package .ux-planpanel .plan[data-plan=month]{margin:0 0 2vw}
+body .ux-package>h3{font-size:6.6vw!important;margin:4px 0 4px!important}
+body .ux-package>h3 .cr{width:7vw!important;height:7vw!important}
+body .ux-package>h3 .ux-paidbadge{font-size:3.4vw!important}
+@media(min-width:480px){body .ux-package>h3{font-size:26px!important}}
