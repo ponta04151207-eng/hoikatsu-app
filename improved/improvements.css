@@ -424,3 +424,15 @@ body .ux-nav .nv-lb small{display:block;font-size:.78em;font-weight:700;opacity:
 body .ux-nav button[data-nav=sched] .nv-lb{overflow:visible}
 
 .ux-roadmap small.rm-paid{display:flex;align-items:center;gap:4px;color:#b4782a;font-weight:800}.ux-roadmap .rm-cr{flex:none}
+/* roadmap compact v2 */
+body .ux-roadmap{padding:8px 10px!important}
+body .ux-roadmap h2{font-size:13px!important}
+body .ux-roadmap>button{gap:7px!important;padding:4px 0!important;min-height:0!important}
+body .ux-roadmap>button>b{width:20px!important;height:20px!important;font-size:11px!important}
+body .ux-roadmap .rm-ill{width:30px!important;height:30px!important;border-radius:8px!important}
+body .ux-roadmap .rm-ill svg{width:22px!important;height:22px!important}
+body .ux-roadmap strong{font-size:12.5px!important;line-height:1.25!important}
+body .ux-roadmap small,body .ux-roadmap .rm-ease{font-size:10.5px!important;line-height:1.3!important}
+body .ux-roadmap .rm-cr{width:11px;height:11px}
+body .ux-roadmap>button>span{gap:0!important}
+body .ux-roadmap>button>i{font-size:15px!important}
