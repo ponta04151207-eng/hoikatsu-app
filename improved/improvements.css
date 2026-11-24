@@ -455,3 +455,7 @@ body .ux-dlnote p{margin:0 0 3px!important}
 .ux-bpaid{display:inline-block;padding:1px 9px;border-radius:999px;background:#e8903a;color:#fff;font-size:12px;font-weight:900;line-height:1.6}
 .ux-benefit-card .ux-free-line{display:flex;align-items:center;gap:5px;color:#b4782a;font-weight:800}
 .ux-benefit-card .ux-free-line .cr{flex:none}
+
+body .ux-featured .ux-recommended{background:#f2c14e!important;color:#5a3d00!important}
+body .ux-featured .ux-premium{display:inline-flex;align-items:center;gap:4px;background:#e8903a!important;color:#fff!important;font-weight:900}
+.ux-featured .ux-fpaid{display:inline-flex;align-items:center;gap:4px;margin-top:3px;padding:1px 9px;border-radius:999px;background:#fff3d6;color:#b4782a;font-size:12px;font-weight:900}
