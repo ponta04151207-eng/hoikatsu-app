@@ -422,3 +422,5 @@ body .ux-nav button[aria-current=page] .nv-lb{font-weight:900}
 /* 下メニュー: スケジュールの下に「やることリスト」 */
 body .ux-nav .nv-lb small{display:block;font-size:.78em;font-weight:700;opacity:.85;letter-spacing:-.05em;margin-top:0;line-height:1.1}
 body .ux-nav button[data-nav=sched] .nv-lb{overflow:visible}
+
+.ux-roadmap small.rm-paid{display:flex;align-items:center;gap:4px;color:#b4782a;font-weight:800}.ux-roadmap .rm-cr{flex:none}
