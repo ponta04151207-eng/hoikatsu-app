@@ -507,3 +507,9 @@ body .ux-benefit-card>button{font-size:3.3vw!important;min-height:0!important;pa
 body .ux-benefit-card .ux-product-limit{font-size:2.7vw!important}
 body .ux-benefit-card summary{font-size:3vw!important}
 @media(min-width:480px){body .ux-benefits>h2{font-size:22px!important}body .ux-benefit-card h3.ux-bh{font-size:17px!important}body .ux-benefit-card p,body .ux-benefit-card .ux-problem,body .ux-benefit-card .ux-free-line{font-size:13px!important}body .ux-benefit-card>button{font-size:13px!important}}
+/* secure compact but prominent */
+body .ux-secure{padding:2.4vw 3vw 2.2vw!important;margin:2.4vw 0 1vw!important;border:2px solid #1f8a6c!important;border-left-width:6px!important;border-radius:12px!important;box-shadow:0 2px 0 #bfe3d3!important;background:#e9f7f0!important}
+body .ux-secure-t{font-size:3.9vw!important;margin:0 0 1.4vw!important;gap:1.6vw!important;white-space:nowrap;color:#0f5a46!important}
+body .ux-secure-t span{width:5.6vw!important;height:5.6vw!important;font-size:3.3vw!important;flex:none}
+body .ux-secure ul{font-size:3vw!important;line-height:1.5!important;gap:1vw!important;padding-left:1.1em!important}
+@media(min-width:480px){body .ux-secure-t{font-size:15px!important}body .ux-secure-t span{width:22px!important;height:22px!important;font-size:12px!important}body .ux-secure ul{font-size:12px!important}}
