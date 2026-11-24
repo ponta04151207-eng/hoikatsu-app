@@ -436,3 +436,5 @@ body .ux-roadmap small,body .ux-roadmap .rm-ease{font-size:10.5px!important;line
 body .ux-roadmap .rm-cr{width:11px;height:11px}
 body .ux-roadmap>button>span{gap:0!important}
 body .ux-roadmap>button>i{font-size:15px!important}
+
+.ux-alert-guide .ux-alert-main{font-weight:800;color:#1f7a5a;font-size:13.5px;line-height:1.6}
