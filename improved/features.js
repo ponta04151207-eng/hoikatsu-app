@@ -14,7 +14,7 @@ var CR = '<svg class="cr" viewBox="0 0 32 32" width="18" height="18" aria-label=
    コードそのものは、ここに書きません。期限が過ぎると、有料の機能は閉じます。更新のコードを入れると、また開きます。 */
 var TRIAL = true;
 var PAYLINK = '';
-var PRICE = '2,450円(税込)/6ヶ月';
+var PRICE = '6ヶ月 2,450円 / 毎月 490円(税込)';
 var PAYLINK_M = ''; /* 月ごとのプランの支払いリンク */
 var PAYLINK_H = ''; /* 6ヶ月プラン(2,450円)の支払いリンク */
 var sel = 'half';
@@ -93,8 +93,8 @@ function secHtml(){
 }
 function buyHtml(onlyCode){
   if(onlyCode) return '<label class="field">購入コードを持っているとき</label>' + '<p class="hint" style="margin:0 0 6px">購入コードは、有料プランを買ったことをアプリに知らせる合言葉です。<br>別のスマホや、機種変更のときに、同じコードを入れると有料版が使えます。<br>人には見せないでください。</p>' + '<div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>';
-  return '<p style="margin:10px 0 4px"><b>' + CR + ' 6ヶ月プラン ' + esc(PRICE) + '</b><br><span class="hint">6ヶ月ごとに自動で更新されます。いつでも解約できます。有料の機能がすべて使えます。夫婦の2人で使えます。</span></p>'
-    + (PAYLINK_H ? '<a class="primary" href="' + esc(PAYLINK_H) + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:12px; border-radius:999px; font-weight:700; margin:8px 0">6ヶ月プラン ¥2,450(1ヶ月分お得)で購入する</a>' : '<p class="hint">購入の受付は、準備中です。</p>')
+  return '<p style="margin:10px 0 4px"><b>' + CR + ' ' + esc(PRICE) + '</b><br><span class="hint">選んだ期間(6ヶ月・毎月)ごとに自動で更新されます。いつでも解約できます。有料の機能がすべて使えます。夫婦の2人で使えます。</span></p>'
+    + (PAYLINK_H ? '<a class="primary" href="' + esc(PAYLINK_H) + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:12px; border-radius:999px; font-weight:700; margin:8px 0">6ヶ月プラン ¥2,450(1ヶ月分お得)で購入する</a>' : '') + (PAYLINK_M ? '<a class="primary" href="' + esc(PAYLINK_M) + '" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; padding:12px; border-radius:999px; font-weight:700; margin:8px 0">毎月プラン ¥490で購入する</a>' : '') + ((PAYLINK_H || PAYLINK_M) ? '' : '<p class="hint">購入の受付は、準備中です。</p>')
     + '<label class="field">購入コードを持っているとき</label>' + '<p class="hint" style="margin:0 0 6px">購入コードは、有料プランを買ったことをアプリに知らせる合言葉です。<br>別のスマホや、機種変更のときに、同じコードを入れると有料版が使えます。<br>人には見せないでください。</p>' + '<div style="display:flex; gap:8px"><input type="text" class="hkCode" aria-label="購入コード" autocomplete="off" autocapitalize="characters" placeholder="購入コード" style="flex:1; min-width:0"><button type="button" data-unlock="1" style="flex:none">開く</button></div><div class="hint" data-um="1" role="status"></div>'
     + secHtml()
     + '<p class="hint" style="margin-top:10px">' + legalLinks() + '</p>';
@@ -1427,7 +1427,8 @@ var PAID = [
 ];
 function planHtml(){
   var P = [
-    ['half', '6ヶ月プラン', '¥2,450', '/ 6ヶ月 (約¥408/月)', '6ヶ月ごとに自動更新・いつでも解約', '✨ 1ヶ月分お得!', PAYLINK_H]
+    ['half', '6ヶ月プラン', '¥2,450', '/ 6ヶ月 (約¥408/月)', '6ヶ月ごとに自動更新・いつでも解約', '✨ 1ヶ月分お得!', PAYLINK_H],
+    ['month', '毎月プラン', '¥490', '/ 月', '毎月自動更新・いつでも解約', '', PAYLINK_M]
   ];
   var cur = P.filter(function(x){ return x[0] === sel; })[0];
   var own = unlockActive(), exp = unlockUntil() && !own;
@@ -1438,7 +1439,7 @@ function planHtml(){
   h += '</div>';
   h += '<div class="hint" style="text-align:center; margin:10px 0 6px"><a href="#" data-restore="1">購入を復元(購入コードを入れる)</a></div><div data-restorebox hidden>' + buyHtml(true) + '</div>';
   h += '<p class="hint plan-moved" style="text-align:center; margin:6px 0">' + legalLinks() + '</p>';
-  var notes = ['有料プラン(6ヶ月プラン)は、6ヶ月ごとに、自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', (API_URL ? '解約は、このページの「解約・支払い方法の変更」からできます。次の更新から、請求されなくなります。' : '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。'), '日割りの返金はできません。'];
+  var notes = ['有料プランは、選んだ期間(6ヶ月・毎月)ごとに、自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', (API_URL ? '解約は、このページの「解約・支払い方法の変更」からできます。次の更新から、請求されなくなります。' : '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。'), '日割りの返金はできません。'];
   h += '<ul class="hint plan-moved" style="padding-left:1.2em; margin:6px 0 12px; display:grid; gap:4px">' + notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + '</ul>';
   if(API_URL && unlockTok()){
     h += '<div class="hint" style="margin:10px 0"><b>あなたの購入コード</b>(別の端末や、夫婦で使うときに入れます)<br><span style="font-size:18px; letter-spacing:.08em; font-weight:700; user-select:all">' + esc(unlockTok().replace(/(.{4})/g, '$1-').replace(/-$/, '')) + '</span></div><button type="button" data-portal="1" style="width:100%; margin-bottom:10px">解約・支払い方法の変更</button><div class="hint" data-pm role="status"></div>';

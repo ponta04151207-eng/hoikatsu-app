@@ -590,3 +590,7 @@ body .ux-package>h3 .ux-paidbadge{font-size:3.4vw!important}
 .ux-monthbox{border:0!important;background:transparent!important;padding:0 1vw!important;margin:0 0 2vw!important}
 .ux-monthbox>p{font-size:3.3vw!important;font-weight:700!important;margin:0 0 1.4vw!important}
 @media(min-width:480px){.plans .plan .pn .pt{font-size:12px}.plans .plan .pn .cr{width:18px;height:18px}.ux-monthbox>p{font-size:13px!important}}
+
+/* 毎月プランを6ヶ月の下に */
+.ux-package .ux-planpanel .plan[data-plan=month]{order:-1;margin:0 0 2vw!important}
+.ux-monthbox{order:0!important}
