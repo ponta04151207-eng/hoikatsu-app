@@ -582,3 +582,11 @@ body .ux-package>h3 .ux-paidbadge{font-size:3.4vw!important}
 .ux-package .ux-planpanel .plan .pp{font-size:3.2vw!important}
 .ux-package .ux-planpanel .plan .ps{font-size:3vw!important}
 @media(min-width:480px){.ux-monthbox>h3{font-size:20px!important}.ux-monthbox>p,.ux-monthbox .ux-trial{font-size:12px!important}.ux-package .ux-planpanel .plan .pp b{font-size:30px!important}}
+
+/* 6ヶ月プラン: 王冠+有料、まとめて枠は注記だけ */
+.plans .plan .pn{display:flex!important;align-items:center;gap:1.6vw}
+.plans .plan .pn .cr{width:5vw;height:5vw;flex:none}
+.plans .plan .pn .pt{display:inline-block;padding:0 2.4vw;border-radius:999px;background:#e8903a;color:#fff;font-size:3vw;font-weight:900;line-height:1.7}
+.ux-monthbox{border:0!important;background:transparent!important;padding:0 1vw!important;margin:0 0 2vw!important}
+.ux-monthbox>p{font-size:3.3vw!important;font-weight:700!important;margin:0 0 1.4vw!important}
+@media(min-width:480px){.plans .plan .pn .pt{font-size:12px}.plans .plan .pn .cr{width:18px;height:18px}.ux-monthbox>p{font-size:13px!important}}
