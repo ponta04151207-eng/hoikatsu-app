@@ -15,7 +15,7 @@ var CR = '<svg class="cr" viewBox="0 0 32 32" width="18" height="18" aria-label=
 var TRIAL = true;
 var PAYLINK = '';
 var PRICE = '6ヶ月 2,450円 / 毎月 490円(税込)';
-var PAYLINK_M = ''; /* 月ごとのプランの支払いリンク */
+var PAYLINK_M = 'https://buy.stripe.com/test_14AaEXdgQ32xcjwbn39Ve00'; /* 月ごとのプランの支払いリンク */
 var PAYLINK_H = ''; /* 6ヶ月プラン(2,450円)の支払いリンク */
 var sel = 'half';
 var UNTIL = '2027年4月30日';
