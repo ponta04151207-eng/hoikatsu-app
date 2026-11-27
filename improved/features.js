@@ -13,6 +13,7 @@ var CR = '<svg class="cr" viewBox="0 0 32 32" width="18" height="18" aria-label=
    CODE_HASHES: 購入コードの「ハッシュ」と有効期限の一覧(tools/make_code.py で作ります)。例: ['ハッシュ', '2026-11-30']
    コードそのものは、ここに書きません。期限が過ぎると、有料の機能は閉じます。更新のコードを入れると、また開きます。 */
 var TRIAL = true;
+try{ if(/[?&]paytest=1/.test(location.search)) TRIAL = false; }catch(e){} /* テスト用: アドレスの最後に ?paytest=1 を付けると、購入テストができる */
 var PAYLINK = '';
 var PRICE = '6ヶ月 2,450円 / 毎月 490円(税込)';
 var PAYLINK_M = 'https://buy.stripe.com/test_14AaEXdgQ32xcjwbn39Ve00'; /* 月ごとのプランの支払いリンク */
@@ -1478,7 +1479,7 @@ viewP.addEventListener('click', function(e){
     return;
   }
   var pl = e.target.closest && e.target.closest('[data-plan]');
-  if(pl){ sel = pl.getAttribute('data-plan'); renderPaid(); return; }
+  if(pl){ sel = pl.getAttribute('data-plan'); var lk = sel === 'half' ? PAYLINK_H : PAYLINK_M; if(lk && !TRIAL && !unlockActive()){ window.open(lk, '_blank', 'noopener'); } renderPaid(); return; }
   if(e.target.getAttribute && e.target.getAttribute('data-restore')){ e.preventDefault(); var rb = viewP.querySelector('[data-restorebox]'); rb.hidden = !rb.hidden; return; }
   var k = e.target.getAttribute && e.target.getAttribute('data-p');
   if(!k) return;
