@@ -594,3 +594,12 @@ body .ux-package>h3 .ux-paidbadge{font-size:3.4vw!important}
 /* 毎月プランを6ヶ月の下に */
 .ux-package .ux-planpanel .plan[data-plan=month]{order:-1;margin:0 0 2vw!important}
 .ux-monthbox{order:0!important}
+
+/* 購入コードのカード */
+.codecard{margin:3vw 0;padding:3.6vw 4vw;border:2px solid #f0b429;background:#fff8e6;border-radius:16px;text-align:center}
+.codecard .cc-t{margin:0 0 1.6vw;font-weight:900;font-size:4vw;color:#1f6f61}
+.codecard .cc-l{margin:0;font-size:3.2vw;color:#6b6b6b}
+.codecard .cc-c{margin:1.2vw 0 2vw;font-size:4.8vw;font-weight:800;letter-spacing:.06em;word-break:break-all;user-select:all;background:#fff;border-radius:12px;padding:2.4vw 2vw;border:1px dashed #d9b45a}
+.codecard .cc-b{width:100%;min-height:0;padding:2.6vw;font-size:3.6vw;border-radius:999px;font-weight:700;margin:0 0 2.4vw}
+.codecard .cc-s{margin:0 0 1.2vw;font-size:3.3vw;line-height:1.6;text-align:left;color:#333}
+.codecard .cc-w{margin:0;font-size:3vw;text-align:left;color:#b4413a}

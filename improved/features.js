@@ -1438,12 +1438,16 @@ function planHtml(){
     h += '<button type="button" class="plan' + (x[0] === sel ? ' on' : '') + '" data-plan="' + x[0] + '" aria-pressed="' + (x[0] === sel) + '">' + (x[5] ? '<span class="pb">' + x[5] + '</span>' : '') + '<span class="pn">' + CR + '<span class="pt">有料</span>' + x[1] + '</span><span class="pp"><b>' + x[2] + '</b> ' + x[3] + '</span><span class="ps">' + x[4] + '</span></button>';
   });
   h += '</div>';
+  if(API_URL && unlockTok()){
+    var cd = unlockTok().replace(/(.{4})/g, '$1-').replace(/-$/, '');
+    h += '<div class="codecard"><p class="cc-t">✅ 購入ありがとうございます</p><p class="cc-l">あなたの購入コード</p><div class="cc-c" data-code="' + esc(unlockTok()) + '">' + esc(cd) + '</div><button type="button" class="cc-b" data-copycode="1">コードをコピーする</button><p class="cc-s"><b>このコードを使うと、夫婦で共有できます。</b><br>パートナーのスマホで、このページの「購入を復元(購入コードを入れる)」を開き、このコードを入れてください。同じ有料機能が使えます。</p><p class="cc-w">※ コードは人に見せないでください。</p></div>';
+  }
   h += '<div class="hint" style="text-align:center; margin:10px 0 6px"><a href="#" data-restore="1">購入を復元(購入コードを入れる)</a></div><div data-restorebox hidden>' + buyHtml(true) + '</div>';
   h += '<p class="hint plan-moved" style="text-align:center; margin:6px 0">' + legalLinks() + '</p>';
   var notes = ['有料プランは、選んだ期間(6ヶ月・毎月)ごとに、自動的に更新されます。', 'お支払いは、カード(Stripe)で行います。カード番号は、運営者には届きません。', (API_URL ? '解約は、このページの「解約・支払い方法の変更」からできます。次の更新から、請求されなくなります。' : '解約したいときは、設定の「お問い合わせ」のメールで連絡してください。次の更新から、請求されなくなります。'), '日割りの返金はできません。'];
   h += '<ul class="hint plan-moved" style="padding-left:1.2em; margin:6px 0 12px; display:grid; gap:4px">' + notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + '</ul>';
   if(API_URL && unlockTok()){
-    h += '<div class="hint" style="margin:10px 0"><b>あなたの購入コード</b>(別の端末や、夫婦で使うときに入れます)<br><span style="font-size:18px; letter-spacing:.08em; font-weight:700; user-select:all">' + esc(unlockTok().replace(/(.{4})/g, '$1-').replace(/-$/, '')) + '</span></div><button type="button" data-portal="1" style="width:100%; margin-bottom:10px">解約・支払い方法の変更</button><div class="hint" data-pm role="status"></div>';
+    h += '<button type="button" data-portal="1" style="width:100%; margin-bottom:10px">解約・支払い方法の変更</button><div class="hint" data-pm role="status"></div>';
   }
   if(exp && !TRIAL) h += '<p class="hint" style="color:var(--minus); text-align:center"><b>有効期限(' + esc(unlockUntil()) + ')が過ぎました。</b>更新のコードを入れてください。</p>';
   if(TRIAL) h += '<button type="button" class="buy" disabled>いまは無料(お試し中)</button><p class="hint" style="text-align:center">有料になるときは、先にお知らせします。</p>';
@@ -1480,6 +1484,7 @@ viewP.addEventListener('click', function(e){
   }
   var pl = e.target.closest && e.target.closest('[data-plan]');
   if(pl){ sel = pl.getAttribute('data-plan'); var lk = sel === 'half' ? PAYLINK_H : PAYLINK_M; if(lk && !TRIAL && !unlockActive()){ window.open(lk, '_blank', 'noopener'); } renderPaid(); return; }
+  if(e.target.getAttribute && e.target.getAttribute('data-copycode')){ var cc = viewP.querySelector('[data-code]'); var tx = cc ? cc.getAttribute('data-code') : ''; var bt = e.target; var ok = function(){ bt.textContent = 'コピーしました'; setTimeout(function(){ bt.textContent = 'コードをコピーする'; }, 2000); }; try{ navigator.clipboard.writeText(tx).then(ok, function(){ bt.textContent = 'コードを長押しして、コピーしてください'; }); }catch(er){ bt.textContent = 'コードを長押しして、コピーしてください'; } return; }
   if(e.target.getAttribute && e.target.getAttribute('data-restore')){ e.preventDefault(); var rb = viewP.querySelector('[data-restorebox]'); rb.hidden = !rb.hidden; return; }
   var k = e.target.getAttribute && e.target.getAttribute('data-p');
   if(!k) return;
